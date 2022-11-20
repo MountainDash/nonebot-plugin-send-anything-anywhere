@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "nonebot-plugin-send-anything-anywhere"
+version = "0.1.0"
+description = "An adaptor for nonebot2 adaptors"
+authors = ["felinae98 <731499577@qq.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "nonebot_plugin_send_anything_anywhere"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+nonebot2 = "^2.0.0rc1"
+
+[tool.poetry.group.dev.dependencies]
+nonebug = {git = "https://github.com/nonebot/nonebug.git"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
