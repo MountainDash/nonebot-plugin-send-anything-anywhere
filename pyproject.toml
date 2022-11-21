@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "An adaptor for nonebot2 adaptors"
 authors = ["felinae98 <731499577@qq.com>"]
 license = "MIT"
-readme = "README.md"
+# readme = "README.md"
 packages = [{include = "nonebot_plugin_send_anything_anywhere"}]
 
 [tool.poetry.dependencies]
@@ -14,6 +14,7 @@ strenum = "^0.4.8"
 
 [tool.poetry.group.dev.dependencies]
 nonebug = {git = "https://github.com/nonebot/nonebug.git"}
+pytest-asyncio = "^0.20.2"
 
 [tool.black]
 line-length = 88
@@ -33,3 +34,6 @@ extra_standard_library = ["typing_extensions"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
