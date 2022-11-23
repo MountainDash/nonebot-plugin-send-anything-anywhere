@@ -1,6 +1,7 @@
+import asyncio
 from inspect import signature
-from typing import Callable, cast
 from typing_extensions import Self
+from typing import Callable, Awaitable, cast
 
 from nonebot.internal.adapter.bot import Bot
 from nonebot.internal.adapter.message import Message, MessageSegment
@@ -23,18 +24,32 @@ class AdapterNotSupported(Exception):
 class MessageSegmentFactory:
     _converters: dict[
         SupportedAdapters,
-        Callable[[Self], MessageSegment] | Callable[[Self, Bot], MessageSegment],
+        Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
+        | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
     ] = {}
 
-    def convert(self, bot: Bot) -> MessageSegment:
+    async def convert(self, bot: Bot) -> MessageSegment:
         adapter_name = bot.adapter.get_name()
         if adapter_name not in supported_adapter_names:
             raise AdapterNotSupported(adapter_name)
         if converter := self._converters[adapter_name]:
             if len(signature(converter).parameters) == 1:
-                converter = cast(Callable[[Self], MessageSegment], converter)
-                return converter(self)
+                converter = cast(
+                    Callable[[Self], MessageSegment | Awaitable[MessageSegment]],
+                    converter,
+                )
+                res = converter(self)
             elif len(signature(converter).parameters) == 2:
-                converter = cast(Callable[[Self, Bot], MessageSegment], converter)
-                return converter(self, bot)
+                converter = cast(
+                    Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
+                    converter,
+                )
+                res = converter(self, bot)
+            else:
+                raise RuntimeError()
+            if asyncio.iscoroutine(res):
+                return await res
+            else:
+                res = cast(MessageSegment, res)
+                return res
         raise AdapterNotInstalled(adapter_name)

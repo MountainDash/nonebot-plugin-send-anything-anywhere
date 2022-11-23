@@ -66,5 +66,5 @@ async def assert_ms(
 ):
     async with app.test_api() as ctx:
         bot = make_fake_bot(ctx, str(adapter), bot_base, "314159")
-        generated_ms = ms_factory.convert(bot)
+        generated_ms = await ms_factory.convert(bot)
         assert generated_ms.data == ms.data

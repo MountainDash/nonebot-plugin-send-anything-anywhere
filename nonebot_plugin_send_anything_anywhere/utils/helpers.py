@@ -1,3 +1,4 @@
+from collections.abc import Awaitable
 from typing import Type, TypeVar, Callable
 
 from nonebot.internal.adapter.bot import Bot
@@ -7,7 +8,10 @@ from .const import SupportedAdapters
 from .types import MessageSegmentFactory
 
 T = TypeVar("T", bound=MessageSegmentFactory)
-ConverterFunc = Callable[[T], MessageSegment] | Callable[[T, Bot], MessageSegment]
+ConverterFunc = (
+    Callable[[T], MessageSegment | Awaitable[MessageSegment]]
+    | Callable[[T, Bot], MessageSegment | Awaitable[MessageSegment]]
+)
 
 
 def register_ms_adapter(
