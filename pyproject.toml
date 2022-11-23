@@ -15,6 +15,7 @@ strenum = "^0.4.8"
 [tool.poetry.group.dev.dependencies]
 nonebug = {git = "https://github.com/nonebot/nonebug.git"}
 pytest-asyncio = "^0.20.2"
+ipdb = "^0.13.9"
 
 [tool.black]
 line-length = 88
