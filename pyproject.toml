@@ -13,9 +13,18 @@ nonebot2 = "^2.0.0rc1"
 strenum = "^0.4.8"
 
 [tool.poetry.group.dev.dependencies]
-nonebug = {git = "https://github.com/nonebot/nonebug.git"}
 pytest-asyncio = "^0.20.2"
 ipdb = "^0.13.9"
+pip = "^23.0"
+pytest-cov = "^4.0.0"
+nonebug = "0.2.3"
+nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc3"}
+
+[tool.poetry.group.adapters]
+optional = true
+
+[tool.poetry.group.adapters.dependencies]
+nonebot-adapter-onebot = "^2.2.1"
 
 [tool.black]
 line-length = 88
