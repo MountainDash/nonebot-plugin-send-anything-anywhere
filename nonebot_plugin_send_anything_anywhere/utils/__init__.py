@@ -1,6 +1,11 @@
 from .helpers import register_ms_adapter
 from .const import SupportedAdapters, supported_adapter_names
-from .types import AdapterNotInstalled, AdapterNotSupported, MessageSegmentFactory
+from .types import (
+    MessageFactory,
+    AdapterNotInstalled,
+    AdapterNotSupported,
+    MessageSegmentFactory,
+)
 
 __all__ = [
     "SupportedAdapters",
@@ -8,5 +13,6 @@ __all__ = [
     "AdapterNotInstalled",
     "AdapterNotSupported",
     "MessageSegmentFactory",
+    "MessageFactory",
     "register_ms_adapter",
 ]
