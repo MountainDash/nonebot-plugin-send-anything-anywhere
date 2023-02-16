@@ -22,29 +22,29 @@ class AdapterNotSupported(Exception):
 
 
 class MessageSegmentFactory:
-    _converters: dict[
+    _builders: dict[
         SupportedAdapters,
         Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
         | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
     ] = {}
 
-    async def convert(self, bot: Bot) -> MessageSegment:
+    async def build(self, bot: Bot) -> MessageSegment:
         adapter_name = bot.adapter.get_name()
         if adapter_name not in supported_adapter_names:
             raise AdapterNotSupported(adapter_name)
-        if converter := self._converters[adapter_name]:
-            if len(signature(converter).parameters) == 1:
-                converter = cast(
+        if builder := self._builders[adapter_name]:
+            if len(signature(builder).parameters) == 1:
+                builder = cast(
                     Callable[[Self], MessageSegment | Awaitable[MessageSegment]],
-                    converter,
+                    builder,
                 )
-                res = converter(self)
-            elif len(signature(converter).parameters) == 2:
-                converter = cast(
+                res = builder(self)
+            elif len(signature(builder).parameters) == 2:
+                builder = cast(
                     Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
-                    converter,
+                    builder,
                 )
-                res = converter(self, bot)
+                res = builder(self, bot)
             else:
                 raise RuntimeError()
             if asyncio.iscoroutine(res):

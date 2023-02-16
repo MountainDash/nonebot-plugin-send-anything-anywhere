@@ -8,7 +8,7 @@ from .const import SupportedAdapters
 from .types import MessageSegmentFactory
 
 T = TypeVar("T", bound=MessageSegmentFactory)
-ConverterFunc = (
+BuildFunc = (
     Callable[[T], MessageSegment | Awaitable[MessageSegment]]
     | Callable[[T, Bot], MessageSegment | Awaitable[MessageSegment]]
 )
@@ -16,9 +16,9 @@ ConverterFunc = (
 
 def register_ms_adapter(
     adapter: SupportedAdapters, ms_factory: Type[T]
-) -> Callable[[ConverterFunc], ConverterFunc]:
-    def decorator(converter: ConverterFunc) -> ConverterFunc:
-        ms_factory._converters[adapter] = converter
-        return converter
+) -> Callable[[BuildFunc], BuildFunc]:
+    def decorator(builder: BuildFunc) -> BuildFunc:
+        ms_factory._builders[adapter] = builder
+        return builder
 
     return decorator
