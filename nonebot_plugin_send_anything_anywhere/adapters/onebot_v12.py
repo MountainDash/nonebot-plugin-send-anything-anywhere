@@ -1,6 +1,8 @@
 from pathlib import Path
 from functools import partial
 
+from nonebot.adapters import Bot as BaseBot
+
 from ..types import Text, Image
 from ..utils import SupportedAdapters, register_ms_adapter
 
@@ -15,7 +17,9 @@ try:
         return MessageSegment.text(t.data["text"])
 
     @register_nonebot_v12(Image)
-    async def _image(i: Image, bot: Bot) -> MessageSegment:
+    async def _image(i: Image, bot: BaseBot) -> MessageSegment:
+        if not isinstance(bot, Bot):
+            raise TypeError(f"Unsupported type of bot: {type(bot)}")
         image = i.data["image"]
         if isinstance(image, str):
             resp = await bot.upload_file(type="url", name="image", url=image)
