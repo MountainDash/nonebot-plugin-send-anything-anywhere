@@ -21,18 +21,19 @@ try:
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
         if not isinstance(bot, Bot):
             raise TypeError(f"Unsupported type of bot: {type(bot)}")
-        image: str | bytes | Path | BytesIO = i.data["image"]
+        image = i.data["image"]
+        name = i.data["name"]
         if isinstance(image, str):
-            resp = await bot.upload_file(type="url", name="image", url=image)
+            resp = await bot.upload_file(type="url", name=name, url=image)
         elif isinstance(image, Path):
             resp = await bot.upload_file(
-                type="path", name="image", path=str(image.resolve())
+                type="path", name=name, path=str(image.resolve())
             )
         elif isinstance(image, BytesIO):
             image = image.getvalue()
-            resp = await bot.upload_file(type="data", name="image", data=image)
+            resp = await bot.upload_file(type="data", name=name, data=image)
         elif isinstance(image, bytes):
-            resp = await bot.upload_file(type="data", name="image", data=image)
+            resp = await bot.upload_file(type="data", name=name, data=image)
         else:
             raise TypeError(f"Unsupported type of image: {type(image)}")
 
