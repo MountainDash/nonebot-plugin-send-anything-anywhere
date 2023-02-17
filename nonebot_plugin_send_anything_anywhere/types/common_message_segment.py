@@ -5,8 +5,21 @@ from typing import TypedDict
 from ..utils import MessageFactory, MessageSegmentFactory
 
 
+class TextData(TypedDict):
+    text: str
+
+
 class Text(MessageSegmentFactory):
+    """文本消息段"""
+
+    data: TextData
+
     def __init__(self, text: str) -> None:
+        """文本消息段
+
+        参数:
+            text: 文本内容
+        """
         self.data = {"text": text}
 
 
