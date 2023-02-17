@@ -16,3 +16,11 @@ async def test_text(app: App):
     from nonebot_plugin_send_anything_anywhere import Text
 
     await assert_onebot_v11(app, Text("123"), MessageSegment.text("123"))
+
+
+async def test_image(app: App):
+    from nonebot.adapters.onebot.v11 import MessageSegment
+
+    from nonebot_plugin_send_anything_anywhere import Image
+
+    await assert_onebot_v11(app, Image("123"), MessageSegment.image("123"))
