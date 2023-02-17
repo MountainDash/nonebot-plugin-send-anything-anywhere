@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import Path
 from functools import partial
 
@@ -57,4 +58,19 @@ async def test_image(app: App):
             {"file_id": "123"},
         )
         generated_ms = await Image(image_path).build(bot)
+        assert generated_ms == MessageSegment.image("123")
+
+    async with app.test_api() as ctx:
+        bot = make_fake_bot(
+            ctx, str(SupportedAdapters.onebot_v12), Bot, "314159", platform="qq"
+        )
+
+        data = BytesIO(b"\x89PNG\r")
+
+        ctx.should_call_api(
+            "upload_file",
+            {"type": "data", "name": "image", "data": b"\x89PNG\r"},
+            {"file_id": "123"},
+        )
+        generated_ms = await Image(data).build(bot)
         assert generated_ms == MessageSegment.image("123")

@@ -1,3 +1,4 @@
+from io import BytesIO
 from pathlib import Path
 from functools import partial
 
@@ -20,15 +21,18 @@ try:
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
         if not isinstance(bot, Bot):
             raise TypeError(f"Unsupported type of bot: {type(bot)}")
-        image = i.data["image"]
+        image: str | bytes | Path | BytesIO = i.data["image"]
         if isinstance(image, str):
             resp = await bot.upload_file(type="url", name="image", url=image)
-        elif isinstance(image, bytes):
-            resp = await bot.upload_file(type="data", name="image", data=image)
         elif isinstance(image, Path):
             resp = await bot.upload_file(
                 type="path", name="image", path=str(image.resolve())
             )
+        elif isinstance(image, BytesIO):
+            image = image.getvalue()
+            resp = await bot.upload_file(type="data", name="image", data=image)
+        elif isinstance(image, bytes):
+            resp = await bot.upload_file(type="data", name="image", data=image)
         else:
             raise TypeError(f"Unsupported type of image: {type(image)}")
 
