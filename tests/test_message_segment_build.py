@@ -9,7 +9,7 @@ from nonebot_plugin_send_anything_anywhere.utils import (
     MessageSegmentFactory,
 )
 
-from .utils import assert_ms, make_fake_bot
+from .utils import assert_ms
 
 if typing.TYPE_CHECKING:
     from nonebot_plugin_send_anything_anywhere.utils import (
@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
     )
 
 
-class Test(MessageSegmentFactory):
+class MyText(MessageSegmentFactory):
     text: str
 
     def __init__(self, text: str) -> None:
@@ -28,7 +28,7 @@ class Test(MessageSegmentFactory):
 
 @pytest.fixture
 def dummy_factory(app: App):
-    class _Test(Test):
+    class _Test(MyText):
         pass
 
     return _Test
@@ -42,7 +42,7 @@ def onebot_v11(app: App):
 
 
 async def test_sync_without_bot(
-    app: App, dummy_factory: "Type[Test]", onebot_v11: "SupportedAdapters"
+    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
 ):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
@@ -63,7 +63,7 @@ async def test_sync_without_bot(
 
 
 async def test_sync_with_bot(
-    app: App, dummy_factory: "Type[Test]", onebot_v11: "SupportedAdapters"
+    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
 ):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
@@ -84,7 +84,7 @@ async def test_sync_with_bot(
 
 
 async def test_async_without_bot(
-    app: App, dummy_factory: "Type[Test]", onebot_v11: "SupportedAdapters"
+    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
 ):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
@@ -105,7 +105,7 @@ async def test_async_without_bot(
 
 
 async def test_async_with_bot(
-    app: App, dummy_factory: "Type[Test]", onebot_v11: "SupportedAdapters"
+    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
 ):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment

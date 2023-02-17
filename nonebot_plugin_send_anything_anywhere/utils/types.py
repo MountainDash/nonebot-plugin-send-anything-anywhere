@@ -32,9 +32,13 @@ class MessageSegmentFactory(ABC):
         SupportedAdapters,
         Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
         | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
-    ] = {}
+    ]
 
     data: dict
+
+    def __init_subclass__(cls) -> None:
+        cls._builders = {}
+        return super().__init_subclass__()
 
     def __eq__(self, other: Self) -> bool:
         return self.data == other.data
