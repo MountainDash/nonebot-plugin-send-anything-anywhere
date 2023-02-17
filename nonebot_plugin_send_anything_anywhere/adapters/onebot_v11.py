@@ -1,6 +1,6 @@
 from functools import partial
 
-from ..types import Text
+from ..types import Text, Image
 from ..utils import MessageFactory, SupportedAdapters, register_ms_adapter
 
 try:
@@ -14,6 +14,10 @@ try:
     @register_nonebot_v11(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
+
+    @register_nonebot_v11(Image)
+    async def _image(i: Image) -> MessageSegment:
+        return MessageSegment.image(i.data["image"])
 
 except ImportError:
     pass
