@@ -74,3 +74,19 @@ async def test_image(app: App):
         )
         generated_ms = await Image(data).build(bot)
         assert generated_ms == MessageSegment.image("123")
+
+
+async def test_mention(app: App):
+    from nonebot.adapters.onebot.v12 import MessageSegment
+
+    from nonebot_plugin_send_anything_anywhere import Mention
+
+    await assert_onebot_v12(app, Mention("123"), MessageSegment.mention("123"))
+
+
+async def test_reply(app: App):
+    from nonebot.adapters.onebot.v12 import MessageSegment
+
+    from nonebot_plugin_send_anything_anywhere import Reply
+
+    await assert_onebot_v12(app, Reply("123"), MessageSegment.reply("123"))

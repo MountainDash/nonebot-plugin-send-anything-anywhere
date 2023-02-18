@@ -4,20 +4,20 @@ from functools import partial
 
 from nonebot.adapters import Bot as BaseBot
 
-from ..types import Text, Image
+from ..types import Text, Image, Reply, Mention
 from ..utils import SupportedAdapters, register_ms_adapter
 
 try:
     from nonebot.adapters.onebot.v12 import Bot, MessageSegment
 
     adapter = SupportedAdapters.onebot_v12
-    register_nonebot_v12 = partial(register_ms_adapter, adapter)
+    register_onebot_v12 = partial(register_ms_adapter, adapter)
 
-    @register_nonebot_v12(Text)
+    @register_onebot_v12(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
 
-    @register_nonebot_v12(Image)
+    @register_onebot_v12(Image)
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
         if not isinstance(bot, Bot):
             raise TypeError(f"Unsupported type of bot: {type(bot)}")
@@ -39,6 +39,14 @@ try:
 
         file_id = resp["file_id"]
         return MessageSegment.image(file_id)
+
+    @register_onebot_v12(Mention)
+    async def _mention(m: Mention) -> MessageSegment:
+        return MessageSegment.mention(m.data["user_id"])
+
+    @register_onebot_v12(Reply)
+    async def _reply(r: Reply) -> MessageSegment:
+        return MessageSegment.reply(r.data["message_id"])
 
 except ImportError:
     pass

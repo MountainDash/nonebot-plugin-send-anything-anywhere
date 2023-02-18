@@ -48,3 +48,41 @@ class Image(MessageSegmentFactory):
             name: 图片名称，默认为 image
         """
         self.data = {"image": image, "name": name}
+
+
+class MentionData(TypedDict):
+    user_id: str
+
+
+class Mention(MessageSegmentFactory):
+    """提到其他用户"""
+
+    data: MentionData
+
+    def __init__(self, user_id: str):
+        """提到其他用户的消息段
+
+        参数:
+            user_id: 用户 ID
+        """
+
+        self.data = {"user_id": user_id}
+
+
+class ReplyData(TypedDict):
+    message_id: str
+
+
+class Reply(MessageSegmentFactory):
+    """回复其他消息的消息段"""
+
+    data: ReplyData
+
+    def __init__(self, message_id: str | int):
+        """回复其他消息的消息段
+
+        参数:
+            message_id: 需要回复消息的 ID
+        """
+
+        self.data = {"message_id": str(message_id)}
