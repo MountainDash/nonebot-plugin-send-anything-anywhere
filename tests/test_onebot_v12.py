@@ -5,8 +5,8 @@ from functools import partial
 from nonebug import App
 from nonebot.adapters.onebot.v12 import Bot, MessageSegment
 
-from nonebot_plugin_send_anything_anywhere import Text, Image
-from nonebot_plugin_send_anything_anywhere.utils import SupportedAdapters
+from nonebot_plugin_saa import Text, Image
+from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms, make_fake_bot
 
@@ -79,7 +79,7 @@ async def test_image(app: App):
 async def test_mention(app: App):
     from nonebot.adapters.onebot.v12 import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere import Mention
+    from nonebot_plugin_saa import Mention
 
     await assert_onebot_v12(app, Mention("123"), MessageSegment.mention("123"))
 
@@ -87,6 +87,6 @@ async def test_mention(app: App):
 async def test_reply(app: App):
     from nonebot.adapters.onebot.v12 import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere import Reply
+    from nonebot_plugin_saa import Reply
 
     await assert_onebot_v12(app, Reply("123"), MessageSegment.reply("123"))

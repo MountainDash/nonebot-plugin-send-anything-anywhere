@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "An adaptor for nonebot2 adaptors"
 authors = ["felinae98 <731499577@qq.com>"]
 license = "MIT"
-# readme = "README.md"
-packages = [{include = "nonebot_plugin_send_anything_anywhere"}]
+readme = "README.md"
+packages = [{include = "nonebot_plugin_saa"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

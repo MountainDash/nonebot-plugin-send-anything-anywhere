@@ -70,7 +70,7 @@ async def _handle_v12(bot: V12Bot, event: V12MessageEvent):
 from nonebot.adapters.onebot.v11.event import MessageEvent as V11MessageEvent
 from nonebot.adapters.onebot.v12.event import MessageEvent as V12MessageEvent
 from nonebot.internal.adapter.bot import Bot
-from nonebot_plugin_send_anything_anywhere import Image, Text, MessageFactory
+from nonebot_plugin_saa import Image, Text, MessageFactory
 
 pic_matcher = nonebot.on_command('发送图片')
 

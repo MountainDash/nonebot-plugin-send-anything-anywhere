@@ -4,18 +4,12 @@ from typing import Type
 import pytest
 from nonebug import App
 
-from nonebot_plugin_send_anything_anywhere.utils import (
-    SupportedAdapters,
-    MessageSegmentFactory,
-)
+from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
 from .utils import assert_ms
 
 if typing.TYPE_CHECKING:
-    from nonebot_plugin_send_anything_anywhere.utils import (
-        SupportedAdapters,
-        MessageSegmentFactory,
-    )
+    from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
 
 class MyText(MessageSegmentFactory):
@@ -36,7 +30,7 @@ def dummy_factory(app: App):
 
 @pytest.fixture
 def onebot_v11(app: App):
-    from nonebot_plugin_send_anything_anywhere.utils import SupportedAdapters
+    from nonebot_plugin_saa.utils import SupportedAdapters
 
     return SupportedAdapters.onebot_v11
 
@@ -47,7 +41,7 @@ async def test_sync_without_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere.utils import register_ms_adapter
+    from nonebot_plugin_saa.utils import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     def _text(t):
@@ -68,7 +62,7 @@ async def test_sync_with_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere.utils import register_ms_adapter
+    from nonebot_plugin_saa.utils import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     def _text(t, bot):
@@ -89,7 +83,7 @@ async def test_async_without_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere.utils import register_ms_adapter
+    from nonebot_plugin_saa.utils import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     async def _text(t):
@@ -110,7 +104,7 @@ async def test_async_with_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere.utils import register_ms_adapter
+    from nonebot_plugin_saa.utils import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     async def _text(t, bot):

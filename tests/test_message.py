@@ -2,8 +2,8 @@ from nonebug import App
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
-from nonebot_plugin_send_anything_anywhere import Text, MessageFactory
-from nonebot_plugin_send_anything_anywhere.utils import SupportedAdapters
+from nonebot_plugin_saa import Text, MessageFactory
+from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import make_fake_bot
 
