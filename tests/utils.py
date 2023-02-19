@@ -6,10 +6,7 @@ if TYPE_CHECKING:
     from nonebug.mixin.call_api import ApiContext
     from nonebot.internal.adapter.message import MessageSegment
 
-    from nonebot_plugin_send_anything_anywhere.utils import (
-        SupportedAdapters,
-        MessageSegmentFactory,
-    )
+    from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
 
 def make_fake_bot(
