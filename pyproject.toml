@@ -25,6 +25,7 @@ optional = true
 
 [tool.poetry.group.adapters.dependencies]
 nonebot-adapter-onebot = "^2.2.1"
+nonebot-adapter-qqguild = "^0.1.4"
 
 [tool.black]
 line-length = 88

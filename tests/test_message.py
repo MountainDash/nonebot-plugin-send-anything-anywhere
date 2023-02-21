@@ -26,7 +26,7 @@ def test_message_assamble():
 
 async def test_build_message(app: App):
     async with app.test_api() as ctx:
-        bot = make_fake_bot(ctx, SupportedAdapters.onebot_v11, Bot, "123")
+        bot = make_fake_bot(ctx, SupportedAdapters.onebot_v11, Bot, self_id="123")
         msg_factory = MessageFactory([Text("talk is cheap"), Text("show me the code")])
         msg = await msg_factory.build(bot)
 
