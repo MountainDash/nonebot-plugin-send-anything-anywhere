@@ -6,6 +6,16 @@ authors = ["felinae98 <731499577@qq.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "nonebot_plugin_saa"}]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Framework :: nonebot2 :: 2.0.0rc3",
+  "License :: OSI Approved :: MIT License"
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
