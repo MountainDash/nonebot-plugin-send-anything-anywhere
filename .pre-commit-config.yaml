@@ -29,3 +29,5 @@ repos:
     hooks:
       - id: nonemoji
         stages: [prepare-commit-msg]
+
+exclude: "CHANGELOG.md"
