@@ -10,7 +10,9 @@ from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms, make_fake_bot
 
-assert_onebot_v12 = partial(assert_ms, Bot, SupportedAdapters.onebot_v12, platform="qq")
+assert_onebot_v12 = partial(
+    assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", platform="qq"
+)
 
 
 async def test_text(app: App):
@@ -20,7 +22,7 @@ async def test_text(app: App):
 async def test_image(app: App):
     async with app.test_api() as ctx:
         bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, "314159", platform="qq"
+            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
         )
         ctx.should_call_api(
             "upload_file",
@@ -32,7 +34,7 @@ async def test_image(app: App):
 
     async with app.test_api() as ctx:
         bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, "314159", platform="qq"
+            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
         )
 
         data = b"\x89PNG\r"
@@ -47,7 +49,7 @@ async def test_image(app: App):
 
     async with app.test_api() as ctx:
         bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, "314159", platform="qq"
+            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
         )
 
         image_path = Path(__file__).parent / "image.png"
@@ -62,7 +64,7 @@ async def test_image(app: App):
 
     async with app.test_api() as ctx:
         bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, "314159", platform="qq"
+            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
         )
 
         data = BytesIO(b"\x89PNG\r")

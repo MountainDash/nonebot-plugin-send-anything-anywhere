@@ -743,6 +743,22 @@ msgpack = ">=1.0.3,<2.0.0"
 nonebot2 = ">=2.0.0-beta.3,<3.0.0"
 
 [[package]]
+name = "nonebot-adapter-qqguild"
+version = "0.1.4"
+description = "QQ Guild adapter for nonebot2"
+category = "dev"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "nonebot_adapter_qqguild-0.1.4-py3-none-any.whl", hash = "sha256:4942b392562dd493c40003adc3d5bfa04d4d8e2d7c3148158a625b804851e969"},
+    {file = "nonebot_adapter_qqguild-0.1.4.tar.gz", hash = "sha256:b51251c9e721a457aa6da2edb97f00d4b42f68b389af2e9e6b735617800d0e9e"},
+]
+
+[package.dependencies]
+nonebot2 = ">=2.0.0-beta.1,<3.0.0"
+pydantic = ">=1.9.0,<2.0.0"
+
+[[package]]
 name = "nonebot2"
 version = "2.0.0rc3"
 description = "An asynchronous python bot framework."
@@ -1593,4 +1609,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a099476cbc391822a6481516efbed7c6cb71b5031882bacb0b5bd28b993621fa"
+content-hash = "8bc4e3da050d170fe7010e81be2c780742849c0b5974cafe8d4c8441a732b4ec"

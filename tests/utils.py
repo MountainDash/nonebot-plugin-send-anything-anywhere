@@ -13,7 +13,6 @@ def make_fake_bot(
     ctx: "ApiContext",
     adapter_name: str,
     bot: Optional[Type["Bot"]],
-    self_id: str,
     **kwargs: Any,
 ) -> "Bot":
     from nonebot import get_driver
@@ -55,7 +54,7 @@ def make_fake_bot(
         ) -> Any:
             return self.ctx.got_call_send(event, message, **kwargs)
 
-    return FakeBot(FakeAdapter(get_driver(), ctx), self_id, **kwargs)
+    return FakeBot(FakeAdapter(get_driver(), ctx), **kwargs)
 
 
 async def assert_ms(
@@ -66,7 +65,10 @@ async def assert_ms(
     ms: "MessageSegment",
     **kwargs,
 ):
+    if not kwargs:
+        kwargs["self_id"] = "314159"
+
     async with app.test_api() as ctx:
-        bot = make_fake_bot(ctx, str(adapter), bot_base, "314159", **kwargs)
+        bot = make_fake_bot(ctx, str(adapter), bot_base, **kwargs)
         generated_ms = await ms_factory.build(bot)
         assert generated_ms.data == ms.data
