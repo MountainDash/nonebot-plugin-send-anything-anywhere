@@ -8,6 +8,9 @@
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/felinae98/nonebot-plugin-send-anything-anywhere/test.yml)
 ![Codecov](https://img.shields.io/codecov/c/github/felinae98/nonebot-plugin-send-anything-anywhere)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nonebot-plugin-send-anything-anywhere)
+![PyPI](https://img.shields.io/pypi/v/nonebot-plugin-send-anything-anywhere)
+![GitHub](https://img.shields.io/github/license/felinae98/nonebot-plugin-send-anything-anywhere)
 
 </div>
 
@@ -21,7 +24,12 @@
 
 ## 安装
 
-TODO
+- 使用 nb-cli 安装  
+  `nb plugin install nonebot-plugin-send-anything-anywhere`
+- 使用 poetry 安装  
+  `poetry add nonebot-plugin-send-anything-anywhere`
+- 使用 pip 安装  
+  `pip install nonebot-plugin-send-anything-anywhere`
 
 ## 支持的 adapter
 
@@ -92,4 +100,4 @@ async def _handle_v12(bot: Bot, event: Union[V12MessageEvent, V11MessageEvent]):
 
 ## License
 
-TODO
+MIT
