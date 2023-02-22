@@ -26,7 +26,7 @@ pytest-asyncio = "^0.20.2"
 ipdb = "^0.13.9"
 pip = "^23.0"
 pytest-cov = "^4.0.0"
-nonebug = "0.2.3"
+nonebug = "^0.3.0"
 nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc3"}
 
 [tool.poetry.group.adapters]
