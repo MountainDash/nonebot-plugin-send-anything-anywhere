@@ -3,35 +3,26 @@ from abc import ABC
 from copy import deepcopy
 from inspect import signature
 from typing_extensions import Self
-from typing import TypeVar, Callable, Iterable, Awaitable, cast
+from typing import Type, TypeVar, Callable, ClassVar, Iterable, Awaitable, cast
 
 from nonebot.internal.adapter.bot import Bot
 from nonebot.internal.adapter.message import Message, MessageSegment
 
-from .const import SupportedAdapters, supported_adapter_names
-
-
-class AdapterNotInstalled(Exception):
-    def __init__(self, adapter_name: str) -> None:
-        message = f'adapter "{adapter_name}" not installed, please install first'
-        super().__init__(self, message)
-
-
-class AdapterNotSupported(Exception):
-    def __init__(self, adapter_name: str) -> None:
-        message = f'adapter "{adapter_name}" not supported'
-        super().__init__(self, message)
-
+from .const import SupportedAdapters
+from .helpers import extract_adapter_type
+from .exceptions import AdapterNotInstalled
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
 
 
 class MessageSegmentFactory(ABC):
-    _builders: dict[
-        SupportedAdapters,
-        Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
-        | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
+    _builders: ClassVar[
+        dict[
+            SupportedAdapters,
+            Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
+            | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
+        ]
     ]
 
     data: dict
@@ -44,9 +35,7 @@ class MessageSegmentFactory(ABC):
         return self.data == other.data
 
     async def build(self, bot: Bot) -> MessageSegment:
-        adapter_name = bot.adapter.get_name()
-        if adapter_name not in supported_adapter_names:
-            raise AdapterNotSupported(adapter_name)
+        adapter_name = extract_adapter_type(bot)
         if builder := self._builders[adapter_name]:
             if len(signature(builder).parameters) == 1:
                 builder = cast(
@@ -96,10 +85,7 @@ class MessageFactory(list[TMSF]):
         cls._message_registry[adapter] = message_class
 
     async def build(self, bot: Bot) -> Message:
-        adapter_name = bot.adapter.get_name()
-        if adapter_name not in supported_adapter_names:
-            raise AdapterNotSupported(adapter_name)
-        adapter_name = SupportedAdapters(adapter_name)
+        adapter_name = extract_adapter_type(bot)
         if message_type := self._message_registry.get(adapter_name):
             ms: tuple[MessageSegment] = await asyncio.gather(
                 *[ms_factory.build(bot) for ms_factory in self]
@@ -154,3 +140,20 @@ class MessageFactory(list[TMSF]):
 
     def copy(self: TMF) -> TMF:
         return deepcopy(self)
+
+
+T = TypeVar("T", bound=MessageSegmentFactory)
+BuildFunc = (
+    Callable[[T], MessageSegment | Awaitable[MessageSegment]]
+    | Callable[[T, Bot], MessageSegment | Awaitable[MessageSegment]]
+)
+
+
+def register_ms_adapter(
+    adapter: SupportedAdapters, ms_factory: Type[T]
+) -> Callable[[BuildFunc], BuildFunc]:
+    def decorator(builder: BuildFunc) -> BuildFunc:
+        ms_factory._builders[adapter] = builder
+        return builder
+
+    return decorator
