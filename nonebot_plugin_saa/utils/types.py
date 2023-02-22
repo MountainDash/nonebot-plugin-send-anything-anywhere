@@ -99,8 +99,9 @@ class MessageFactory(list[TMSF]):
         adapter_name = bot.adapter.get_name()
         if adapter_name not in supported_adapter_names:
             raise AdapterNotSupported(adapter_name)
+        adapter_name = SupportedAdapters(adapter_name)
         if message_type := self._message_registry.get(adapter_name):
-            ms: list[MessageSegment] = await asyncio.gather(
+            ms: tuple[MessageSegment] = await asyncio.gather(
                 *[ms_factory.build(bot) for ms_factory in self]
             )
             return message_type(ms)
