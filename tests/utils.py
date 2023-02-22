@@ -1,60 +1,13 @@
-from typing import TYPE_CHECKING, Any, Type, Union, Optional
+from typing import TYPE_CHECKING, Type
+
+from nonebot import get_driver
 
 if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
-    from nonebug.mixin.call_api import ApiContext
     from nonebot.internal.adapter.message import MessageSegment
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
-
-
-def make_fake_bot(
-    ctx: "ApiContext",
-    adapter_name: str,
-    bot: Optional[Type["Bot"]],
-    **kwargs: Any,
-) -> "Bot":
-    from nonebot import get_driver
-    from nonebot.drivers import Driver
-    from nonebot.typing import overrides
-    from nonebot.internal.adapter.bot import Bot
-    from nonebot.internal.adapter.event import Event
-    from nonebot.internal.adapter.adapter import Adapter
-    from nonebot.internal.adapter.message import Message, MessageSegment
-
-    class FakeAdapter(Adapter):
-        @overrides(Adapter)
-        def __init__(self, driver: Driver, ctx: "ApiContext", **kwargs: Any):
-            super(FakeAdapter, self).__init__(driver, **kwargs)
-            self.ctx = ctx
-
-        @classmethod
-        @overrides(Adapter)
-        def get_name(cls) -> str:
-            return adapter_name
-
-        @overrides(Adapter)
-        async def _call_api(self, bot: Bot, api: str, **data) -> Any:
-            return self.ctx.got_call_api(api, **data)
-
-    base = bot or Bot
-
-    class FakeBot(base):
-        @property
-        def ctx(self) -> "ApiContext":
-            return self.adapter.ctx  # type: ignore
-
-        @overrides(base)
-        async def send(
-            self,
-            event: "Event",
-            message: Union[str, "Message", "MessageSegment"],
-            **kwargs,
-        ) -> Any:
-            return self.ctx.got_call_send(event, message, **kwargs)
-
-    return FakeBot(FakeAdapter(get_driver(), ctx), **kwargs)
 
 
 async def assert_ms(
@@ -69,6 +22,7 @@ async def assert_ms(
         kwargs["self_id"] = "314159"
 
     async with app.test_api() as ctx:
-        bot = make_fake_bot(ctx, str(adapter), bot_base, **kwargs)
+        adapter_obj = get_driver()._adapters[str(adapter)]
+        bot = ctx.create_bot(base=bot_base, adapter=adapter_obj, **kwargs)
         generated_ms = await ms_factory.build(bot)
         assert generated_ms.data == ms.data
