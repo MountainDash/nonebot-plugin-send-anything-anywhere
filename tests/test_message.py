@@ -1,11 +1,10 @@
 from nonebug import App
+from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
 from nonebot_plugin_saa import Text, MessageFactory
 from nonebot_plugin_saa.utils import SupportedAdapters
-
-from .utils import make_fake_bot
 
 
 def test_message_assamble():
@@ -26,7 +25,8 @@ def test_message_assamble():
 
 async def test_build_message(app: App):
     async with app.test_api() as ctx:
-        bot = make_fake_bot(ctx, SupportedAdapters.onebot_v11, Bot, self_id="123")
+        adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="123")
         msg_factory = MessageFactory([Text("talk is cheap"), Text("show me the code")])
         msg = await msg_factory.build(bot)
 

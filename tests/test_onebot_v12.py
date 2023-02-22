@@ -3,12 +3,13 @@ from pathlib import Path
 from functools import partial
 
 from nonebug import App
+from nonebot import get_driver
 from nonebot.adapters.onebot.v12 import Bot, MessageSegment
 
 from nonebot_plugin_saa import Text, Image
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, make_fake_bot
+from .utils import assert_ms
 
 assert_onebot_v12 = partial(
     assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", platform="qq"
@@ -20,10 +21,10 @@ async def test_text(app: App):
 
 
 async def test_image(app: App):
+    adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
+
     async with app.test_api() as ctx:
-        bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
         ctx.should_call_api(
             "upload_file",
             {"type": "url", "name": "image", "url": "https://example.com/image.png"},
@@ -33,9 +34,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
 
         data = b"\x89PNG\r"
 
@@ -48,9 +47,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
 
         image_path = Path(__file__).parent / "image.png"
 
@@ -63,9 +60,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = make_fake_bot(
-            ctx, str(SupportedAdapters.onebot_v12), Bot, self_id="314159", platform="qq"
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
 
         data = BytesIO(b"\x89PNG\r")
 
