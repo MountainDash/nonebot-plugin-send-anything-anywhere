@@ -28,6 +28,7 @@ pip = "^23.0"
 pytest-cov = "^4.0.0"
 nonebug = "^0.3.1"
 nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc3"}
+ruff = "^0.0.253"
 
 [tool.poetry.group.adapters]
 optional = true
