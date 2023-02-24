@@ -1,4 +1,3 @@
-import typing
 from typing import Type
 
 import pytest
@@ -7,9 +6,6 @@ from nonebug import App
 from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
 from .utils import assert_ms
-
-if typing.TYPE_CHECKING:
-    from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
 
 class MyText(MessageSegmentFactory):

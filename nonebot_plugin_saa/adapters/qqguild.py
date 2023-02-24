@@ -1,14 +1,10 @@
-from io import BytesIO
-from pathlib import Path
 from functools import partial
 
-from nonebot.adapters import Bot as BaseBot
-
-from ..types import Text, Image, Reply, Mention
+from ..types import Text, Image, Mention
 from ..utils import SupportedAdapters, register_ms_adapter
 
 try:
-    from nonebot.adapters.qqguild import Bot, MessageSegment
+    from nonebot.adapters.qqguild import MessageSegment
 
     adapter = SupportedAdapters.qqguild
     register_qqguild = partial(register_ms_adapter, adapter)

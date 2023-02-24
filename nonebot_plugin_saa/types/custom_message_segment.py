@@ -20,10 +20,13 @@ class Custom(MessageSegmentFactory):
             SupportedAdapters, MessageSegment | Callable[[Bot], MessageSegment]
         ],
     ):
-        """自定义 MessageSegment
+        """
+        自定义 MessageSegment
 
         参数:
-            ms_dict: 字典，key 为 SupportedAdapters， val 为 MessageSegment 或 Bot -> MessageSegment 的函数，规定为各个适配器返回的 MessageSegment
+            ms_dict: 字典，key 为 SupportedAdapters，
+                     val 为 MessageSegment 或 Bot -> MessageSegment 的函数，
+                     规定为各个适配器返回的 MessageSegment
         """
         self.ms_dict = ms_dict
 
