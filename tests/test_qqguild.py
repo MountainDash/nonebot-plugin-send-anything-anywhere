@@ -13,6 +13,7 @@ assert_qqguild = partial(
     assert_ms,
     Bot,
     SupportedAdapters.qqguild,
+    self_id="314159",
     bot_info=BotInfo(id="314159", token="token", secret="secret"),
 )
 
