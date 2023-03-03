@@ -1,7 +1,21 @@
 from functools import partial
+from typing import Literal, Optional
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import MessageFactory, SupportedAdapters, register_ms_adapter
+from ..utils import (
+    MessageFactory,
+    SupportedAdapters,
+    AbstractSendTarget,
+    register_ms_adapter,
+)
+
+
+class SendTargetOneBot11(AbstractSendTarget):
+    adapter_type: Literal[SupportedAdapters.onebot_v11] = SupportedAdapters.onebot_v11
+    group_id: Optional[int] = None
+    user_id: Optional[int] = None
+    message_type: Optional[Literal["private", "group"]] = None
+
 
 try:
     from nonebot.adapters.onebot.v11.message import Message, MessageSegment

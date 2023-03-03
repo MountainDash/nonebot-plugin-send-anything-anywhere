@@ -1,11 +1,22 @@
 from io import BytesIO
 from pathlib import Path
 from functools import partial
+from typing import Literal, Optional
 
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import SupportedAdapters, register_ms_adapter
+from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
+
+
+class SendTargetOneBot12(AbstractSendTarget):
+    adapter_type: Literal[SupportedAdapters.onebot_v12] = SupportedAdapters.onebot_v12
+    detail_type: Literal["private", "group", "channel"]
+    user_id: Optional[str] = None
+    group_id: Optional[str] = None
+    guild_id: Optional[str] = None
+    channel_id: Optional[str] = None
+
 
 try:
     from nonebot.adapters.onebot.v12 import Bot, MessageSegment

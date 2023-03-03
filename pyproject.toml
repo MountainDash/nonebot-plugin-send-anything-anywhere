@@ -20,6 +20,7 @@ classifiers = [
 python = "^3.10"
 nonebot2 = "^2.0.0rc1"
 strenum = "^0.4.8"
+pydantic = "^1.10.5"
 
 [tool.poetry.group.dev.dependencies]
 pytest-asyncio = "^0.20.2"

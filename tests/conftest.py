@@ -1,6 +1,6 @@
 import pytest
 import nonebot
-from nonebug import NONEBOT_INIT_KWARGS
+from nonebug import NONEBOT_INIT_KWARGS, App
 from nonebot.adapters.qqguild import Adapter as QQGuildAdapter
 from nonebot.adapters.onebot.v11 import Adapter as OnebotV11Adapter
 from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
@@ -8,6 +8,15 @@ from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
 
 def pytest_configure(config: pytest.Config) -> None:
     config.stash[NONEBOT_INIT_KWARGS] = {"driver": "~fastapi+~websockets"}
+
+
+@pytest.fixture
+def app(app: App):
+    from nonebot_plugin_saa.utils.send_target import deserializer_map
+
+    yield app
+
+    deserializer_map.clear()
 
 
 @pytest.fixture(scope="session", autouse=True)
