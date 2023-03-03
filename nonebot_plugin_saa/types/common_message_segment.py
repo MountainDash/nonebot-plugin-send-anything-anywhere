@@ -20,6 +20,7 @@ class Text(MessageSegmentFactory):
         参数:
             text: 文本内容
         """
+        super().__init__()
         self.data = {"text": text}
 
 
@@ -47,6 +48,7 @@ class Image(MessageSegmentFactory):
             image: str 为图片 URL，bytes 为图片数据，Path 为图片路径，BytesIO 为图片文件流
             name: 图片名称，默认为 image
         """
+        super().__init__()
         self.data = {"image": image, "name": name}
 
 
@@ -66,6 +68,7 @@ class Mention(MessageSegmentFactory):
             user_id: 用户 ID
         """
 
+        super().__init__()
         self.data = {"user_id": user_id}
 
 
@@ -85,4 +88,5 @@ class Reply(MessageSegmentFactory):
             message_id: 需要回复消息的 ID
         """
 
+        super().__init__()
         self.data = {"message_id": str(message_id)}

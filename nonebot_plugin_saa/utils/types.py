@@ -3,7 +3,16 @@ from abc import ABC
 from copy import deepcopy
 from inspect import signature
 from typing_extensions import Self
-from typing import Type, TypeVar, Callable, ClassVar, Iterable, Awaitable, cast
+from typing import (
+    Type,
+    TypeVar,
+    Callable,
+    ClassVar,
+    Iterable,
+    Optional,
+    Awaitable,
+    cast,
+)
 
 from nonebot.internal.adapter.bot import Bot
 from nonebot.internal.adapter.message import Message, MessageSegment
@@ -14,6 +23,65 @@ from .exceptions import AdapterNotInstalled
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
+BuildFunc = (
+    Callable[[TMSF], MessageSegment | Awaitable[MessageSegment]]
+    | Callable[[TMSF, Bot], MessageSegment | Awaitable[MessageSegment]]
+)
+CustomBuildFunc = (
+    Callable[[], MessageSegment | Awaitable[MessageSegment]]
+    | Callable[[Bot], MessageSegment | Awaitable[MessageSegment]]
+)
+
+
+async def do_build(
+    msf: "MessageSegmentFactory", builder: BuildFunc, bot: Bot
+) -> MessageSegment:
+    if len(signature(builder).parameters) == 1:
+        builder = cast(
+            Callable[
+                ["MessageSegmentFactory"], MessageSegment | Awaitable[MessageSegment]
+            ],
+            builder,
+        )
+        res = builder(msf)
+    elif len(signature(builder).parameters) == 2:
+        builder = cast(
+            Callable[
+                ["MessageSegmentFactory", Bot],
+                MessageSegment | Awaitable[MessageSegment],
+            ],
+            builder,
+        )
+        res = builder(msf, bot)
+    else:
+        raise RuntimeError()
+    if asyncio.iscoroutine(res):
+        return await res
+    else:
+        res = cast(MessageSegment, res)
+        return res
+
+
+async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
+    if len(signature(builder).parameters) == 0:
+        builder = cast(
+            Callable[[], MessageSegment | Awaitable[MessageSegment]],
+            builder,
+        )
+        res = builder()
+    elif len(signature(builder).parameters) == 1:
+        builder = cast(
+            Callable[[Bot], MessageSegment | Awaitable[MessageSegment]],
+            builder,
+        )
+        res = builder(bot)
+    else:
+        raise RuntimeError()
+    if asyncio.iscoroutine(res):
+        return await res
+    else:
+        res = cast(MessageSegment, res)
+        return res
 
 
 class MessageSegmentFactory(ABC):
@@ -26,6 +94,23 @@ class MessageSegmentFactory(ABC):
     ]
 
     data: dict
+    _custom_builders: dict[SupportedAdapters, CustomBuildFunc]
+
+    def _register_custom_builder(
+        self, adapter: SupportedAdapters, ms: MessageSegment | CustomBuildFunc
+    ):
+        if isinstance(ms, MessageSegment):
+            self._custom_builders[adapter] = lambda _: ms
+        else:
+            self._custom_builders[adapter] = ms
+
+    def _get_custom_builder(
+        self, adapter: SupportedAdapters
+    ) -> Optional[CustomBuildFunc]:
+        return self._custom_builders.get(adapter)
+
+    def __init__(self) -> None:
+        self._custom_builders = {}
 
     def __init_subclass__(cls) -> None:
         cls._builders = {}
@@ -34,28 +119,19 @@ class MessageSegmentFactory(ABC):
     def __eq__(self, other: Self) -> bool:
         return self.data == other.data
 
+    def overwrite(
+        self, adapter: SupportedAdapters, ms: MessageSegment | CustomBuildFunc
+    ) -> Self:
+        "为某个 adapter 重写产生的 MessageSegment 或重写产生 MessageSegment 的方法"
+        self._register_custom_builder(adapter, ms)
+        return self
+
     async def build(self, bot: Bot) -> MessageSegment:
         adapter_name = extract_adapter_type(bot)
+        if custom_builder := self._get_custom_builder(adapter_name):
+            return await do_build_custom(custom_builder, bot)
         if builder := self._builders[adapter_name]:
-            if len(signature(builder).parameters) == 1:
-                builder = cast(
-                    Callable[[Self], MessageSegment | Awaitable[MessageSegment]],
-                    builder,
-                )
-                res = builder(self)
-            elif len(signature(builder).parameters) == 2:
-                builder = cast(
-                    Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
-                    builder,
-                )
-                res = builder(self, bot)
-            else:
-                raise RuntimeError()
-            if asyncio.iscoroutine(res):
-                return await res
-            else:
-                res = cast(MessageSegment, res)
-                return res
+            return await do_build(self, builder, bot)
         raise AdapterNotInstalled(adapter_name)
 
     def __add__(self: TMSF, other: str | TMSF | Iterable[TMSF]):
@@ -142,15 +218,8 @@ class MessageFactory(list[TMSF]):
         return deepcopy(self)
 
 
-T = TypeVar("T", bound=MessageSegmentFactory)
-BuildFunc = (
-    Callable[[T], MessageSegment | Awaitable[MessageSegment]]
-    | Callable[[T, Bot], MessageSegment | Awaitable[MessageSegment]]
-)
-
-
 def register_ms_adapter(
-    adapter: SupportedAdapters, ms_factory: Type[T]
+    adapter: SupportedAdapters, ms_factory: Type[TMSF]
 ) -> Callable[[BuildFunc], BuildFunc]:
     def decorator(builder: BuildFunc) -> BuildFunc:
         ms_factory._builders[adapter] = builder

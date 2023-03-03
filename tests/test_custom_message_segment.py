@@ -73,3 +73,33 @@ async def test_custom_message_segment_failed(app: App):
             self_id="123",
             platform="qq",
         )
+
+
+async def test_overwrite(app: App):
+    from nonebot.adapters.onebot.v11 import Bot as V11Bot
+    from nonebot.adapters.onebot.v12 import Bot as V12Bot
+    from nonebot.adapters.onebot.v11 import MessageSegment as V11MessageSegment
+    from nonebot.adapters.onebot.v12 import MessageSegment as V12MessageSegment
+
+    from nonebot_plugin_saa import Text, SupportedAdapters
+
+    overwrited_text = Text("amiya").overwrite(
+        SupportedAdapters.onebot_v11, V11MessageSegment.dice()
+    )
+
+    await assert_ms(
+        V11Bot,
+        SupportedAdapters.onebot_v11,
+        app,
+        overwrited_text,
+        V11MessageSegment.dice(),
+    )
+    await assert_ms(
+        V12Bot,
+        SupportedAdapters.onebot_v12,
+        app,
+        overwrited_text,
+        V12MessageSegment.text("amiya"),
+        self_id="123",
+        platform="qq",
+    )
