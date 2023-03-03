@@ -1,4 +1,5 @@
 from .helpers import extract_adapter_type
+from .send_target import AbstractSendTarget, deserialize
 from .const import SupportedAdapters, supported_adapter_names
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
 from .types import (
@@ -24,4 +25,6 @@ __all__ = [
     "CustomBuildFunc",
     "do_build",
     "do_build_custom",
+    "AbstractSendTarget",
+    "deserialize",
 ]

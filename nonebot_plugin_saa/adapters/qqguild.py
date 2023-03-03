@@ -1,7 +1,18 @@
 from functools import partial
+from typing import Literal, Optional
 
 from ..types import Text, Image, Mention
-from ..utils import SupportedAdapters, register_ms_adapter
+from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
+
+
+class SendTargetQQGuild(AbstractSendTarget):
+    adapter_type: Literal[SupportedAdapters.qqguild] = SupportedAdapters.qqguild
+    message_type: Literal["private", "channel"]
+    recipient_id: Optional[str] = None
+    source_guild_id: Optional[str] = None
+    guild_id: Optional[str] = None
+    channel_id: Optional[str] = None
+
 
 try:
     from nonebot.adapters.qqguild import MessageSegment
