@@ -1,6 +1,6 @@
 from . import adapters  # noqa: F401
-from .utils import MessageFactory, SupportedAdapters
 from .types import Text, Image, Reply, Custom, Mention
+from .utils import MessageFactory, SupportedAdapters, extract_send_target
 
 __all__ = [
     "Text",
@@ -10,4 +10,5 @@ __all__ = [
     "Custom",
     "MessageFactory",
     "SupportedAdapters",
+    "extract_send_target",
 ]

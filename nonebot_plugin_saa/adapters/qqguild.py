@@ -1,8 +1,15 @@
 from functools import partial
 from typing import Literal, Optional
 
+from nonebot.adapters import Event
+
 from ..types import Text, Image, Mention
-from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
+from ..utils import (
+    SupportedAdapters,
+    AbstractSendTarget,
+    register_ms_adapter,
+    register_target_extractor,
+)
 
 
 class SendTargetQQGuild(AbstractSendTarget):
@@ -10,12 +17,12 @@ class SendTargetQQGuild(AbstractSendTarget):
     message_type: Literal["private", "channel"]
     recipient_id: Optional[str] = None
     source_guild_id: Optional[str] = None
-    guild_id: Optional[str] = None
-    channel_id: Optional[str] = None
+    guild_id: Optional[int] = None
+    channel_id: Optional[int] = None
 
 
 try:
-    from nonebot.adapters.qqguild import MessageSegment
+    from nonebot.adapters.qqguild import MessageEvent, MessageSegment
 
     adapter = SupportedAdapters.qqguild
     register_qqguild = partial(register_ms_adapter, adapter)
@@ -34,6 +41,23 @@ try:
     @register_qqguild(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention_user(int(m.data["user_id"]))
+
+    @register_target_extractor(MessageEvent)
+    def extract_message_event(event: Event) -> SendTargetQQGuild:
+        assert isinstance(event, MessageEvent)
+        if not event.to_me:
+            return SendTargetQQGuild(
+                message_type="channel",
+                channel_id=event.channel_id,
+                guild_id=event.guild_id,
+            )
+        else:
+            # TODO send dms not support yet
+            return SendTargetQQGuild(
+                message_type="private",
+                channel_id=event.channel_id,
+                guild_id=event.guild_id,
+            )
 
 except ImportError:
     pass

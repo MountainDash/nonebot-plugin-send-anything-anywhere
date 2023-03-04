@@ -3,7 +3,10 @@ from pathlib import Path
 from functools import partial
 from typing import Literal, Optional
 
+from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+
+from nonebot_plugin_saa.utils.send_target import register_target_extractor
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
@@ -19,7 +22,13 @@ class SendTargetOneBot12(AbstractSendTarget):
 
 
 try:
-    from nonebot.adapters.onebot.v12 import Bot, MessageSegment
+    from nonebot.adapters.onebot.v12 import (
+        Bot,
+        MessageSegment,
+        GroupMessageEvent,
+        ChannelMessageEvent,
+        PrivateMessageEvent,
+    )
 
     adapter = SupportedAdapters.onebot_v12
     register_onebot_v12 = partial(register_ms_adapter, adapter)
@@ -58,6 +67,23 @@ try:
     @register_onebot_v12(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.reply(r.data["message_id"])
+
+    @register_target_extractor(PrivateMessageEvent)
+    def _extract_private_msg_event(event: Event) -> SendTargetOneBot12:
+        assert isinstance(event, PrivateMessageEvent)
+        return SendTargetOneBot12(detail_type="private", user_id=event.user_id)
+
+    @register_target_extractor(GroupMessageEvent)
+    def _extract_group_msg_event(event: Event) -> SendTargetOneBot12:
+        assert isinstance(event, GroupMessageEvent)
+        return SendTargetOneBot12(detail_type="group", group_id=event.group_id)
+
+    @register_target_extractor(ChannelMessageEvent)
+    def _extarct_channel_msg_event(event: Event) -> SendTargetOneBot12:
+        assert isinstance(event, ChannelMessageEvent)
+        return SendTargetOneBot12(
+            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+        )
 
 except ImportError:
     pass
