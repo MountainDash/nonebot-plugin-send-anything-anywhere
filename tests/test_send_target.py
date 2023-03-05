@@ -7,7 +7,7 @@ from nonebug import App
 
 def test_register_deserializer():
     from nonebot_plugin_saa import SupportedAdapters
-    from nonebot_plugin_saa.utils.send_target import AbstractSendTarget, deserialize
+    from nonebot_plugin_saa.utils.registry import AbstractSendTarget, deserialize
 
     class MySendTarget(AbstractSendTarget):
         adapter_type: Literal[

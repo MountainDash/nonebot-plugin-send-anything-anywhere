@@ -12,7 +12,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 @pytest.fixture
 def app(app: App):
-    from nonebot_plugin_saa.utils.send_target import deserializer_map
+    from nonebot_plugin_saa.utils.registry import deserializer_map
 
     yield app
 

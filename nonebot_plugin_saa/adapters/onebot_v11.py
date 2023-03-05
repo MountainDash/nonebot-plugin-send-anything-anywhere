@@ -8,6 +8,8 @@ from ..utils import (
     MessageFactory,
     SupportedAdapters,
     AbstractSendTarget,
+    MessageSegmentFactory,
+    register_sender,
     register_ms_adapter,
     register_target_extractor,
 )
@@ -21,8 +23,13 @@ class SendTargetOneBot11(AbstractSendTarget):
 
 
 try:
+    from nonebot.adapters.onebot.v11 import Bot as BotOB11
     from nonebot.adapters.onebot.v11.message import Message, MessageSegment
-    from nonebot.adapters.onebot.v11 import GroupMessageEvent, PrivateMessageEvent
+    from nonebot.adapters.onebot.v11 import (
+        MessageEvent,
+        GroupMessageEvent,
+        PrivateMessageEvent,
+    )
 
     adapter = SupportedAdapters.onebot_v11
     register_onebot_v11 = partial(register_ms_adapter, adapter)
@@ -57,6 +64,31 @@ try:
     def _extract_group_msg_event(event: Event) -> SendTargetOneBot11:
         assert isinstance(event, GroupMessageEvent)
         return SendTargetOneBot11(message_type="group", group_id=event.group_id)
+
+    @register_sender(SupportedAdapters.onebot_v11)
+    async def send(
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
+    ):
+        assert isinstance(bot, BotOB11)
+        assert isinstance(target, SendTargetOneBot11)
+        full_msg = MessageFactory([])
+        if event:
+            assert isinstance(event, MessageEvent)
+            if reply:
+                full_msg += Reply(event.message_id)
+            if at_sender:
+                full_msg += Mention(event.get_user_id())
+        full_msg += msg
+        message_to_send = Message()
+        for message_segment_factory in full_msg:
+            message_segment = await message_segment_factory.build(bot)
+            message_to_send += message_segment
+        await bot.send_msg(message=message_to_send, **target.arg_dict())
 
 except ImportError:
     pass
