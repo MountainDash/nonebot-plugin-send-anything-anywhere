@@ -7,7 +7,7 @@ from nonebot.adapters.qqguild.config import BotInfo
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms
+from .utils import assert_ms, mock_qqguild_message_event
 
 assert_qqguild = partial(
     assert_ms,
@@ -52,3 +52,59 @@ async def test_mention_user(app: App):
     from nonebot_plugin_saa import Mention
 
     await assert_qqguild(app, Mention("314159"), MessageSegment.mention_user(314159))
+
+
+async def test_send(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.qqguild import Bot, Message
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def handle():
+        await MessageFactory(Text("123")).send()
+
+    async with app.test_matcher(matcher) as ctx:
+        qqguild_adapter = get_driver()._adapters[SupportedAdapters.qqguild]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qqguild_adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+        event = mock_qqguild_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": event.channel_id,
+                "msg_id": event.id,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
+
+        event = mock_qqguild_message_event(Message("322"), direct=True)
+        ctx.receive_event(bot, event)
+        ctx.should_call_api(
+            "post_dms_messages",
+            data={
+                "guild_id": event.guild_id,
+                "msg_id": event.id,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
