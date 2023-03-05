@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
+    from nonebot.adapters.qqguild import Message as QQGuildMessage
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
@@ -129,4 +130,29 @@ def mock_obv12_message_event(
             user_id="2233",
             guild_id="5566",
             channel_id="6677",
+        )
+
+
+def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
+    from nonebot.adapters.qqguild.api.model import User
+    from nonebot.adapters.qqguild.event import EventType
+    from nonebot.adapters.qqguild import MessageCreateEvent, DirectMessageCreateEvent
+
+    if not direct:
+        return MessageCreateEvent(
+            __type__=EventType.MESSAGE_CREATE,
+            id=str(random.randrange(0, 10000)),
+            guild_id=1122,
+            channel_id=2233,
+            content=message.extract_content(),
+            author=User(id=3344),
+        )
+    else:
+        return DirectMessageCreateEvent(
+            __type__=EventType.DIRECT_MESSAGE_CREATE,
+            id=str(random.randrange(0, 10000)),
+            guild_id=1122,
+            channel_id=2233,
+            content=message.extract_content(),
+            author=User(id=3344),
         )

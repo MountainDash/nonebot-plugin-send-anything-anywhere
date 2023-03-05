@@ -2,11 +2,15 @@ from functools import partial
 from typing import Literal, Optional
 
 from nonebot.adapters import Event
+from nonebot.adapters.qqguild import Message
 
 from ..types import Text, Image, Mention
 from ..utils import (
+    MessageFactory,
     SupportedAdapters,
     AbstractSendTarget,
+    MessageSegmentFactory,
+    register_sender,
     register_ms_adapter,
     register_target_extractor,
 )
@@ -22,10 +26,17 @@ class SendTargetQQGuild(AbstractSendTarget):
 
 
 try:
-    from nonebot.adapters.qqguild import MessageEvent, MessageSegment
+    from nonebot.adapters.qqguild import (
+        Bot,
+        MessageEvent,
+        MessageSegment,
+        DirectMessageCreateEvent,
+    )
 
     adapter = SupportedAdapters.qqguild
     register_qqguild = partial(register_ms_adapter, adapter)
+
+    MessageFactory.register_adapter_message(adapter, Message)
 
     @register_qqguild(Text)
     def _text(t: Text) -> MessageSegment:
@@ -58,6 +69,65 @@ try:
                 channel_id=event.channel_id,
                 guild_id=event.guild_id,
             )
+
+    @register_sender(SupportedAdapters.qqguild)
+    async def send(
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
+    ):
+        assert isinstance(bot, Bot)
+        assert isinstance(target, SendTargetQQGuild)
+
+        # parse Message
+        message = await msg._build(bot)
+        assert isinstance(message, Message)
+        content = message.extract_content()
+
+        if embed := (message["embed"] or None):
+            embed = embed[-1].data["embed"]
+        if ark := (message["ark"] or None):
+            ark = ark[-1].data["ark"]
+        if image := (message["attachment"] or None):
+            image = image[-1].data["url"]
+        if file_image := (message["file_image"] or None):
+            file_image = file_image[-1].data["content"]
+        if markdown := (message["markdown"] or None):
+            markdown = markdown[-1].data["markdown"]
+        if reference := (message["reference"] or None):
+            reference = reference[-1].data["reference"]
+
+        if event:  # reply to user
+            if isinstance(event, DirectMessageCreateEvent):
+                await bot.post_dms_messages(
+                    guild_id=event.guild_id,
+                    msg_id=event.id,
+                    content=content,
+                    embed=embed,
+                    ark=ark,  # type: ignore
+                    image=image,  # type: ignore
+                    file_image=file_image,  # type: ignore
+                    markdown=markdown,  # type: ignore
+                    message_reference=reference,  # type: ignore
+                )
+            else:
+                await bot.post_messages(
+                    channel_id=event.channel_id,
+                    msg_id=event.id,
+                    content=content,
+                    embed=embed,  # type: ignore
+                    ark=ark,  # type: ignore
+                    image=image,  # type: ignore
+                    file_image=file_image,  # type: ignore
+                    markdown=markdown,  # type: ignore
+                    message_reference=reference,  # type: ignore
+                )
+        else:
+            # TODO
+            raise NotImplementedError("QQ频道主动发送消息暂未实现")
 
 except ImportError:
     pass
