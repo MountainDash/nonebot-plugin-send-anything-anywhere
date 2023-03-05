@@ -16,6 +16,7 @@ from .types import (
     do_build,
     do_build_custom,
     register_ms_adapter,
+    assamble_message_factory,
 )
 
 __all__ = [
@@ -36,4 +37,5 @@ __all__ = [
     "extract_send_target",
     "register_target_extractor",
     "register_sender",
+    "assamble_message_factory",
 ]
