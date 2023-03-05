@@ -1,3 +1,4 @@
+import pytest
 from nonebug import App
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot
@@ -23,11 +24,13 @@ def test_message_assamble():
     assert MessageFactory("abc").append("123") == target_two_msg
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 async def test_build_message(app: App):
     async with app.test_api() as ctx:
         adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
         bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="123")
         msg_factory = MessageFactory([Text("talk is cheap"), Text("show me the code")])
-        msg = await msg_factory.build(bot)
+        with pytest.deprecated_call():
+            msg = await msg_factory.build(bot)
 
         assert msg == MessageSegment.text("talk is cheap") + "show me the code"

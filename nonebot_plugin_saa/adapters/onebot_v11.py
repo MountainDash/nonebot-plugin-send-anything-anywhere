@@ -11,6 +11,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    assamble_message_factory,
     register_target_extractor,
 )
 
@@ -76,14 +77,17 @@ try:
     ):
         assert isinstance(bot, BotOB11)
         assert isinstance(target, SendTargetOneBot11)
-        full_msg = MessageFactory([])
         if event:
             assert isinstance(event, MessageEvent)
-            if reply:
-                full_msg += Reply(event.message_id)
-            if at_sender:
-                full_msg += Mention(event.get_user_id())
-        full_msg += msg
+            full_msg = assamble_message_factory(
+                msg,
+                Mention(event.get_user_id()),
+                Reply(event.message_id),
+                at_sender,
+                reply,
+            )
+        else:
+            full_msg = msg
         message_to_send = Message()
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)

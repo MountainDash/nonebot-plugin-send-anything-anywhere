@@ -1,6 +1,7 @@
 import asyncio
 from abc import ABC
 from copy import deepcopy
+from warnings import warn
 from inspect import signature
 from typing_extensions import Self
 from typing import (
@@ -162,6 +163,10 @@ class MessageFactory(list[TMSF]):
         cls._message_registry[adapter] = message_class
 
     async def build(self, bot: Bot) -> Message:
+        warn(DeprecationWarning("MessageFactory.build is deprecated"))
+        return await self._build(bot)
+
+    async def _build(self, bot: Bot) -> Message:
         adapter_name = extract_adapter_type(bot)
         if message_type := self._message_registry.get(adapter_name):
             ms: tuple[MessageSegment] = await asyncio.gather(
@@ -254,3 +259,20 @@ def register_ms_adapter(
         return builder
 
     return decorator
+
+
+def assamble_message_factory(
+    origin_msg_factory: MessageFactory,
+    mention_message_segment: Optional[MessageSegmentFactory],
+    reply_message_segment: Optional[MessageSegmentFactory],
+    at_sender: bool,
+    reply: bool,
+) -> MessageFactory:
+    full_message_factory = MessageFactory([])
+    if reply_message_segment and reply:
+        full_message_factory += reply_message_segment
+    if mention_message_segment and at_sender:
+        full_message_factory += mention_message_segment
+    full_message_factory += origin_msg_factory
+
+    return full_message_factory

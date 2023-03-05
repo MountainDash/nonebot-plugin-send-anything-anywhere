@@ -5,11 +5,21 @@ from typing import Literal, Optional
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters.onebot.v12 import Message, MessageEvent
 
 from nonebot_plugin_saa.utils.registry import register_target_extractor
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
+from ..utils import (
+    MessageFactory,
+    SupportedAdapters,
+    AbstractSendTarget,
+    MessageSegmentFactory,
+    register_sender,
+    extract_send_target,
+    register_ms_adapter,
+    assamble_message_factory,
+)
 
 
 class SendTargetOneBot12(AbstractSendTarget):
@@ -32,6 +42,8 @@ try:
 
     adapter = SupportedAdapters.onebot_v12
     register_onebot_v12 = partial(register_ms_adapter, adapter)
+
+    MessageFactory.register_adapter_message(adapter, Message)
 
     @register_onebot_v12(Text)
     def _text(t: Text) -> MessageSegment:
@@ -84,6 +96,31 @@ try:
         return SendTargetOneBot12(
             detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
         )
+
+    @register_sender(SupportedAdapters.onebot_v12)
+    async def send(
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
+    ):
+        assert isinstance(bot, Bot)
+        assert isinstance(target, SendTargetOneBot12)
+
+        send_target = extract_send_target(event)
+
+        if event:
+            assert isinstance(event, MessageEvent)
+            full_msg = assamble_message_factory(
+                msg, Mention(event.user_id), Reply(event.message_id), at_sender, reply
+            )
+        else:
+            full_msg = msg
+        msg_to_send = await full_msg.build(bot)
+        assert isinstance(msg_to_send, Message)
+        await bot.send_message(message=msg_to_send, **send_target.arg_dict())
 
 except ImportError:
     pass

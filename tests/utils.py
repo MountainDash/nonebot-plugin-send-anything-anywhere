@@ -1,5 +1,6 @@
 import random
-from typing import TYPE_CHECKING, Type
+from datetime import datetime
+from typing import TYPE_CHECKING, Type, Literal
 
 from nonebot import get_driver
 
@@ -8,6 +9,7 @@ if TYPE_CHECKING:
     from nonebot.internal.adapter.bot import Bot
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
+    from nonebot.adapters.onebot.v12 import Message as OB12Message
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
@@ -69,4 +71,62 @@ def mock_obv11_message_event(message: "OB11Message", group=False):
             font=1,
             sender=Sender(user_id=2233),
             to_me=False,
+        )
+
+
+def mock_obv12_message_event(
+    message: "OB12Message",
+    detail_type: Literal["private", "group", "channel"] = "private",
+):
+    from nonebot.adapters.onebot.v12.event import BotSelf
+    from nonebot.adapters.onebot.v12 import (
+        GroupMessageEvent,
+        ChannelMessageEvent,
+        PrivateMessageEvent,
+    )
+
+    if detail_type == "private":
+        return PrivateMessageEvent(
+            id=str(random.randint(0, 10000)),
+            time=datetime.now(),
+            type="message",
+            detail_type="private",
+            sub_type="",
+            self=BotSelf(platform="qq", user_id="2233"),
+            message_id=str(random.randrange(0, 10000)),
+            message=message,
+            original_message=message,
+            alt_message=str(message),
+            user_id="2233",
+        )
+    elif detail_type == "group":
+        return GroupMessageEvent(
+            id=str(random.randint(0, 10000)),
+            time=datetime.now(),
+            type="message",
+            detail_type="group",
+            sub_type="",
+            self=BotSelf(platform="qq", user_id="2233"),
+            message_id=str(random.randrange(0, 10000)),
+            message=message,
+            original_message=message,
+            alt_message=str(message),
+            user_id="2233",
+            group_id="4455",
+        )
+    else:
+        return ChannelMessageEvent(
+            id=str(random.randint(0, 10000)),
+            time=datetime.now(),
+            type="message",
+            detail_type="channel",
+            sub_type="",
+            self=BotSelf(platform="qq", user_id="2233"),
+            message_id=str(random.randrange(0, 10000)),
+            message=message,
+            original_message=message,
+            alt_message=str(message),
+            user_id="2233",
+            guild_id="5566",
+            channel_id="6677",
         )
