@@ -1,9 +1,10 @@
 from .helpers import extract_adapter_type
 from .const import SupportedAdapters, supported_adapter_names
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
-from .send_target import (
+from .registry import (
     AbstractSendTarget,
     deserialize,
+    register_sender,
     extract_send_target,
     register_target_extractor,
 )
@@ -34,4 +35,5 @@ __all__ = [
     "deserialize",
     "extract_send_target",
     "register_target_extractor",
+    "register_sender",
 ]

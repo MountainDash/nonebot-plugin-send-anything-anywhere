@@ -14,12 +14,13 @@ from typing import (
     cast,
 )
 
-from nonebot.internal.adapter.bot import Bot
-from nonebot.internal.adapter.message import Message, MessageSegment
+from nonebot.adapters import Bot, Event, Message, MessageSegment
+from nonebot.matcher import current_bot, current_event, current_matcher
 
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .exceptions import AdapterNotInstalled
+from .registry import AbstractSendTarget, sender_map, extract_send_target
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
@@ -216,6 +217,33 @@ class MessageFactory(list[TMSF]):
 
     def copy(self: TMF) -> TMF:
         return deepcopy(self)
+
+    async def send(self, *, at_sender=False, reply=False):
+        "回复消息，仅能用在事件相应器中"
+        try:
+            event = current_event.get()
+            bot = current_bot.get()
+            current_matcher.get()
+        except LookupError:
+            raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
+
+        target = extract_send_target(event)
+        await self._do_send(bot, target, event, at_sender, reply)
+
+    async def _do_send(
+        self,
+        bot: Bot,
+        target: AbstractSendTarget,
+        event: Optional[Event],
+        at_sender: bool,
+        reply: bool,
+    ):
+        adapter = extract_adapter_type(bot)
+        if not (sender := sender_map[adapter]):
+            raise RuntimeError(
+                f"send method for {adapter} not registerd"
+            )  # pragma: no cover
+        await sender(bot, self, target, event, at_sender, reply)
 
 
 def register_ms_adapter(

@@ -1,16 +1,24 @@
 import json
 from abc import ABC
-from typing import Any, Type, Callable
+from typing import TYPE_CHECKING, Any, Type, Callable, Optional, Awaitable
 
 from pydantic import BaseModel
-from nonebot.adapters import Event
+from nonebot.adapters import Bot, Event
 
 from .const import SupportedAdapters
 
+if TYPE_CHECKING:
+    from .types import MessageFactory
+
 Extractor = Callable[[Event], "AbstractSendTarget"]
+Sender = Callable[
+    [Bot, "MessageFactory", "AbstractSendTarget", Optional[Event], bool, bool],
+    Awaitable[None],
+]
 
 deserializer_map: dict[SupportedAdapters, Type["AbstractSendTarget"]] = {}
 extractor_map: dict[Type[Event], Extractor] = {}
+sender_map: dict[SupportedAdapters, Sender] = {}
 
 
 class AbstractSendTarget(BaseModel, ABC):
@@ -46,3 +54,11 @@ def extract_send_target(event: Event) -> AbstractSendTarget:
                 break
             return extractor_map[event_type](event)
     raise RuntimeError(f"event {event.__class__} not supported")
+
+
+def register_sender(adapter: SupportedAdapters):
+    def wrapper(sender: Sender):
+        sender_map[adapter] = sender
+        return sender
+
+    return wrapper

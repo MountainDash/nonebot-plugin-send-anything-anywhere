@@ -6,7 +6,7 @@ from typing import Literal, Optional
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
-from nonebot_plugin_saa.utils.send_target import register_target_extractor
+from nonebot_plugin_saa.utils.registry import register_target_extractor
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import SupportedAdapters, AbstractSendTarget, register_ms_adapter
