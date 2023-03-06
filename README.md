@@ -17,7 +17,7 @@
 这个插件可以做什么
 
 - 为常见的消息类型提供抽象类，自适应转换成对应 adapter 的消息
-- 提供一套统一的，符合直觉的发送接口（规划中）
+- 提供一套统一的，符合直觉的发送接口
 - 为复杂的消息提供易用的生成接口（规划中）
 
 本插件通过传入 bot 的类型来自适应生成对应 bot adapter 所使用的 Message
@@ -30,6 +30,29 @@
   `poetry add nonebot-plugin-send-anything-anywhere`
 - 使用 pip 安装  
   `pip install nonebot-plugin-send-anything-anywhere`
+
+## 使用
+
+在 handler 中回复消息的情况：
+
+```python
+@matcher.handle()
+async def handle(event: MessageEvent):
+    # 直接调用 MessageFactory.send() 在 handler 中回复消息
+    await MessageFactory("你好").send(reply=True, at_sender=True)
+    await MessageFactory("需要回复的内容").send()
+    await matcher.finish()
+```
+
+主动发送的情况：
+
+```python
+from nonebot_plugin_saa.adapters.onebot_v11 import SendTargetOneBot11
+
+# 发送目标为 QQ 号 10000, 以私聊形式发送
+target = SendTargetOneBot11(user_id=10000, message_type="private")
+await MessageFactory("早上好").send_to(target)
+```
 
 ## 支持情况
 
@@ -48,7 +71,7 @@
 | 文字 |     ✅     |     ✅     |    ✅    |
 | 图片 |     ✅     |     ✅     |    ✅    |
 |  at  |     ✅     |     ✅     |    ✅    |
-| 回复 |     ✅     |     ✅     |    ✖️    |
+| 回复 |     ✅     |     ✅     |    ✅    |
 
 ## 问题与例子
 
@@ -96,8 +119,8 @@ async def _handle_v12(bot: Bot, event: Union[V12MessageEvent, V11MessageEvent]):
         Image(pic_content), Text("这是你要的图片")
     ])
     # or msg_builder = Image(pic_content) + Text("这是你要的图片")
-    msg = await msg_builder.build(bot)
-    await pic_matcher.finish(msg)
+    await msg_builder.send()
+    await pic_matcher.finish()
 ```
 
 ## 类似项目
