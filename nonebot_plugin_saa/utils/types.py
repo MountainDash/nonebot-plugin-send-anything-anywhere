@@ -235,6 +235,9 @@ class MessageFactory(list[TMSF]):
         target = extract_send_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
+    async def send_to(self, bot: Bot, target: AbstractSendTarget):
+        await self._do_send(bot, target, None, False, False)
+
     async def _do_send(
         self,
         bot: Bot,

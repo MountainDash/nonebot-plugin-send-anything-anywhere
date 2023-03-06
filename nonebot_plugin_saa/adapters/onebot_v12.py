@@ -16,7 +16,6 @@ from ..utils import (
     AbstractSendTarget,
     MessageSegmentFactory,
     register_sender,
-    extract_send_target,
     register_ms_adapter,
     assamble_message_factory,
 )
@@ -109,8 +108,6 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(target, SendTargetOneBot12)
 
-        send_target = extract_send_target(event)
-
         if event:
             assert isinstance(event, MessageEvent)
             full_msg = assamble_message_factory(
@@ -120,7 +117,7 @@ try:
             full_msg = msg
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
-        await bot.send_message(message=msg_to_send, **send_target.arg_dict())
+        await bot.send_message(message=msg_to_send, **target.arg_dict())
 
 except ImportError:
     pass
