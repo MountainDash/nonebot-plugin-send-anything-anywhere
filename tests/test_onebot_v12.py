@@ -4,10 +4,10 @@ from functools import partial
 
 from nonebug import App
 from nonebot import get_driver
-from nonebot.adapters.onebot.v12 import Bot, MessageSegment
+from nonebot.adapters.onebot.v12 import Bot, Message, MessageSegment
 
-from nonebot_plugin_saa import Text, Image
 from nonebot_plugin_saa.utils import SupportedAdapters
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
 from .utils import assert_ms, mock_obv12_message_event
 
@@ -117,3 +117,25 @@ async def test_send(app: App):
             },
             result=None,
         )
+
+
+async def test_send_active(app: App):
+    from nonebot import get_driver
+
+    from nonebot_plugin_saa.adapters.onebot_v12 import SendTargetOneBot12
+
+    async with app.test_api() as ctx:
+        adapter_ob12 = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_ob12, platform="qq")
+
+        target = SendTargetOneBot12(detail_type="group", group_id="2233")
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "detail_type": "group",
+                "group_id": "2233",
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(bot, target)
