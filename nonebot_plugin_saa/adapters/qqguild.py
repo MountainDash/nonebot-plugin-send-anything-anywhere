@@ -4,7 +4,7 @@ from typing import Literal, Optional
 from nonebot.adapters import Event
 from nonebot.adapters.qqguild import Message
 
-from ..types import Text, Image, Mention
+from ..types import Text, Image, Reply, Mention
 from ..utils import (
     MessageFactory,
     SupportedAdapters,
@@ -12,6 +12,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    assamble_message_factory,
     register_target_extractor,
 )
 
@@ -53,6 +54,10 @@ try:
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention_user(int(m.data["user_id"]))
 
+    @register_qqguild(Reply)
+    def _reply(r: Reply) -> MessageSegment:
+        return MessageSegment.reference(r.data["message_id"])
+
     @register_target_extractor(MessageEvent)
     def extract_message_event(event: Event) -> SendTargetQQGuild:
         assert isinstance(event, MessageEvent)
@@ -82,8 +87,17 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(target, SendTargetQQGuild)
 
+        full_msg = msg
+        if event:
+            assert isinstance(event, MessageEvent)
+            assert event.author
+            assert event.id
+            full_msg = assamble_message_factory(
+                msg, Mention(str(event.author.id)), Reply(event.id), at_sender, reply
+            )
+
         # parse Message
-        message = await msg._build(bot)
+        message = await full_msg._build(bot)
         assert isinstance(message, Message)
         content = message.extract_content()
 
@@ -126,8 +140,20 @@ try:
                     message_reference=reference,  # type: ignore
                 )
         else:
-            # TODO
-            raise NotImplementedError("QQ频道主动发送消息暂未实现")
+            if target.message_type == "channel":
+                assert target.channel_id
+                await bot.post_messages(
+                    channel_id=target.channel_id,
+                    content=content,
+                    embed=embed,
+                    ark=ark,
+                    image=image,
+                    file_image=file_image,
+                    markdown=markdown,
+                    message_reference=reference,
+                )
+            else:
+                raise NotImplementedError("QQ频道主动发送私信暂未实现")
 
 except ImportError:
     pass
