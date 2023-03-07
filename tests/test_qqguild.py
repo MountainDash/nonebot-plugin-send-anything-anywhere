@@ -108,3 +108,35 @@ async def test_send(app: App):
             },
             result=None,
         )
+
+
+async def test_send_active(app: App):
+    from nonebot import get_driver
+
+    from nonebot_plugin_saa import MessageFactory
+    from nonebot_plugin_saa.adapters.qqguild import SendTargetQQGuild
+
+    async with app.test_api() as ctx:
+        adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_qqguild,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": 2233,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
+        target = SendTargetQQGuild(message_type="channel", channel_id=2233)
+        await MessageFactory("123").send_to(bot, target)
