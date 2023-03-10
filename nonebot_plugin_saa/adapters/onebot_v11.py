@@ -1,27 +1,23 @@
+from typing import Any
 from functools import partial
-from typing import Literal, Optional
 
 from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
+    TargetQQGroup,
     MessageFactory,
+    PlatformTarget,
+    TargetQQPrivate,
     SupportedAdapters,
-    AbstractSendTarget,
+    SupportedPlatform,
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
 )
-
-
-class SendTargetOneBot11(AbstractSendTarget):
-    adapter_type: Literal[SupportedAdapters.onebot_v11] = SupportedAdapters.onebot_v11
-    group_id: Optional[int] = None
-    user_id: Optional[int] = None
-    message_type: Optional[Literal["private", "group"]] = None
-
 
 try:
     from nonebot.adapters.onebot.v11 import Bot as BotOB11
@@ -54,17 +50,30 @@ try:
         return MessageSegment.reply(int(r.data["message_id"]))
 
     @register_target_extractor(PrivateMessageEvent)
-    def _extract_private_msg_event(event: Event) -> SendTargetOneBot11:
+    def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
         assert isinstance(event, PrivateMessageEvent)
-        return SendTargetOneBot11(
-            message_type="private",
-            user_id=event.user_id,
-        )
+        return TargetQQPrivate(user_id=event.user_id)
 
     @register_target_extractor(GroupMessageEvent)
-    def _extract_group_msg_event(event: Event) -> SendTargetOneBot11:
+    def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, GroupMessageEvent)
-        return SendTargetOneBot11(message_type="group", group_id=event.group_id)
+        return TargetQQGroup(group_id=event.group_id)
+
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
+        assert isinstance(target, TargetQQPrivate)
+        return {
+            "message_type": "private",
+            "user_id": target.user_id,
+        }
+
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
+    def _gen_group(target: PlatformTarget) -> dict[str, Any]:
+        assert isinstance(target, TargetQQGroup)
+        return {
+            "message_type": "group",
+            "group_id": target.group_id,
+        }
 
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
@@ -76,7 +85,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, BotOB11)
-        assert isinstance(target, SendTargetOneBot11)
+        assert isinstance(target, TargetQQGroup | TargetQQPrivate)
         if event:
             assert isinstance(event, MessageEvent)
             full_msg = assamble_message_factory(
@@ -92,7 +101,7 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
-        await bot.send_msg(message=message_to_send, **target.arg_dict())
+        await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
 
 except ImportError:
     pass

@@ -47,11 +47,30 @@ async def handle(event: MessageEvent):
 主动发送的情况：
 
 ```python
-from nonebot_plugin_saa.adapters.onebot_v11 import SendTargetOneBot11
+from nonebot_plugin_saa import TargetQQGroup
 
 # 发送目标为 QQ 号 10000, 以私聊形式发送
-target = SendTargetOneBot11(user_id=10000, message_type="private")
+target = TargetQQGroup(group_id=2233)
 await MessageFactory("早上好").send_to(target)
+```
+
+从消息事件中提取发送目标:
+
+```python
+from nonebot_plugin_saa import extract_target
+@matcher.handle(event: MessageEvent):
+    target = extract_target(event)
+```
+
+发送目标的序列化与反序列化:
+
+```python
+from nonebot_plugin_saa import PlatformTarget, TargetQQPrivate
+
+target = TargetQQPrivate(user_id=112233)
+serialized_target = target.json()
+deserialized_target = PlatformTarget.deserialize(serialized_target)
+assert deserialized_target == target
 ```
 
 ## 支持情况
@@ -72,6 +91,17 @@ await MessageFactory("早上好").send_to(target)
 | 图片 |     ✅     |     ✅     |    ✅    |
 |  at  |     ✅     |     ✅     |    ✅    |
 | 回复 |     ✅     |     ✅     |    ✅    |
+
+### 支持的发送目标
+
+|                   | OneBot v11 | OneBot v12  | QQ Guild |
+| :---------------: | :--------: | :---------: | :------: |
+|       QQ 群       |     ✅     |     ✅      |          |
+|      QQ 私聊      |     ✅     |     ✅      |          |
+| QQ 频道子频道消息 |            | 🚧(all4one) |    ✅    |
+|    QQ 频道私聊    |            | 🚧(all4one) |    ✅    |
+
+注：对于使用 Onebot v12，但是没有专门适配的发送目标，使用了 TargetOB12Unknow 来保证其可以正常使用
 
 ## 问题与例子
 

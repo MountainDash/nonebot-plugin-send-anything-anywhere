@@ -1,5 +1,4 @@
 from functools import partial
-from typing import Literal, Optional
 
 from nonebot.adapters import Event
 from nonebot.adapters.qqguild import Message
@@ -7,24 +6,16 @@ from nonebot.adapters.qqguild import Message
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
     MessageFactory,
+    PlatformTarget,
     SupportedAdapters,
-    AbstractSendTarget,
+    TargetQQGuildDirect,
+    TargetQQGuildChannel,
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
     assamble_message_factory,
     register_target_extractor,
 )
-
-
-class SendTargetQQGuild(AbstractSendTarget):
-    adapter_type: Literal[SupportedAdapters.qqguild] = SupportedAdapters.qqguild
-    message_type: Literal["private", "channel"]
-    recipient_id: Optional[str] = None
-    source_guild_id: Optional[str] = None
-    guild_id: Optional[int] = None
-    channel_id: Optional[int] = None
-
 
 try:
     from nonebot.adapters.qqguild import (
@@ -59,20 +50,17 @@ try:
         return MessageSegment.reference(r.data["message_id"])
 
     @register_target_extractor(MessageEvent)
-    def extract_message_event(event: Event) -> SendTargetQQGuild:
+    def extract_message_event(event: Event) -> PlatformTarget:
         assert isinstance(event, MessageEvent)
         if not event.to_me:
-            return SendTargetQQGuild(
-                message_type="channel",
-                channel_id=event.channel_id,
-                guild_id=event.guild_id,
-            )
+            assert event.channel_id
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
         else:
             # TODO send dms not support yet
-            return SendTargetQQGuild(
-                message_type="private",
-                channel_id=event.channel_id,
-                guild_id=event.guild_id,
+            assert event.guild_id
+            assert event.author and event.author.id
+            return TargetQQGuildDirect(
+                source_guild_id=event.guild_id, recipient_id=event.author.id
             )
 
     @register_sender(SupportedAdapters.qqguild)
@@ -85,7 +73,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, Bot)
-        assert isinstance(target, SendTargetQQGuild)
+        assert isinstance(target, TargetQQGuildChannel | TargetQQGuildDirect)
 
         full_msg = msg
         if event:
@@ -140,7 +128,7 @@ try:
                     message_reference=reference,  # type: ignore
                 )
         else:
-            if target.message_type == "channel":
+            if isinstance(target, TargetQQGuildChannel):
                 assert target.channel_id
                 await bot.post_messages(
                     channel_id=target.channel_id,

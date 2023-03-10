@@ -4,30 +4,36 @@ from datetime import datetime
 import pytest
 from nonebug import App
 
+from nonebot_plugin_saa.utils.const import SupportedAdapters
+
 
 def test_register_deserializer():
-    from nonebot_plugin_saa import SupportedAdapters
-    from nonebot_plugin_saa.utils.registry import AbstractSendTarget, deserialize
+    from nonebot_plugin_saa.utils import SupportedPlatform
+    from nonebot_plugin_saa.utils.platform_send_target import PlatformTarget
 
-    class MySendTarget(AbstractSendTarget):
-        adapter_type: Literal[
-            SupportedAdapters.onebot_v11
-        ] = SupportedAdapters.onebot_v11
+    class MySendTarget(PlatformTarget):
+        platform_type: Literal[SupportedPlatform.qq_group] = SupportedPlatform.qq_group
         my_field: int
 
     send_target = MySendTarget(my_field=123)
     serialized_target = send_target.json()
-    deserialized_target = deserialize(serialized_target)
+    deserialized_target = PlatformTarget.deserialize(serialized_target)
 
     assert isinstance(deserialized_target, MySendTarget)
     assert deserialized_target == send_target
 
 
-def test_export_args():
-    from nonebot_plugin_saa.adapters.onebot_v11 import SendTargetOneBot11
+async def test_export_args(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.onebot.v11 import Bot
 
-    target = SendTargetOneBot11(group_id=31415, message_type="private")
-    assert target.arg_dict() == {"group_id": 31415, "message_type": "private"}
+    from nonebot_plugin_saa.utils import TargetQQGroup
+
+    target = TargetQQGroup(group_id=31415)
+    async with app.test_api() as ctx:
+        ob11 = get_driver()._adapters[SupportedAdapters.onebot_v11]
+        bot = ctx.create_bot(base=Bot, adapter=ob11)
+        assert target.arg_dict(bot) == {"group_id": 31415, "message_type": "group"}
 
 
 def test_extract_ob11(app: App):
@@ -38,8 +44,7 @@ def test_extract_ob11(app: App):
         PrivateMessageEvent,
     )
 
-    from nonebot_plugin_saa import extract_send_target
-    from nonebot_plugin_saa.adapters.onebot_v11 import SendTargetOneBot11
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
 
     sender = Sender(user_id=3344)
     group_message_event = GroupMessageEvent(
@@ -57,9 +62,7 @@ def test_extract_ob11(app: App):
         font=1,
         sender=sender,
     )
-    assert extract_send_target(group_message_event) == SendTargetOneBot11(
-        message_type="group", group_id=1122
-    )
+    assert extract_target(group_message_event) == TargetQQGroup(group_id=1122)
     private_message_event = PrivateMessageEvent(
         time=1122,
         self_id=2233,
@@ -74,9 +77,7 @@ def test_extract_ob11(app: App):
         font=1,
         sender=sender,
     )
-    assert extract_send_target(private_message_event) == SendTargetOneBot11(
-        message_type="private", user_id=3344
-    )
+    assert extract_target(private_message_event) == TargetQQPrivate(user_id=3344)
 
 
 def test_extract_ob12(app: App):
@@ -88,8 +89,7 @@ def test_extract_ob12(app: App):
         PrivateMessageEvent,
     )
 
-    from nonebot_plugin_saa import extract_send_target
-    from nonebot_plugin_saa.adapters.onebot_v12 import SendTargetOneBot12
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
 
     group_message_event = GroupMessageEvent(
         id="1122",
@@ -105,9 +105,7 @@ def test_extract_ob12(app: App):
         user_id="3344",
         group_id="1122",
     )
-    assert extract_send_target(group_message_event) == SendTargetOneBot12(
-        detail_type="group", group_id="1122"
-    )
+    assert extract_target(group_message_event) == TargetQQGroup(group_id=1122)
 
     private_message_event = PrivateMessageEvent(
         id="1122",
@@ -122,9 +120,7 @@ def test_extract_ob12(app: App):
         alt_message="123",
         user_id="3344",
     )
-    assert extract_send_target(private_message_event) == SendTargetOneBot12(
-        detail_type="private", user_id="3344"
-    )
+    assert extract_target(private_message_event) == TargetQQPrivate(user_id=3344)
 
     channel_message_event = ChannelMessageEvent(
         id="1122",
@@ -141,29 +137,25 @@ def test_extract_ob12(app: App):
         guild_id="5566",
         channel_id="6677",
     )
-    assert extract_send_target(channel_message_event) == SendTargetOneBot12(
-        detail_type="channel", guild_id="5566", channel_id="6677"
-    )
+    with pytest.raises(RuntimeError):
+        extract_target(channel_message_event)
 
 
 def test_extract_qqguild(app: App):
     from nonebot.adapters.qqguild import EventType, MessageCreateEvent
 
-    from nonebot_plugin_saa import extract_send_target
-    from nonebot_plugin_saa.adapters.qqguild import SendTargetQQGuild
+    from nonebot_plugin_saa import TargetQQGuildChannel, extract_target
 
     group_message_event = MessageCreateEvent(
         __type__=EventType.CHANNEL_CREATE, channel_id=6677, guild_id=5566
     )
-    assert extract_send_target(group_message_event) == SendTargetQQGuild(
-        message_type="channel", channel_id=6677, guild_id=5566
-    )
+    assert extract_target(group_message_event) == TargetQQGuildChannel(channel_id=6677)
 
 
 def test_unsupported_event(app: App):
     from nonebot.adapters.onebot.v11 import FriendRequestEvent
 
-    from nonebot_plugin_saa import extract_send_target
+    from nonebot_plugin_saa import extract_target
 
     friend_req_event = FriendRequestEvent(
         time=1122,
@@ -175,4 +167,18 @@ def test_unsupported_event(app: App):
         flag="123",
     )
     with pytest.raises(RuntimeError):
-        extract_send_target(friend_req_event)
+        extract_target(friend_req_event)
+
+
+async def test_unable_to_convert(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.onebot.v11 import Bot
+
+    from nonebot_plugin_saa import SupportedAdapters, TargetQQGuildChannel
+
+    target = TargetQQGuildChannel(channel_id=1122)
+    async with app.test_api() as ctx:
+        adapter_ob11 = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_ob11)
+        with pytest.raises(RuntimeError):
+            target.arg_dict(bot)
