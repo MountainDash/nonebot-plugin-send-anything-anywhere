@@ -113,14 +113,13 @@ async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v11 import Message
 
-    from nonebot_plugin_saa import MessageFactory
-    from nonebot_plugin_saa.adapters.onebot_v11 import SendTargetOneBot11
+    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
 
     async with app.test_api() as ctx:
         adapter_ob11 = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
         bot = ctx.create_bot(base=Bot, adapter=adapter_ob11)
 
-        send_target = SendTargetOneBot11(message_type="private", user_id=1122)
+        send_target_private = TargetQQPrivate(user_id=1122)
         ctx.should_call_api(
             "send_msg",
             data={
@@ -130,4 +129,16 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, send_target)
+        await MessageFactory("123").send_to(bot, send_target_private)
+
+        send_target_group = TargetQQGroup(group_id=1122)
+        ctx.should_call_api(
+            "send_msg",
+            data={
+                "message": Message("123"),
+                "group_id": 1122,
+                "message_type": "group",
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(bot, send_target_group)

@@ -113,8 +113,7 @@ async def test_send(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
-    from nonebot_plugin_saa import MessageFactory
-    from nonebot_plugin_saa.adapters.qqguild import SendTargetQQGuild
+    from nonebot_plugin_saa import MessageFactory, TargetQQGuildChannel
 
     async with app.test_api() as ctx:
         adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
@@ -138,5 +137,5 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        target = SendTargetQQGuild(message_type="channel", channel_id=2233)
+        target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(bot, target)

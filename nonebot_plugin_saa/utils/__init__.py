@@ -1,13 +1,6 @@
 from .helpers import extract_adapter_type
-from .const import SupportedAdapters, supported_adapter_names
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
-from .registry import (
-    AbstractSendTarget,
-    deserialize,
-    register_sender,
-    extract_send_target,
-    register_target_extractor,
-)
+from .const import SupportedAdapters, SupportedPlatform, supported_adapter_names
 from .types import (
     BuildFunc,
     MessageFactory,
@@ -18,9 +11,22 @@ from .types import (
     register_ms_adapter,
     assamble_message_factory,
 )
+from .platform_send_target import (
+    TargetQQGroup,
+    PlatformTarget,
+    TargetQQPrivate,
+    TargetOB12Unknow,
+    TargetQQGuildDirect,
+    TargetQQGuildChannel,
+    extract_target,
+    register_sender,
+    register_convert_to_arg,
+    register_target_extractor,
+)
 
 __all__ = [
     "SupportedAdapters",
+    "SupportedPlatform",
     "supported_adapter_names",
     "AdapterNotInstalled",
     "AdapterNotSupported",
@@ -32,10 +38,17 @@ __all__ = [
     "CustomBuildFunc",
     "do_build",
     "do_build_custom",
-    "AbstractSendTarget",
-    "deserialize",
-    "extract_send_target",
+    "extract_target",
     "register_target_extractor",
     "register_sender",
     "assamble_message_factory",
+    # PlatformTarget
+    "register_convert_to_arg",
+    "register_target_extractor",
+    "TargetQQGroup",
+    "TargetQQPrivate",
+    "TargetQQGuildChannel",
+    "TargetQQGuildDirect",
+    "TargetOB12Unknow",
+    "PlatformTarget",
 ]

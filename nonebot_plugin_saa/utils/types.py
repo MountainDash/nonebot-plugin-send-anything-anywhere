@@ -21,7 +21,7 @@ from nonebot.matcher import current_bot, current_event, current_matcher
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .exceptions import AdapterNotInstalled
-from .registry import AbstractSendTarget, sender_map, extract_send_target
+from .platform_send_target import PlatformTarget, sender_map, extract_target
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
@@ -232,16 +232,16 @@ class MessageFactory(list[TMSF]):
         except LookupError:
             raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
 
-        target = extract_send_target(event)
+        target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, bot: Bot, target: AbstractSendTarget):
+    async def send_to(self, bot: Bot, target: PlatformTarget):
         await self._do_send(bot, target, None, False, False)
 
     async def _do_send(
         self,
         bot: Bot,
-        target: AbstractSendTarget,
+        target: PlatformTarget,
         event: Optional[Event],
         at_sender: bool,
         reply: bool,
