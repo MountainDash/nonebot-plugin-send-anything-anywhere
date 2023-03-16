@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nonebot-plugin-send-anything-anywhere"
-version = "0.2.0"
+version = "0.2.1"
 description = "An adaptor for nonebot2 adaptors"
 authors = ["felinae98 <731499577@qq.com>"]
 license = "MIT"
