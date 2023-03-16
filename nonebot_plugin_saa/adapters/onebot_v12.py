@@ -26,7 +26,8 @@ from ..utils import (
 try:
     from nonebot.adapters.onebot.v12 import (  # ChannelMessageEvent,
         Bot,
-        Message, MessageEvent,
+        Message,
+        MessageEvent,
         MessageSegment,
         GroupMessageEvent,
         PrivateMessageEvent,
