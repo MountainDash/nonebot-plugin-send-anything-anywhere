@@ -4,7 +4,6 @@ from functools import partial
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
-from nonebot.adapters.onebot.v12 import Message, MessageEvent
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -27,6 +26,8 @@ from ..utils import (
 try:
     from nonebot.adapters.onebot.v12 import (  # ChannelMessageEvent,
         Bot,
+        Message,
+        MessageEvent,
         MessageSegment,
         GroupMessageEvent,
         PrivateMessageEvent,
