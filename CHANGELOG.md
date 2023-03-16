@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### Bug 修复
+
+- 修复未安装onebot适配器或qqguild适配器时导入报错的问题 [@ssttkkl](https://github.com/ssttkkl) ([#33](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/33))
+
 ## v0.2.0
 
 ### 新功能
