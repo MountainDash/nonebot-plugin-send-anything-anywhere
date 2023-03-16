@@ -1,7 +1,6 @@
 from functools import partial
 
 from nonebot.adapters import Event
-from nonebot.adapters.qqguild import Message
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -20,6 +19,7 @@ from ..utils import (
 try:
     from nonebot.adapters.qqguild import (
         Bot,
+        Message,
         MessageEvent,
         MessageSegment,
         DirectMessageCreateEvent,
