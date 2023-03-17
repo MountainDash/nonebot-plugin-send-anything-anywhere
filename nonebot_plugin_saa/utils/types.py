@@ -15,8 +15,8 @@ from typing import (
     cast,
 )
 
+from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
-from nonebot.matcher import current_bot, current_event, current_matcher
 
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
@@ -228,7 +228,6 @@ class MessageFactory(list[TMSF]):
         try:
             event = current_event.get()
             bot = current_bot.get()
-            current_matcher.get()
         except LookupError:
             raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
 
@@ -252,6 +251,54 @@ class MessageFactory(list[TMSF]):
                 f"send method for {adapter} not registerd"
             )  # pragma: no cover
         await sender(bot, self, target, event, at_sender, reply)
+
+
+AggregatedSender = Callable[
+    [Bot, list[MessageFactory], PlatformTarget, Optional[Event]], Awaitable[None]
+]
+
+
+class AggregatedMessageFactory:
+    message_factories: list[MessageFactory]
+    sender: ClassVar[dict[SupportedAdapters, AggregatedSender]] = {}
+
+    def __init__(self, msgs: list[MessageFactory | MessageSegmentFactory]) -> None:
+        self.message_factories = []
+        for msg in msgs:
+            if isinstance(msg, MessageSegmentFactory):
+                self.message_factories.append(MessageFactory(msg))
+            else:
+                self.message_factories.append(msg)
+
+    @classmethod
+    def register_aggragated_sender(cls, adapter: SupportedAdapters):
+        def wrapper(func: AggregatedSender):
+            cls.sender[adapter] = func
+            return func
+
+        return wrapper
+
+    async def _do_send(self, bot: Bot, target: PlatformTarget, event: Optional[Event]):
+        adapter = extract_adapter_type(bot)
+        if sender := self.__class__.sender.get(adapter):  # custom aggregate sender
+            return await sender(bot, self.message_factories, target, event)
+        # fallback
+        for msg_fac in self.message_factories:
+            await msg_fac._do_send(bot, target, event, False, False)
+
+    async def send(self):
+        "回复消息，仅能用在事件相应器中"
+        try:
+            event = current_event.get()
+            bot = current_bot.get()
+        except LookupError:
+            raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
+
+        target = extract_target(event)
+        await self._do_send(bot, target, event)
+
+    async def send_to(self, bot: Bot, target: PlatformTarget):
+        await self._do_send(bot, target, None)
 
 
 def register_ms_adapter(

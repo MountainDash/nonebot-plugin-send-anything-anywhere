@@ -1,7 +1,7 @@
-from typing import Any
 from functools import partial
+from typing import Any, Optional
 
-from nonebot.adapters import Event
+from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -12,6 +12,7 @@ from ..utils import (
     SupportedAdapters,
     SupportedPlatform,
     MessageSegmentFactory,
+    AggregatedMessageFactory,
     register_sender,
     register_ms_adapter,
     register_convert_to_arg,
@@ -102,6 +103,44 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
         await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+
+    @AggregatedMessageFactory.register_aggragated_sender(adapter)
+    async def aggregate_send(
+        bot: Bot,
+        message_factories: list[MessageFactory],
+        target: PlatformTarget,
+        event: Optional[Event],
+    ):
+        assert isinstance(bot, BotOB11)
+        login_info = await bot.get_login_info()
+
+        msg_list: list[Message] = []
+        for msg_fac in message_factories:
+            msg = await msg_fac.build(bot)
+            assert isinstance(msg, Message)
+            msg_list.append(msg)
+        aggregated_message_segment = Message(
+            [
+                MessageSegment.node_custom(
+                    user_id=login_info["user_id"],
+                    nickname=login_info["nickname"],
+                    content=msg,
+                )
+                for msg in msg_list
+            ]
+        )
+
+        match target:
+            case TargetQQGroup(group_id=group_id):
+                await bot.send_group_forward_msg(
+                    group_id=group_id, messages=aggregated_message_segment
+                )
+            case TargetQQPrivate(user_id=user_id):
+                await bot.send_private_forward_msg(
+                    user_id=user_id, messages=aggregated_message_segment
+                )
+            case _:  # pragma: no cover
+                raise RuntimeError(f"{target.__class__.__name__} not supported")
 
 except ImportError:
     pass

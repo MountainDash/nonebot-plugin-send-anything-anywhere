@@ -142,3 +142,82 @@ async def test_send_active(app: App):
             result=None,
         )
         await MessageFactory("123").send_to(bot, send_target_group)
+
+
+async def test_send_aggreated_ob11(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
+
+    from nonebot_plugin_saa import Text, SupportedAdapters, AggregatedMessageFactory
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process(msg: MessageEvent):
+        await AggregatedMessageFactory([Text("123"), Text("456")]).send()
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
+        msg_event = mock_obv11_message_event(Message("321"))
+
+        ctx.should_call_api(
+            "get_login_info",
+            data={},
+            result={"user_id": int(bot.self_id), "nickname": "potato"},
+        )
+        ctx.should_call_api(
+            "send_private_forward_msg",
+            data={
+                "messages": Message(
+                    [
+                        MessageSegment.node_custom(
+                            user_id=int(bot.self_id),
+                            nickname="potato",
+                            content=Message("123"),
+                        ),
+                        MessageSegment.node_custom(
+                            user_id=int(bot.self_id),
+                            nickname="potato",
+                            content=Message("456"),
+                        ),
+                    ]
+                ),
+                "user_id": 2233,
+            },
+            result=None,
+        )
+        ctx.receive_event(bot, msg_event)
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
+        msg_event = mock_obv11_message_event(Message("321"), group=True)
+
+        ctx.should_call_api(
+            "get_login_info",
+            data={},
+            result={"user_id": int(bot.self_id), "nickname": "potato"},
+        )
+        ctx.should_call_api(
+            "send_group_forward_msg",
+            data={
+                "messages": Message(
+                    [
+                        MessageSegment.node_custom(
+                            user_id=int(bot.self_id),
+                            nickname="potato",
+                            content=Message("123"),
+                        ),
+                        MessageSegment.node_custom(
+                            user_id=int(bot.self_id),
+                            nickname="potato",
+                            content=Message("456"),
+                        ),
+                    ]
+                ),
+                "group_id": 3344,
+            },
+            result=None,
+        )
+        ctx.receive_event(bot, msg_event)
