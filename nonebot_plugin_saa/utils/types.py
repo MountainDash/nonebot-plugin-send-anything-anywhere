@@ -20,7 +20,7 @@ from nonebot.adapters import Bot, Event, Message, MessageSegment
 
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
-from .exceptions import AdapterNotInstalled
+from .exceptions import FallbackToDefault, AdapterNotInstalled
 from .platform_send_target import PlatformTarget, sender_map, extract_target
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
@@ -278,13 +278,21 @@ class AggregatedMessageFactory:
 
         return wrapper
 
+    async def _send_aggregated_message_default(
+        self, bot: Bot, target: PlatformTarget, event: Optional[Event]
+    ):
+        for msg_fac in self.message_factories:
+            await msg_fac._do_send(bot, target, event, False, False)
+
     async def _do_send(self, bot: Bot, target: PlatformTarget, event: Optional[Event]):
         adapter = extract_adapter_type(bot)
         if sender := self.__class__.sender.get(adapter):  # custom aggregate sender
-            return await sender(bot, self.message_factories, target, event)
+            try:
+                return await sender(bot, self.message_factories, target, event)
+            except FallbackToDefault:
+                await self._send_aggregated_message_default(bot, target, event)
         # fallback
-        for msg_fac in self.message_factories:
-            await msg_fac._do_send(bot, target, event, False, False)
+        await self._send_aggregated_message_default(bot, target, event)
 
     async def send(self):
         "回复消息，仅能用在事件相应器中"

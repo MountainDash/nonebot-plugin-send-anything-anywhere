@@ -144,7 +144,7 @@ async def test_send_active(app: App):
         await MessageFactory("123").send_to(bot, send_target_group)
 
 
-async def test_send_aggreated_ob11(app: App):
+async def test_send_aggreted_ob11(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v11 import Bot, Message, MessageEvent, MessageSegment
 
