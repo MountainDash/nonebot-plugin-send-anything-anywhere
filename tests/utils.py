@@ -156,3 +156,7 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
             content=message.extract_content(),
             author=User(id=3344),
         )
+
+
+def ob12_kwargs(platform="qq", impl="walle"):
+    return {"platform": platform, "impl": impl}
