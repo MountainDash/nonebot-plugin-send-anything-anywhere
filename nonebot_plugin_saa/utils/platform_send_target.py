@@ -40,8 +40,12 @@ class PlatformTarget(BaseModel, ABC):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
     @classmethod
-    def deserialize(cls, json_str: str) -> Self:
-        raw_obj = json.loads(json_str)
+    def deserialize(cls, source: str | dict) -> Self:
+        if isinstance(source, str):
+            raw_obj = json.loads(source)
+        else:
+            raw_obj = source
+            assert raw_obj.get("platform_type")
         platform_type = SupportedPlatform(raw_obj["platform_type"])
         return cls._deseriazer_map[platform_type].parse_obj(raw_obj)
 

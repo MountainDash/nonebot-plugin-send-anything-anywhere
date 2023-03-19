@@ -22,6 +22,12 @@ def test_register_deserializer():
     assert isinstance(deserialized_target, MySendTarget)
     assert deserialized_target == send_target
 
+    serialized_target = send_target.dict()
+    deserialized_target = PlatformTarget.deserialize(serialized_target)
+
+    assert isinstance(deserialized_target, MySendTarget)
+    assert deserialized_target == send_target
+
 
 async def test_export_args(app: App):
     from nonebot import get_driver
