@@ -9,10 +9,10 @@ from nonebot.adapters.onebot.v12 import Bot, Message, MessageSegment
 from nonebot_plugin_saa.utils import SupportedAdapters
 from nonebot_plugin_saa import Text, Image, MessageFactory
 
-from .utils import assert_ms, mock_obv12_message_event
+from .utils import assert_ms, ob12_kwargs, mock_obv12_message_event
 
 assert_onebot_v12 = partial(
-    assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", platform="qq"
+    assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", **ob12_kwargs()
 )
 
 
@@ -24,7 +24,9 @@ async def test_image(app: App):
     adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
 
     async with app.test_api() as ctx:
-        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter, self_id="314159", **ob12_kwargs()
+        )
         ctx.should_call_api(
             "upload_file",
             {"type": "url", "name": "image", "url": "https://example.com/image.png"},
@@ -34,7 +36,9 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter, self_id="314159", **ob12_kwargs()
+        )
 
         data = b"\x89PNG\r"
 
@@ -47,7 +51,9 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter, self_id="314159", **ob12_kwargs()
+        )
 
         image_path = Path(__file__).parent / "image.png"
 
@@ -60,7 +66,9 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
     async with app.test_api() as ctx:
-        bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="314159", platform="qq")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter, self_id="314159", **ob12_kwargs()
+        )
 
         data = BytesIO(b"\x89PNG\r")
 
@@ -103,7 +111,7 @@ async def test_send(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         ob12_adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
-        bot = ctx.create_bot(base=Bot, adapter=ob12_adapter, platform="qq")
+        bot = ctx.create_bot(base=Bot, adapter=ob12_adapter, **ob12_kwargs())
         message = Message("321")
         message_event = mock_obv12_message_event(message)
 
@@ -126,7 +134,7 @@ async def test_send_active(app: App):
 
     async with app.test_api() as ctx:
         adapter_ob12 = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_ob12, platform="qq")
+        bot = ctx.create_bot(base=Bot, adapter=adapter_ob12, **ob12_kwargs())
 
         target = TargetQQGroup(group_id=2233)
         ctx.should_call_api(

@@ -35,7 +35,7 @@ ruff = "^0.0.253"
 optional = true
 
 [tool.poetry.group.adapters.dependencies]
-nonebot-adapter-onebot = "^2.2.1"
+nonebot-adapter-onebot = "^2.2.2"
 nonebot-adapter-qqguild = ">=0.2.1"
 
 [tool.black]

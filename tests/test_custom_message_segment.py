@@ -1,7 +1,7 @@
 import pytest
 from nonebug.app import App
 
-from .utils import assert_ms
+from .utils import assert_ms, ob12_kwargs
 
 
 async def test_custom_message_segment(app: App):
@@ -36,7 +36,7 @@ async def test_custom_message_segment(app: App):
         custom_msf,
         V12MessageSegment.text("123"),
         self_id="123",
-        platform="qq",
+        **ob12_kwargs(),
     )
 
 
@@ -71,7 +71,7 @@ async def test_custom_message_segment_failed(app: App):
             custom_msf,
             V12MessageSegment.text("314159"),
             self_id="123",
-            platform="qq",
+            **ob12_kwargs(),
         )
 
 
@@ -101,5 +101,5 @@ async def test_overwrite(app: App):
         overwrited_text,
         V12MessageSegment.text("amiya"),
         self_id="123",
-        platform="qq",
+        **ob12_kwargs(),
     )
