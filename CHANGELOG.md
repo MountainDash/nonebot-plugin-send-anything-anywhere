@@ -4,6 +4,7 @@
 
 ### 新功能
 
+- 支持反序列化字典 [@felinae98](https://github.com/felinae98) ([#35](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/35))
 - 添加聚合发送 [@felinae98](https://github.com/felinae98) ([#34](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/34))
 
 ## v0.2.1
