@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 添加聚合发送 [@felinae98](https://github.com/felinae98) ([#34](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/34))
+
 ## v0.2.1
 
 ### Bug 修复
