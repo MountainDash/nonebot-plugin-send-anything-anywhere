@@ -3,6 +3,7 @@ from .types import Text, Image, Reply, Custom, Mention
 from .utils import (
     TargetQQGroup,
     MessageFactory,
+    PlatformTarget,
     TargetQQPrivate,
     TargetOB12Unknow,
     SupportedAdapters,
@@ -22,6 +23,7 @@ __all__ = [
     "AggregatedMessageFactory",
     "SupportedAdapters",
     "extract_target",
+    "PlatformTarget",
     "TargetOB12Unknow",
     "TargetQQGroup",
     "TargetQQPrivate",
