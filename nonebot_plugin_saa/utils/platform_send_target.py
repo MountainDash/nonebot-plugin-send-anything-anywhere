@@ -26,6 +26,9 @@ class PlatformTarget(BaseModel, ABC):
     _deseriazer_map: ClassVar[dict[SupportedPlatform, Type["PlatformTarget"]]] = {}
     platform_type: SupportedPlatform
 
+    class Config:
+        frozen = True
+
     def __init_subclass__(cls) -> None:
         assert isinstance(cls.__fields__["platform_type"].default, SupportedPlatform)
         cls._deseriazer_map[cls.__fields__["platform_type"].default] = cls
