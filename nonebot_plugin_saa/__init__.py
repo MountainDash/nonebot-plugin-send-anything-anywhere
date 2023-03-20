@@ -9,6 +9,7 @@ from .utils import (
     SupportedAdapters,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
+    MessageSegmentFactory,
     AggregatedMessageFactory,
     extract_target,
 )
@@ -20,6 +21,7 @@ __all__ = [
     "Reply",
     "Custom",
     "MessageFactory",
+    "MessageSegmentFactory",
     "AggregatedMessageFactory",
     "SupportedAdapters",
     "extract_target",
