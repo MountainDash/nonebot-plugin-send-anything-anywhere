@@ -58,7 +58,9 @@ await MessageFactory("早上好").send_to(target)
 
 ```python
 from nonebot_plugin_saa import extract_target
-@matcher.handle(event: MessageEvent):
+
+@matcher.handle(event: MessageEvent)
+async def handle(event: MessageEvent):
     target = extract_target(event)
 ```
 
