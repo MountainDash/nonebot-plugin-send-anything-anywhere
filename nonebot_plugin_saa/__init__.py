@@ -11,8 +11,8 @@ from .utils import (
     TargetQQGuildChannel,
     MessageSegmentFactory,
     AggregatedMessageFactory,
-    extract_target,
     get_target,
+    extract_target,
 )
 
 __all__ = [
