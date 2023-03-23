@@ -28,7 +28,7 @@ class PlatformTarget(BaseModel, ABC):
 
     class Config:
         frozen = True
-        orm_mode=True
+        orm_mode = True
 
     def __init_subclass__(cls) -> None:
         assert isinstance(cls.__fields__["platform_type"].default, SupportedPlatform)
