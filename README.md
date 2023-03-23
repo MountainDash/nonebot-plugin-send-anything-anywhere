@@ -57,11 +57,15 @@ await MessageFactory("早上好").send_to(target)
 从消息事件中提取发送目标:
 
 ```python
-from nonebot_plugin_saa import extract_target
+from nonebot_plugin_saa import extract_target, get_target
 
-@matcher.handle(event: MessageEvent)
+@matcher.handle()
 async def handle(event: MessageEvent):
     target = extract_target(event)
+
+@matcher.handle()
+async def handle(target: PlatformTarget = Depends(get_target)):
+    ...
 ```
 
 发送目标的序列化与反序列化:
