@@ -188,3 +188,43 @@ async def test_unable_to_convert(app: App):
         bot = ctx.create_bot(base=Bot, adapter=adapter_ob11)
         with pytest.raises(RuntimeError):
             target.arg_dict(bot)
+
+
+def test_get_target(app: App):
+    from nonebot.adapters.onebot.v11.event import Sender
+    from nonebot.adapters.onebot.v11 import (
+        Message,
+        GroupMessageEvent,
+        FriendRequestEvent,
+    )
+
+    from nonebot_plugin_saa import TargetQQGroup, get_target
+
+    sender = Sender(user_id=3344)
+    group_message_event = GroupMessageEvent(
+        group_id=1122,
+        time=1122,
+        self_id=2233,
+        post_type="message",
+        sub_type="",
+        user_id=3344,
+        message_id=4455,
+        message=Message("123"),
+        original_message=Message("123"),
+        message_type="group",
+        raw_message="123",
+        font=1,
+        sender=sender,
+    )
+    assert get_target(group_message_event) == TargetQQGroup(group_id=1122)
+
+    friend_req_event = FriendRequestEvent(
+        time=1122,
+        self_id=2233,
+        post_type="request",
+        request_type="friend",
+        user_id=3344,
+        comment="666",
+        flag="123",
+    )
+    assert get_target(friend_req_event) is None

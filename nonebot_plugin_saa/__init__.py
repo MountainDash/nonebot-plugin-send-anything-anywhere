@@ -11,6 +11,7 @@ from .utils import (
     TargetQQGuildChannel,
     MessageSegmentFactory,
     AggregatedMessageFactory,
+    get_target,
     extract_target,
 )
 
@@ -25,6 +26,7 @@ __all__ = [
     "AggregatedMessageFactory",
     "SupportedAdapters",
     "extract_target",
+    "get_target",
     "PlatformTarget",
     "TargetOB12Unknow",
     "TargetQQGroup",

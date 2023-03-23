@@ -156,6 +156,14 @@ def extract_target(event: Event) -> PlatformTarget:
     raise RuntimeError(f"event {event.__class__} not supported")
 
 
+def get_target(event: Event) -> PlatformTarget | None:
+    "从事件中提取出发送目标，如果不能提取就返回 None"
+    try:
+        return extract_target(event)
+    except RuntimeError:
+        pass
+
+
 Sender = Callable[
     [Bot, "MessageFactory", "PlatformTarget", Optional[Event], bool, bool],
     Awaitable[None],
