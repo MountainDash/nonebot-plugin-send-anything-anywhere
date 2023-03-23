@@ -4,6 +4,7 @@
 
 ### 新功能
 
+- 开启 PlatformTarget 的 orm_mode [@AzideCupric](https://github.com/AzideCupric) ([#37](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/37))
 - 将 PlatformTarget 设为 frozen [@felinae98](https://github.com/felinae98) ([#36](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/36))
 - 支持反序列化字典 [@felinae98](https://github.com/felinae98) ([#35](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/35))
 - 添加聚合发送 [@felinae98](https://github.com/felinae98) ([#34](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/34))
