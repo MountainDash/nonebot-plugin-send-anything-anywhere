@@ -23,6 +23,9 @@ class Text(MessageSegmentFactory):
         super().__init__()
         self.data = {"text": text}
 
+    def __str__(self) -> str:
+        return self.data["text"]
+
 
 MessageFactory.register_text_ms(lambda text: Text(text))
 
