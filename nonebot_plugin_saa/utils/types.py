@@ -270,6 +270,9 @@ class AggregatedMessageFactory:
             else:
                 self.message_factories.append(msg)
 
+    def __eq__(self, other: Self):
+        return self.message_factories == other.message_factories
+
     @classmethod
     def register_aggragated_sender(cls, adapter: SupportedAdapters):
         def wrapper(func: AggregatedSender):
