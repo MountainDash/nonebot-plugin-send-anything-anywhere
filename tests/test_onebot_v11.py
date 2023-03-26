@@ -2,15 +2,20 @@ from functools import partial
 
 from nonebug import App
 from nonebot.adapters.onebot.v11.bot import Bot
+import pytest
 
-from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms, mock_obv11_message_event
 
-assert_onebot_v11 = partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
+
+@pytest.fixture
+async def assert_onebot_v11(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_onebot_v11):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -18,7 +23,7 @@ async def test_text(app: App):
     await assert_onebot_v11(app, Text("123"), MessageSegment.text("123"))
 
 
-async def test_image(app: App):
+async def test_image(app: App, assert_onebot_v11):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -26,7 +31,7 @@ async def test_image(app: App):
     await assert_onebot_v11(app, Image("123"), MessageSegment.image("123"))
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_onebot_v11):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -34,7 +39,7 @@ async def test_mention(app: App):
     await assert_onebot_v11(app, Mention("123"), MessageSegment.at("123"))
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_onebot_v11):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -111,6 +116,7 @@ async def test_send_with_reply(app: App):
 
 async def test_send_active(app: App):
     from nonebot import get_driver
+    from nonebot_plugin_saa.utils import SupportedAdapters
     from nonebot.adapters.onebot.v11 import Message
 
     from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
@@ -158,7 +164,9 @@ async def test_send_aggreted_ob11(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter_obj, self_id="9988", auto_connect=False
+        )
         msg_event = mock_obv11_message_event(Message("321"))
 
         ctx.should_call_api(
@@ -191,7 +199,9 @@ async def test_send_aggreted_ob11(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
+        bot = ctx.create_bot(
+            base=Bot, adapter=adapter_obj, self_id="9988", auto_connect=False
+        )
         msg_event = mock_obv11_message_event(Message("321"), group=True)
 
         ctx.should_call_api(

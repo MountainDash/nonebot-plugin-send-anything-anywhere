@@ -4,21 +4,25 @@ from functools import partial
 from nonebug import App
 from nonebot.adapters.qqguild import Bot
 from nonebot.adapters.qqguild.config import BotInfo
-
-from nonebot_plugin_saa.utils import SupportedAdapters
+import pytest
 
 from .utils import assert_ms, mock_qqguild_message_event
 
-assert_qqguild = partial(
-    assert_ms,
-    Bot,
-    SupportedAdapters.qqguild,
-    self_id="314159",
-    bot_info=BotInfo(id="314159", token="token", secret="secret"),
-)
+
+@pytest.fixture
+async def assert_qqguild(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(
+        assert_ms,
+        Bot,
+        SupportedAdapters.qqguild,
+        self_id="314159",
+        bot_info=BotInfo(id="314159", token="token", secret="secret"),
+    )
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -26,7 +30,7 @@ async def test_text(app: App):
     await assert_qqguild(app, Text("text"), MessageSegment.text("text"))
 
 
-async def test_image(app: App, tmp_path: Path):
+async def test_image(app: App, tmp_path: Path, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -46,7 +50,7 @@ async def test_image(app: App, tmp_path: Path):
     await assert_qqguild(app, Image(image_path), MessageSegment.file_image(image_path))
 
 
-async def test_mention_user(app: App):
+async def test_mention_user(app: App, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -72,6 +76,7 @@ async def test_send(app: App):
             base=Bot,
             adapter=qqguild_adapter,
             bot_info=BotInfo(id="3344", token="", secret=""),
+            auto_connect=False,
         )
         event = mock_qqguild_message_event(Message("321"))
         ctx.receive_event(bot, event)
@@ -113,6 +118,7 @@ async def test_send(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
+    from nonebot_plugin_saa.utils import SupportedAdapters
     from nonebot_plugin_saa import MessageFactory, TargetQQGuildChannel
 
     async with app.test_api() as ctx:
@@ -121,6 +127,7 @@ async def test_send_active(app: App):
             base=Bot,
             adapter=adapter_qqguild,
             bot_info=BotInfo(id="3344", token="", secret=""),
+            auto_connect=False,
         )
 
         ctx.should_call_api(

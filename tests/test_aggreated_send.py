@@ -1,7 +1,5 @@
 from nonebug import App
 
-from nonebot_plugin_saa.utils.types import MessageFactory
-
 from .utils import ob12_kwargs, mock_obv12_message_event
 
 
@@ -20,7 +18,10 @@ async def test_send(app: App):
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
         bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, **ob12_kwargs(platform="qqguild")
+            base=Bot,
+            adapter=adapter_obj,
+            **ob12_kwargs(platform="qqguild"),
+            auto_connect=False,
         )
         msg_event = mock_obv12_message_event(Message("321"))
         ctx.receive_event(bot, msg_event)
@@ -48,6 +49,7 @@ async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v12 import Bot, Message
 
+    from nonebot_plugin_saa.utils.types import MessageFactory
     from nonebot_plugin_saa import (
         Text,
         TargetOB12Unknow,
