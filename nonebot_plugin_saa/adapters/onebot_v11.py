@@ -15,6 +15,7 @@ from ..utils import (
     AggregatedMessageFactory,
     register_sender,
     register_ms_adapter,
+    register_get_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
@@ -141,6 +142,26 @@ try:
                 )
             case _:  # pragma: no cover
                 raise RuntimeError(f"{target.__class__.__name__} not supported")
+
+    @register_get_targets(SupportedAdapters.onebot_v11)
+    async def get_targets(bot: Bot) -> list[PlatformTarget]:
+        assert isinstance(bot, BotOB11)
+
+        targets = []
+        groups = await bot.get_group_list()
+        for group in groups:
+            group_id = group["group_id"]
+            target = TargetQQGroup(group_id=group_id)
+            targets.append(target)
+
+        # 获取好友列表
+        users = await bot.get_friend_list()
+        for user in users:
+            user_id = user["user_id"]
+            target = TargetQQPrivate(user_id=user_id)
+            targets.append(target)
+
+        return targets
 
 except ImportError:
     pass

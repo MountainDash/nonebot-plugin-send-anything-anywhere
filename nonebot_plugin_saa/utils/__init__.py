@@ -27,6 +27,8 @@ from .platform_send_target import (
     register_target_extractor,
 )
 
+from .get_bot import get_bot, register_get_targets
+
 __all__ = [
     "SupportedAdapters",
     "SupportedPlatform",
@@ -56,4 +58,7 @@ __all__ = [
     "TargetQQGuildDirect",
     "TargetOB12Unknow",
     "AllSupportedPlatformTarget",
+    # get_bot
+    "get_bot",
+    "register_get_targets",
 ]
