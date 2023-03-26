@@ -1,7 +1,7 @@
 """ 提供获取 Bot 的方法 """
 import random
 from collections import defaultdict
-from typing import Awaitable, Callable, Optional
+from typing import Callable, Optional, Awaitable
 
 import nonebot
 from nonebot.adapters import Bot

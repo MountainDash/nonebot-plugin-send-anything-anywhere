@@ -14,7 +14,6 @@ from ..utils import (
     TargetOB12Unknow,
     SupportedAdapters,
     SupportedPlatform,
-    TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
     register_sender,
@@ -173,15 +172,15 @@ try:
             for friend in friends:
                 match bot.platform:
                     case "qq":
-                        targets.append(
-                            TargetQQPrivate(user_id=int(friend["user_id"]))
-                        )
+                        targets.append(TargetQQPrivate(user_id=int(friend["user_id"])))
                     case "qqguild":
                         # FIXME: 怎么获取 src_guild_id 捏？
                         pass
                     case _:
                         targets.append(
-                            TargetOB12Unknow(detail_type="private", user_id=friend["user_id"])
+                            TargetOB12Unknow(
+                                detail_type="private", user_id=friend["user_id"]
+                            )
                         )
         except UnsupportedAction:
             pass
@@ -191,12 +190,12 @@ try:
             for group in groups:
                 match bot.platform:
                     case "qq":
-                        targets.append(
-                            TargetQQGroup(group_id=int(group["group_id"]))
-                        )
+                        targets.append(TargetQQGroup(group_id=int(group["group_id"])))
                     case _:
                         targets.append(
-                            TargetOB12Unknow(detail_type="group", group_id=group["group_id"])
+                            TargetOB12Unknow(
+                                detail_type="group", group_id=group["group_id"]
+                            )
                         )
         except UnsupportedAction:
             pass

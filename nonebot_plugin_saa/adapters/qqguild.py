@@ -13,9 +13,9 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_get_targets,
     assamble_message_factory,
     register_target_extractor,
-    register_get_targets,
 )
 
 try:

@@ -18,11 +18,11 @@ from typing import (
 from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
 
+from .get_bot import get_bot
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .exceptions import FallbackToDefault, AdapterNotInstalled
 from .platform_send_target import PlatformTarget, sender_map, extract_target
-from .get_bot import get_bot
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")

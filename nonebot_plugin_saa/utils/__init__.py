@@ -1,4 +1,5 @@
 from .helpers import extract_adapter_type
+from .get_bot import get_bot, register_get_targets
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
 from .const import SupportedAdapters, SupportedPlatform, supported_adapter_names
 from .types import (
@@ -26,8 +27,6 @@ from .platform_send_target import (
     register_convert_to_arg,
     register_target_extractor,
 )
-
-from .get_bot import get_bot, register_get_targets
 
 __all__ = [
     "SupportedAdapters",
