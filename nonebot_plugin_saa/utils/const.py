@@ -5,6 +5,7 @@ class SupportedAdapters(StrEnum):
     onebot_v11 = "OneBot V11"
     onebot_v12 = "OneBot V12"
     qqguild = "QQ Guild"
+    kaiheila = "Kaiheila"
 
 
 class SupportedPlatform(StrEnum):
@@ -12,6 +13,8 @@ class SupportedPlatform(StrEnum):
     qq_private = "QQ Private"
     qq_guild_channel = "QQ Guild Channel"
     qq_guild_direct = "QQ Guild Direct"
+    kaiheila_channel = "Kaiheila Channel"
+    kaiheila_private = "Kaiheila Private"
     unknown_ob12 = "Unknow Onebot 12 Platform"
 
 

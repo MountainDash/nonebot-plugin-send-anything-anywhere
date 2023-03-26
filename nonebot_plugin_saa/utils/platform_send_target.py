@@ -122,12 +122,44 @@ class TargetOB12Unknow(PlatformTarget):
     channel_id: Optional[str] = None
 
 
+class TargetKaiheilaChannel(PlatformTarget):
+    """开黑啦频道
+
+    参数
+        user_id: 接收人ID
+        channel_id: 频道ID
+        guild_id: 服务器ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.kaiheila_channel
+    ] = SupportedPlatform.kaiheila_channel
+    user_id: Optional[str] = None
+    channel_id: str
+    guild_id: Optional[str] = None
+
+
+class TargetKaiheilaPrivate(PlatformTarget):
+    """开黑啦私聊
+
+    参数
+        user_id: 接收人ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.kaiheila_private
+    ] = SupportedPlatform.kaiheila_private
+    user_id: Optional[str] = None
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = (
     TargetQQGroup
     | TargetQQPrivate
     | TargetQQGuildChannel
     | TargetQQGuildDirect
+    | TargetKaiheilaPrivate
+    | TargetKaiheilaChannel
     | TargetOB12Unknow
 )
 

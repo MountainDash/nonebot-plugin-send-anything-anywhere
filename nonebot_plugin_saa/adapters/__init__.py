@@ -1,1 +1,1 @@
-from . import qqguild, onebot_v11, onebot_v12  # noqa: F401
+from . import qqguild, onebot_v11, onebot_v12, kaiheila  # noqa: F401
