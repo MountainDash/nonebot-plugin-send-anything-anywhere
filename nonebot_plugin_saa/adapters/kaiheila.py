@@ -1,7 +1,8 @@
+import json
 from functools import partial
-from pathlib import Path
 from typing import Any
 
+from nonebot import logger
 from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
 
@@ -90,6 +91,76 @@ try:
         }
 
 
+    _card_template = {
+        "type": "card",
+        "theme": "none",
+        "size": "lg",
+        "modules": []
+    }
+
+
+    def _convert_to_card_message(msg: Message) -> MessageSegment:
+        cards = []
+
+        modules = []
+
+        for seg in msg:
+            if seg.type == 'card':
+                if len(modules) != 0:
+                    cards.append({
+                        **_card_template,
+                        "modules": modules
+                    })
+                    modules = []
+
+                cards.extend(json.loads(seg.data["content"]))
+            elif seg.type == 'text':
+                modules.append({
+                    "type": "section",
+                    "text": {
+                        "type": "plain-text",
+                        "content": seg.data["content"]
+                    }
+                })
+            elif seg.type == 'image':
+                modules.append({
+                    "type": "container",
+                    "elements": [
+                        {
+                            "type": "image",
+                            "src": seg.data["file_key"]
+                        }
+                    ]
+                })
+            else:
+                logger.warning("Ignored unknown message segment type: " + seg.type)
+
+        if len(modules) != 0:
+            cards.append({
+                **_card_template,
+                "modules": modules
+            })
+
+        return MessageSegment.Card(json.dumps(cards))
+
+
+    def _handle_msg(msg: Message) -> Message:
+        """如果消息由多个消息段组成，转化为卡片消息发送"""
+        msg.reduce()
+
+        real_msg = msg
+        if len(msg) != 0 and msg[0].type == 'quote':
+            real_msg = msg[1:]
+
+        if len(real_msg) <= 1:
+            return msg
+        else:
+            ret_msg = Message(_convert_to_card_message(real_msg))
+            if msg[0].type == 'quote':
+                ret_msg.insert(0, msg[0])
+            return ret_msg
+
+
     @register_sender(SupportedAdapters.kaiheila)
     async def send(
         bot,
@@ -118,6 +189,8 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
+
+        message_to_send = _handle_msg(message_to_send)
         await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
 
 except ImportError:
