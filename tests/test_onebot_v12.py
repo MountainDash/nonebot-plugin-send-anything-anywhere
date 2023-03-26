@@ -146,7 +146,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)
 
         target = TargetQQPrivate(user_id=1122)
         ctx.should_call_api(
@@ -158,7 +158,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)
 
         target = TargetOB12Unknow(detail_type="channel", channel_id="3344")
         ctx.should_call_api(
@@ -173,4 +173,4 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)

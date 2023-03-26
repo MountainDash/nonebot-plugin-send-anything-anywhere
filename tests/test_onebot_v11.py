@@ -129,7 +129,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, send_target_private)
+        await MessageFactory("123").send_to(send_target_private, bot)
 
         send_target_group = TargetQQGroup(group_id=1122)
         ctx.should_call_api(
@@ -141,7 +141,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, send_target_group)
+        await MessageFactory("123").send_to(send_target_group, bot)
 
 
 async def test_send_aggreted_ob11(app: App):

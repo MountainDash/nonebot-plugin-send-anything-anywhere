@@ -8,7 +8,7 @@ from nonebot.adapters import Bot
 
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
-from .platform_send_target import PlatformTarget
+from .platform_send_target import PlatformTarget, TargetQQGuildDirect
 
 BOT_CACHE: dict[PlatformTarget, list[Bot]] = defaultdict(list)
 
@@ -38,6 +38,9 @@ async def refresh_bots():
 
 def get_bot(target: PlatformTarget) -> Optional[Bot]:
     """获取 Bot"""
+    if isinstance(target, TargetQQGuildDirect):
+        raise NotImplementedError("暂不支持私聊")
+
     bots = BOT_CACHE.get(target)
     if not bots:
         return

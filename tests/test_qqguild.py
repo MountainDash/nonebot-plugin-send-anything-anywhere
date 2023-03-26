@@ -138,4 +138,4 @@ async def test_send_active(app: App):
             result=None,
         )
         target = TargetQQGuildChannel(channel_id=2233)
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)

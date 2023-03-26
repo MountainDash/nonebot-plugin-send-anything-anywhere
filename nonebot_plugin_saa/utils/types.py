@@ -22,6 +22,7 @@ from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .exceptions import FallbackToDefault, AdapterNotInstalled
 from .platform_send_target import PlatformTarget, sender_map, extract_target
+from .get_bot import get_bot
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
@@ -234,7 +235,12 @@ class MessageFactory(list[TMSF]):
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, bot: Bot, target: PlatformTarget):
+    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+        if bot is None:
+            if random_bot := get_bot(target):
+                bot = random_bot
+            else:
+                raise RuntimeError("无法确定要发送的 bot")
         await self._do_send(bot, target, None, False, False)
 
     async def _do_send(
@@ -308,7 +314,12 @@ class AggregatedMessageFactory:
         target = extract_target(event)
         await self._do_send(bot, target, event)
 
-    async def send_to(self, bot: Bot, target: PlatformTarget):
+    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+        if bot is None:
+            if random_bot := get_bot(target):
+                bot = random_bot
+            else:
+                raise RuntimeError("无法确定要发送的 bot")
         await self._do_send(bot, target, None)
 
 
