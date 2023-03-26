@@ -1,10 +1,10 @@
 from pathlib import Path
 from functools import partial
 
+import pytest
 from nonebug import App
 from nonebot.adapters.qqguild import Bot
 from nonebot.adapters.qqguild.config import BotInfo
-import pytest
 
 from .utils import assert_ms, mock_qqguild_message_event
 

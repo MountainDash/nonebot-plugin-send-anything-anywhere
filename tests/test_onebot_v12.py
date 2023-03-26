@@ -26,7 +26,7 @@ async def test_text(app: App, assert_onebot_v12):
 
 
 async def test_image(app: App, assert_onebot_v12):
-    from nonebot_plugin_saa import Text, Image, MessageFactory
+    from nonebot_plugin_saa import Image
     from nonebot_plugin_saa.utils import SupportedAdapters
 
     adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
@@ -109,8 +109,8 @@ async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v12 import Bot, Message
 
+    from nonebot_plugin_saa import Text, MessageFactory
     from nonebot_plugin_saa.utils import SupportedAdapters
-    from nonebot_plugin_saa import Text, Image, MessageFactory
 
     matcher = on_message()
 
@@ -141,8 +141,6 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa.utils import SupportedAdapters
     from nonebot_plugin_saa import (
-        Text,
-        Image,
         TargetQQGroup,
         MessageFactory,
         TargetQQPrivate,

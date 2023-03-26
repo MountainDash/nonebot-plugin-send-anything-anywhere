@@ -53,8 +53,8 @@ async def test_export_args(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v11 import Bot
 
-    from nonebot_plugin_saa.utils.const import SupportedAdapters
     from nonebot_plugin_saa.utils import TargetQQGroup
+    from nonebot_plugin_saa.utils.const import SupportedAdapters
 
     target = TargetQQGroup(group_id=31415)
     async with app.test_api() as ctx:
