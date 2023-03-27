@@ -19,6 +19,7 @@ from .platform_send_target import (
     TargetOB12Unknow,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
+    AllSupportedPlatformTarget,
     get_target,
     extract_target,
     register_sender,
@@ -46,13 +47,13 @@ __all__ = [
     "register_target_extractor",
     "register_sender",
     "assamble_message_factory",
-    # PlatformTarget
     "register_convert_to_arg",
     "register_target_extractor",
+    "PlatformTarget",
     "TargetQQGroup",
     "TargetQQPrivate",
     "TargetQQGuildChannel",
     "TargetQQGuildDirect",
     "TargetOB12Unknow",
-    "PlatformTarget",
+    "AllSupportedPlatformTarget",
 ]

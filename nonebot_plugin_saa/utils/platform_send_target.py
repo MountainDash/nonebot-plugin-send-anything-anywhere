@@ -122,6 +122,16 @@ class TargetOB12Unknow(PlatformTarget):
     channel_id: Optional[str] = None
 
 
+# this union type is for deserialize pydantic model with nested PlatformTarget
+AllSupportedPlatformTarget = (
+    TargetQQGroup
+    | TargetQQPrivate
+    | TargetQQGuildChannel
+    | TargetQQGuildDirect
+    | TargetOB12Unknow
+)
+
+
 ConvertToArg = Callable[[PlatformTarget], dict[str, Any]]
 convert_to_arg_map: dict[tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
 

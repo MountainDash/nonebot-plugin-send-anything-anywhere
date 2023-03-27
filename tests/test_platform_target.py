@@ -3,6 +3,7 @@ from datetime import datetime
 
 import pytest
 from nonebug import App
+from pydantic import BaseModel
 
 from nonebot_plugin_saa.utils.const import SupportedAdapters
 
@@ -27,6 +28,27 @@ def test_register_deserializer():
 
     assert isinstance(deserialized_target, MySendTarget)
     assert deserialized_target == send_target
+
+
+def test_deserialize_nested_platform_target():
+    from nonebot_plugin_saa.utils import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        AllSupportedPlatformTarget,
+    )
+
+    class CustomModel(BaseModel):
+        data: AllSupportedPlatformTarget
+
+    model = CustomModel(data=TargetQQGroup(group_id=123))
+    serialized_model = model.dict()
+    deserialized_model = CustomModel.parse_obj(serialized_model)
+    assert model == deserialized_model
+
+    model = CustomModel(data=TargetQQPrivate(user_id=456))
+    serialized_model = model.dict()
+    deserialized_model = CustomModel.parse_obj(serialized_model)
+    assert model == deserialized_model
 
 
 async def test_export_args(app: App):
