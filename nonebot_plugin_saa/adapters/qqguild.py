@@ -157,7 +157,11 @@ try:
         for guild in guilds:
             channels = await bot.get_channels(guild_id=guild.id)  # type: ignore
             for channel in channels:
-                targets.append(TargetQQGuildChannel(channel_id=channel.id))  # type: ignore
+                targets.append(
+                    TargetQQGuildChannel(
+                        channel_id=channel.id,  # type: ignore
+                    )
+                )
 
         return targets
 
