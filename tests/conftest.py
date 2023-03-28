@@ -4,6 +4,7 @@ from nonebug import NONEBOT_INIT_KWARGS, App
 from nonebot.adapters.qqguild import Adapter as QQGuildAdapter
 from nonebot.adapters.onebot.v11 import Adapter as OnebotV11Adapter
 from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
+from nonebot.adapters.kaiheila import Adapter as KaiheilaAdapter
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -25,3 +26,4 @@ def load_adapters(nonebug_init: None):
     driver.register_adapter(OnebotV11Adapter)
     driver.register_adapter(OnebotV12Adapter)
     driver.register_adapter(QQGuildAdapter)
+    driver.register_adapter(KaiheilaAdapter)
