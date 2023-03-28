@@ -1,15 +1,18 @@
-from functools import partial
 from io import BytesIO
+from functools import partial
 
+from nonebug import App
 from nonebot import get_driver
 from nonebot.adapters.kaiheila import Bot
 from nonebot.adapters.kaiheila.api import URL
-from nonebug import App
 
 from nonebot_plugin_saa.utils import SupportedAdapters
-from .utils import assert_ms, mock_kaiheila_message_event, kaiheila_kwargs
 
-assert_kaiheila = partial(assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs())
+from .utils import assert_ms, kaiheila_kwargs, mock_kaiheila_message_event
+
+assert_kaiheila = partial(
+    assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs()
+)
 
 
 async def test_text(app: App):
@@ -35,7 +38,7 @@ async def test_image(app: App):
 
         ctx.should_call_api(
             "asset_create",
-            {'file': ('image', b'\x89PNG\r', 'application/octet-stream')},
+            {"file": ("image", b"\x89PNG\r", "application/octet-stream")},
             URL(url="123"),
         )
         generated_ms = await Image(data).build(bot)
@@ -47,7 +50,9 @@ async def test_mention(app: App):
 
     from nonebot_plugin_saa import Mention
 
-    await assert_kaiheila(app, Mention("123"), MessageSegment.KMarkdown("(met)123(met)"))
+    await assert_kaiheila(
+        app, Mention("123"), MessageSegment.KMarkdown("(met)123(met)")
+    )
 
 
 async def test_reply(app: App):
@@ -59,8 +64,8 @@ async def test_reply(app: App):
 
 
 async def test_send(app: App):
-    from nonebot import get_driver, on_message
     from nonebot.adapters.kaiheila import Bot
+    from nonebot import get_driver, on_message
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -77,7 +82,7 @@ async def test_send(app: App):
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "direct-message/create",
-            data={'type': 1, 'content': '123', 'target_id': '3344'},
+            data={"type": 1, "content": "123", "target_id": "3344"},
             result=None,
         )
 
@@ -88,14 +93,14 @@ async def test_send(app: App):
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "message/create",
-            data={'type': 1, 'content': '123', 'target_id': '1111'},
+            data={"type": 1, "content": "123", "target_id": "1111"},
             result=None,
         )
 
 
 async def test_send_with_reply(app: App):
-    from nonebot import get_driver, on_message
     from nonebot.adapters.kaiheila import Bot
+    from nonebot import get_driver, on_message
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -112,7 +117,12 @@ async def test_send_with_reply(app: App):
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "direct-message/create",
-            data={'type': 9, 'content': '(met)3344(met)123', 'quote': 'abcdef', 'target_id': '3344'},
+            data={
+                "type": 9,
+                "content": "(met)3344(met)123",
+                "quote": "abcdef",
+                "target_id": "3344",
+            },
             result=None,
         )
 
@@ -123,7 +133,12 @@ async def test_send_with_reply(app: App):
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "message/create",
-            data={'type': 9, 'content': '(met)3344(met)123', 'quote': 'abcdef', 'target_id': '1111'},
+            data={
+                "type": 9,
+                "content": "(met)3344(met)123",
+                "quote": "abcdef",
+                "target_id": "1111",
+            },
             result=None,
         )
 
@@ -132,7 +147,10 @@ async def test_send_active(app: App):
     from nonebot import get_driver
 
     from nonebot_plugin_saa import MessageFactory
-    from nonebot_plugin_saa.utils.platform_send_target import TargetKaiheilaPrivate, TargetKaiheilaChannel
+    from nonebot_plugin_saa.utils.platform_send_target import (
+        TargetKaiheilaChannel,
+        TargetKaiheilaPrivate,
+    )
 
     async with app.test_api() as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
@@ -141,7 +159,7 @@ async def test_send_active(app: App):
         send_target_private = TargetKaiheilaPrivate(user_id="3344")
         ctx.should_call_api(
             "direct-message/create",
-            data={'type': 1, 'content': '123', 'target_id': '3344'},
+            data={"type": 1, "content": "123", "target_id": "3344"},
             result=None,
         )
         await MessageFactory("123").send_to(bot, send_target_private)
@@ -149,7 +167,7 @@ async def test_send_active(app: App):
         send_target_group = TargetKaiheilaChannel(channel_id="1111")
         ctx.should_call_api(
             "message/create",
-            data={'type': 1, 'content': '123', 'target_id': '1111'},
+            data={"type": 1, "content": "123", "target_id": "1111"},
             result=None,
         )
         await MessageFactory("123").send_to(bot, send_target_group)
