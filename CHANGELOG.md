@@ -4,6 +4,7 @@
 
 ### 新功能
 
+- 添加开黑啦适配 [@ssttkkl](https://github.com/ssttkkl) ([#43](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/43))
 - 添加反序列化带 PlatformTarget 的 pydantic 对象的支持 [@felinae98](https://github.com/felinae98) ([#42](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/42))
 
 ## v0.2.2
