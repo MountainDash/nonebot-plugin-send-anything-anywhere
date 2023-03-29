@@ -61,11 +61,7 @@ try:
     @register_target_extractor(ChannelMessageEvent)
     def _extract_channel_msg_event(event: Event) -> TargetKaiheilaChannel:
         assert isinstance(event, ChannelMessageEvent)
-        return TargetKaiheilaChannel(
-            user_id=event.author_id,
-            channel_id=event.target_id,
-            guild_id=event.extra.guild_id,
-        )
+        return TargetKaiheilaChannel(channel_id=event.target_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_private)
     def _gen_private(target: PlatformTarget) -> dict[str, Any]:
@@ -75,10 +71,9 @@ try:
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_channel)
-    def _gen_group(target: PlatformTarget) -> dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetKaiheilaChannel)
         return {
-            "user_id": target.user_id,
             "channel_id": target.channel_id,
         }
 
