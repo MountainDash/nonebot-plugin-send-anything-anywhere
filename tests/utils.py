@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Type, Literal
 
 from nonebot import get_driver
+from nonebot.adapters.kaiheila.api import User
+from nonebot.adapters.kaiheila.event import Extra, EventMessage
 
 if TYPE_CHECKING:
     from nonebug import App
@@ -158,5 +160,68 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
         )
 
 
+def mock_kaiheila_message_event(channel=False):
+    from nonebot.adapters.kaiheila.event import (
+        ChannelMessageEvent as KaiheilaChannelMessageEvent,
+    )
+    from nonebot.adapters.kaiheila.event import (
+        PrivateMessageEvent as KaiheilaPrivateMessageEvent,
+    )
+
+    if not channel:
+        return KaiheilaPrivateMessageEvent(
+            channel_type="PERSON",
+            type=9,
+            target_id="2233",
+            content="/abc",
+            msg_id="abcdef",
+            msg_timestamp=1145141919,
+            nonce="abcdef",
+            extra=Extra(type=9),
+            user_id="3344",
+            sub_type="kmarkdown",
+            event=EventMessage(
+                type=9,
+                author=User(id="3344", username="3344", identify_num="3344"),
+                content="/abc",
+                kmarkdown={
+                    "raw_content": "/abc",
+                    "mention_part": [],
+                    "mention_role_part": [],
+                },
+            ),
+            message_type="private",
+        )
+    else:
+        return KaiheilaChannelMessageEvent(
+            channel_type="GROUP",
+            type=9,
+            target_id="1111",
+            content="/abc",
+            msg_id="abcdef",
+            msg_timestamp=1145141919,
+            nonce="abcdef",
+            extra=Extra(type=9),
+            user_id="3344",
+            sub_type="kmarkdown",
+            event=EventMessage(
+                type=9,
+                author=User(id="3344", username="3344", identify_num="3344"),
+                content="/abc",
+                kmarkdown={
+                    "raw_content": "/abc",
+                    "mention_part": [],
+                    "mention_role_part": [],
+                },
+            ),
+            message_type="group",
+            group_id="1111",
+        )
+
+
 def ob12_kwargs(platform="qq", impl="walle"):
     return {"platform": platform, "impl": impl}
+
+
+def kaiheila_kwargs(name="2233", token="hhhh"):
+    return {"name": name, "token": token}
