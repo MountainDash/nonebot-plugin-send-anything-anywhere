@@ -5,7 +5,7 @@ description = "An adaptor for nonebot2 adaptors"
 authors = ["felinae98 <731499577@qq.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "nonebot_plugin_saa"}]
+packages = [{ include = "nonebot_plugin_saa" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3.10",
@@ -13,7 +13,7 @@ classifiers = [
   "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX :: Linux",
   "Operating System :: MacOS",
-  "License :: OSI Approved :: MIT License"
+  "License :: OSI Approved :: MIT License",
 ]
 
 [tool.poetry.dependencies]
@@ -28,7 +28,7 @@ ipdb = "^0.13.9"
 pip = "^23.0"
 pytest-cov = "^4.0.0"
 nonebug = "^0.3.1"
-nonebot2 = {extras = ["fastapi"], version = "^2.0.0rc3"}
+nonebot2 = { extras = ["fastapi"], version = "^2.0.0rc4" }
 ruff = "^0.0.253"
 
 [tool.poetry.group.adapters]

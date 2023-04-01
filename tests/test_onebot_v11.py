@@ -2,7 +2,8 @@ from functools import partial
 
 import pytest
 from nonebug import App
-from nonebot.adapters.onebot.v11.bot import Bot
+from nonebot.adapters.onebot.v11 import Bot, Adapter
+from nonebot import get_adapter
 
 from .utils import assert_ms, mock_obv11_message_event
 
@@ -230,3 +231,42 @@ async def test_send_aggreted_ob11(app: App):
             result=None,
         )
         ctx.receive_event(bot, msg_event)
+
+
+async def test_get_targets(app: App):
+    from nonebot.adapters.onebot.v11 import Message
+
+    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
+    from nonebot_plugin_saa.utils.get_bot import refresh_bots
+
+    async with app.test_api() as ctx:
+        adapter = get_adapter(Adapter)
+        bot = ctx.create_bot(base=Bot, adapter=adapter)
+
+        ctx.should_call_api("get_group_list", {}, [{"group_id": 112}])
+        ctx.should_call_api("get_friend_list", {}, [{"user_id": 1122}])
+        await refresh_bots()
+
+        send_target_private = TargetQQPrivate(user_id=1122)
+        ctx.should_call_api(
+            "send_msg",
+            data={
+                "message": Message("123"),
+                "user_id": 1122,
+                "message_type": "private",
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(send_target_private, bot)
+
+        send_target_group = TargetQQGroup(group_id=112)
+        ctx.should_call_api(
+            "send_msg",
+            data={
+                "message": Message("123"),
+                "group_id": 112,
+                "message_type": "group",
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(send_target_group)
