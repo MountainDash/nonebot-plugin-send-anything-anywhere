@@ -195,12 +195,39 @@ async def test_send_active(app: App):
 
 async def test_get_targets(app: App):
     from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
-    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, TargetOB12Unknow
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetOB12Unknow,
+        TargetQQGuildChannel,
+    )
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
-        bot = ctx.create_bot(base=Bot, adapter=adapter, **ob12_kwargs())
+        qq_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="qq", impl="walle", self_id="1"
+        )
+        qqguild_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="qqguild", impl="all4one", self_id="2"
+        )
+        unknown_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="test", impl="test", self_id="3"
+        )
 
+        # QQ
+        ctx.should_call_api("get_friend_list", {}, [{"user_id": "1"}])
+        ctx.should_call_api("get_group_list", {}, [{"group_id": "2"}])
+        ctx.should_call_api("get_guild_list", {}, [])
+
+        # QQGuild
+        ctx.should_call_api("get_friend_list", {}, [])
+        ctx.should_call_api("get_group_list", {}, [])
+        ctx.should_call_api("get_guild_list", {}, [{"guild_id": "1"}])
+        ctx.should_call_api(
+            "get_channel_list", {"guild_id": "1"}, [{"channel_id": "2"}]
+        )
+
+        # Unknown
         ctx.should_call_api("get_friend_list", {}, [{"user_id": "1"}])
         ctx.should_call_api("get_group_list", {}, [{"group_id": "2"}])
         ctx.should_call_api("get_guild_list", {}, [{"guild_id": "3"}])
@@ -210,12 +237,21 @@ async def test_get_targets(app: App):
         await refresh_bots()
 
         send_target_private = TargetQQPrivate(user_id=1)
-        assert bot is get_bot(send_target_private)
+        assert qq_bot is get_bot(send_target_private)
 
         send_target_group = TargetQQGroup(group_id=2)
-        assert bot is get_bot(send_target_group)
+        assert qq_bot is get_bot(send_target_group)
+
+        send_target_qqguild = TargetQQGuildChannel(channel_id=2)
+        assert qqguild_bot is get_bot(send_target_qqguild)
+
+        send_private = TargetOB12Unknow(detail_type="private", user_id="1")
+        assert unknown_bot is get_bot(send_private)
+
+        send_group = TargetOB12Unknow(detail_type="group", group_id="2")
+        assert unknown_bot is get_bot(send_group)
 
         send_channel = TargetOB12Unknow(
             detail_type="channel", channel_id="4", guild_id="3"
         )
-        assert bot is get_bot(send_channel)
+        assert unknown_bot is get_bot(send_channel)
