@@ -2,8 +2,8 @@ from functools import partial
 
 import pytest
 from nonebug import App
-from nonebot.adapters.onebot.v11 import Bot, Adapter
 from nonebot import get_adapter
+from nonebot.adapters.onebot.v11 import Bot, Adapter
 
 from .utils import assert_ms, mock_obv11_message_event
 
@@ -236,8 +236,8 @@ async def test_send_aggreted_ob11(app: App):
 async def test_get_targets(app: App):
     from nonebot.adapters.onebot.v11 import Message
 
-    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
     from nonebot_plugin_saa.utils.get_bot import refresh_bots
+    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
