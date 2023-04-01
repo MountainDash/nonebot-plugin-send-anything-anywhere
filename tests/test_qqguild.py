@@ -1,9 +1,9 @@
 from pathlib import Path
 from functools import partial
-from nonebot import get_adapter
 
 import pytest
 from nonebug import App
+from nonebot import get_adapter
 from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
@@ -150,9 +150,10 @@ async def test_send_active(app: App):
 
 
 async def test_get_targets(app: App):
-    from nonebot_plugin_saa.utils.get_bot import refresh_bots, get_bot
-    from nonebot_plugin_saa import TargetQQGuildChannel
     from nonebot.adapters.qqguild.api import Guild, Channel
+
+    from nonebot_plugin_saa import TargetQQGuildChannel
+    from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)

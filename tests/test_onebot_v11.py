@@ -234,8 +234,8 @@ async def test_send_aggreted_ob11(app: App):
 
 
 async def test_get_targets(app: App):
-    from nonebot_plugin_saa.utils.get_bot import refresh_bots, get_bot
     from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate
+    from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
