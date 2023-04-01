@@ -1,9 +1,10 @@
 from pathlib import Path
 from functools import partial
+from nonebot import get_adapter
 
 import pytest
 from nonebug import App
-from nonebot.adapters.qqguild import Bot
+from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
 from .utils import assert_ms, mock_qqguild_message_event
@@ -146,3 +147,26 @@ async def test_send_active(app: App):
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
+
+
+async def test_get_targets(app: App):
+    from nonebot_plugin_saa.utils.get_bot import refresh_bots, get_bot
+    from nonebot_plugin_saa import TargetQQGuildChannel
+    from nonebot.adapters.qqguild.api import Guild, Channel
+
+    async with app.test_api() as ctx:
+        adapter = get_adapter(Adapter)
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        ctx.should_call_api("guilds", {}, [Guild(id=1, name="test1")])
+        ctx.should_call_api(
+            "get_channels", {"guild_id": 1}, [Channel(id=2233, name="test1")]
+        )
+        await refresh_bots()
+
+        target = TargetQQGuildChannel(channel_id=2233)
+        assert bot is get_bot(target)

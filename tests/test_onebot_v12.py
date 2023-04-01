@@ -4,8 +4,8 @@ from functools import partial
 
 import pytest
 from nonebug import App
-from nonebot import get_driver
-from nonebot.adapters.onebot.v12 import Bot, Message, MessageSegment
+from nonebot import get_adapter, get_driver
+from nonebot.adapters.onebot.v12 import Bot, Message, MessageSegment, Adapter
 
 from .utils import assert_ms, ob12_kwargs, mock_obv12_message_event
 
@@ -191,3 +191,31 @@ async def test_send_active(app: App):
             result=None,
         )
         await MessageFactory("123").send_to(target, bot)
+
+
+async def test_get_targets(app: App):
+    from nonebot_plugin_saa.utils.get_bot import refresh_bots, get_bot
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, TargetOB12Unknow
+
+    async with app.test_api() as ctx:
+        adapter = get_adapter(Adapter)
+        bot = ctx.create_bot(base=Bot, adapter=adapter, **ob12_kwargs())
+
+        ctx.should_call_api("get_friend_list", {}, [{"user_id": "1"}])
+        ctx.should_call_api("get_group_list", {}, [{"group_id": "2"}])
+        ctx.should_call_api("get_guild_list", {}, [{"guild_id": "3"}])
+        ctx.should_call_api(
+            "get_channel_list", {"guild_id": "3"}, [{"channel_id": "4"}]
+        )
+        await refresh_bots()
+
+        send_target_private = TargetQQPrivate(user_id=1)
+        assert bot is get_bot(send_target_private)
+
+        send_target_group = TargetQQGroup(group_id=2)
+        assert bot is get_bot(send_target_group)
+
+        send_channel = TargetOB12Unknow(
+            detail_type="channel", channel_id="4", guild_id="3"
+        )
+        assert bot is get_bot(send_channel)

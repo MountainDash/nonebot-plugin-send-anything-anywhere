@@ -234,10 +234,8 @@ async def test_send_aggreted_ob11(app: App):
 
 
 async def test_get_targets(app: App):
-    from nonebot.adapters.onebot.v11 import Message
-
-    from nonebot_plugin_saa.utils.get_bot import refresh_bots
-    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
+    from nonebot_plugin_saa.utils.get_bot import refresh_bots, get_bot
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
@@ -248,25 +246,7 @@ async def test_get_targets(app: App):
         await refresh_bots()
 
         send_target_private = TargetQQPrivate(user_id=1122)
-        ctx.should_call_api(
-            "send_msg",
-            data={
-                "message": Message("123"),
-                "user_id": 1122,
-                "message_type": "private",
-            },
-            result=None,
-        )
-        await MessageFactory("123").send_to(send_target_private, bot)
+        assert bot is get_bot(send_target_private)
 
         send_target_group = TargetQQGroup(group_id=112)
-        ctx.should_call_api(
-            "send_msg",
-            data={
-                "message": Message("123"),
-                "group_id": 112,
-                "message_type": "group",
-            },
-            result=None,
-        )
-        await MessageFactory("123").send_to(send_target_group)
+        assert bot is get_bot(send_target_group)
