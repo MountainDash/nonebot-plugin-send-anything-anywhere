@@ -13,6 +13,7 @@ from .utils import (
     AggregatedMessageFactory,
     get_target,
     extract_target,
+    enable_auto_select_bot,
 )
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "SupportedAdapters",
     "extract_target",
     "get_target",
+    "enable_auto_select_bot",
     "PlatformTarget",
     "TargetOB12Unknow",
     "TargetQQGroup",

@@ -1,6 +1,6 @@
 from .helpers import extract_adapter_type
-from .get_bot import get_bot, register_get_targets
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
+from .get_bot import get_bot, register_get_targets, enable_auto_select_bot
 from .const import SupportedAdapters, SupportedPlatform, supported_adapter_names
 from .types import (
     BuildFunc,
@@ -60,4 +60,5 @@ __all__ = [
     # get_bot
     "get_bot",
     "register_get_targets",
+    "enable_auto_select_bot",
 ]
