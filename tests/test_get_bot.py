@@ -1,4 +1,5 @@
 import asyncio
+
 from nonebug import App
 from nonebot import get_adapter
 from nonebot.adapters.qqguild import Bot, Adapter
@@ -11,7 +12,7 @@ async def test_disable(app: App):
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
-        bot = ctx.create_bot(
+        ctx.create_bot(
             base=Bot,
             adapter=adapter,
             bot_info=BotInfo(id="3344", token="", secret=""),
@@ -26,8 +27,8 @@ async def test_disable(app: App):
 async def test_enable(app: App):
     from nonebot.adapters.qqguild.api import Guild, Channel
 
-    from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
     from nonebot_plugin_saa.utils.get_bot import get_bot
+    from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
 
     enable_auto_select_bot()
 

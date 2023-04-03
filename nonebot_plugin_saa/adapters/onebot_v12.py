@@ -182,7 +182,7 @@ try:
                                 detail_type="private", user_id=friend["user_id"]
                             )
                         )
-        except UnsupportedAction: # pragma: no cover
+        except UnsupportedAction:  # pragma: no cover
             pass
 
         try:
@@ -197,7 +197,7 @@ try:
                                 detail_type="group", group_id=group["group_id"]
                             )
                         )
-        except UnsupportedAction: # pragma: no cover
+        except UnsupportedAction:  # pragma: no cover
             pass
 
         try:
@@ -220,7 +220,7 @@ try:
                                     guild_id=guild["guild_id"],
                                 )
                             )
-        except UnsupportedAction: # pragma: no cover
+        except UnsupportedAction:  # pragma: no cover
             pass
 
         return targets
