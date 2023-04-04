@@ -12,9 +12,9 @@ from .platform_send_target import PlatformTarget, TargetQQGuildDirect
 
 BOT_CACHE: dict[PlatformTarget, list[Bot]] = defaultdict(list)
 
-GetTargetFunc = Callable[[Bot], Awaitable[list[PlatformTarget]]]
+ListTargetsFunc = Callable[[Bot], Awaitable[list[PlatformTarget]]]
 
-get_targets_map: dict[str, GetTargetFunc] = {}
+list_targets_map: dict[str, ListTargetsFunc] = {}
 
 inited = False
 
@@ -44,9 +44,9 @@ def enable_auto_select_bot():
     inited = True
 
 
-def register_get_targets(adapter: SupportedAdapters):
-    def wrapper(func: GetTargetFunc):
-        get_targets_map[adapter] = func
+def register_list_targets(adapter: SupportedAdapters):
+    def wrapper(func: ListTargetsFunc):
+        list_targets_map[adapter] = func
         return func
 
     return wrapper
@@ -57,7 +57,7 @@ async def refresh_bots():
     BOT_CACHE.clear()
     for bot in get_bots().values():
         adapter_name = extract_adapter_type(bot)
-        if get_targets := get_targets_map.get(adapter_name):
+        if get_targets := list_targets_map.get(adapter_name):
             targets = await get_targets(bot)
             for target in targets:
                 BOT_CACHE[target].append(bot)
@@ -65,6 +65,9 @@ async def refresh_bots():
 
 def get_bot(target: PlatformTarget) -> Optional[Bot]:
     """获取 Bot"""
+    if not inited:
+        raise RuntimeError("自动选择 Bot 的功能为启用，请先调用 enable_auto_select_bot 启用此功能")
+
     if isinstance(target, TargetQQGuildDirect):
         raise NotImplementedError("暂不支持私聊")
 

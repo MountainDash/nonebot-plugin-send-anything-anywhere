@@ -1,5 +1,6 @@
 import asyncio
 
+import pytest
 from nonebug import App
 from nonebot import get_adapter
 from nonebot.adapters.qqguild import Bot, Adapter
@@ -21,7 +22,9 @@ async def test_disable(app: App):
         await asyncio.sleep(0.1)
 
         target = TargetQQGuildChannel(channel_id=2233)
-        assert get_bot(target) is None
+
+        with pytest.raises(RuntimeError):
+            get_bot(target)
 
 
 async def test_enable(app: App):

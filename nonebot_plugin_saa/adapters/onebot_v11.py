@@ -15,7 +15,7 @@ from ..utils import (
     AggregatedMessageFactory,
     register_sender,
     register_ms_adapter,
-    register_get_targets,
+    register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
@@ -143,7 +143,7 @@ try:
             case _:  # pragma: no cover
                 raise RuntimeError(f"{target.__class__.__name__} not supported")
 
-    @register_get_targets(SupportedAdapters.onebot_v11)
+    @register_list_targets(SupportedAdapters.onebot_v11)
     async def get_targets(bot: Bot) -> list[PlatformTarget]:
         assert isinstance(bot, BotOB11)
 

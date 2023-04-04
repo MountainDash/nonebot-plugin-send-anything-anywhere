@@ -13,7 +13,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
-    register_get_targets,
+    register_list_targets,
     assamble_message_factory,
     register_target_extractor,
 )
@@ -145,7 +145,7 @@ try:
             else:
                 raise NotImplementedError("QQ频道主动发送私信暂未实现")
 
-    @register_get_targets(SupportedAdapters.qqguild)
+    @register_list_targets(SupportedAdapters.qqguild)
     async def get_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 

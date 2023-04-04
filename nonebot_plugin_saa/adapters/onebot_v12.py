@@ -18,7 +18,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
-    register_get_targets,
+    register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
@@ -162,7 +162,7 @@ try:
         assert isinstance(msg_to_send, Message)
         await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 
-    @register_get_targets(SupportedAdapters.onebot_v12)
+    @register_list_targets(SupportedAdapters.onebot_v12)
     async def get_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
