@@ -237,10 +237,7 @@ class MessageFactory(list[TMSF]):
 
     async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
         if bot is None:
-            if random_bot := get_bot(target):
-                bot = random_bot
-            else:
-                raise RuntimeError("无法确定要发送的 bot")
+            bot = get_bot(target)
         await self._do_send(bot, target, None, False, False)
 
     async def _do_send(
@@ -316,10 +313,7 @@ class AggregatedMessageFactory:
 
     async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
         if bot is None:
-            if random_bot := get_bot(target):
-                bot = random_bot
-            else:
-                raise RuntimeError("无法确定要发送的 bot")
+            bot = get_bot(target)
         await self._do_send(bot, target, None)
 
 

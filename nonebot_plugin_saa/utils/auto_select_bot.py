@@ -1,7 +1,7 @@
 """ 提供获取 Bot 的方法 """
 import random
 from collections import defaultdict
-from typing import Callable, Optional, Awaitable
+from typing import Callable, Awaitable
 
 from nonebot import get_bots
 from nonebot.adapters import Bot
@@ -63,7 +63,7 @@ async def refresh_bots():
                 BOT_CACHE[target].append(bot)
 
 
-def get_bot(target: PlatformTarget) -> Optional[Bot]:
+def get_bot(target: PlatformTarget) -> Bot:
     """获取 Bot"""
     if not inited:
         raise RuntimeError("自动选择 Bot 的功能未启用，请先调用 enable_auto_select_bot 启用此功能")
@@ -74,6 +74,6 @@ def get_bot(target: PlatformTarget) -> Optional[Bot]:
 
     bots = BOT_CACHE.get(target)
     if not bots:
-        return
+        raise RuntimeError("无法获取到发送目标对应的 bot")
 
     return random.choice(bots)
