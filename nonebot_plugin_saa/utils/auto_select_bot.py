@@ -66,7 +66,7 @@ async def refresh_bots():
 def get_bot(target: PlatformTarget) -> Optional[Bot]:
     """获取 Bot"""
     if not inited:
-        raise RuntimeError("自动选择 Bot 的功能为启用，请先调用 enable_auto_select_bot 启用此功能")
+        raise RuntimeError("自动选择 Bot 的功能未启用，请先调用 enable_auto_select_bot 启用此功能")
 
     if isinstance(target, TargetQQGuildDirect):
         raise NotImplementedError("暂不支持私聊")
