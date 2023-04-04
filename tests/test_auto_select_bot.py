@@ -68,9 +68,11 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
 
     from nonebot_plugin_saa.utils.auto_select_bot import refresh_bots
     from nonebot_plugin_saa import (
+        Text,
         MessageFactory,
         SupportedAdapters,
         TargetQQGuildChannel,
+        AggregatedMessageFactory,
     )
 
     mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
@@ -105,3 +107,57 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target)
+
+        target = TargetQQGuildChannel(channel_id=2)
+        with pytest.raises(RuntimeError):
+            await MessageFactory("123").send_to(target)
+
+    async with app.test_api() as ctx:
+        adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
+        ctx.create_bot(
+            base=Bot,
+            adapter=adapter_qqguild,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        ctx.should_call_api("guilds", {}, [Guild(id=1, name="test1")])
+        ctx.should_call_api(
+            "get_channels", {"guild_id": 1}, [Channel(id=2233, name="test1")]
+        )
+        await refresh_bots()
+
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": 2233,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": 2233,
+                "content": "456",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
+
+        target = TargetQQGuildChannel(channel_id=2233)
+        await AggregatedMessageFactory([Text("123"), Text("456")]).send_to(target)
+
+        target = TargetQQGuildChannel(channel_id=2)
+        with pytest.raises(RuntimeError):
+            await MessageFactory("123").send_to(target)

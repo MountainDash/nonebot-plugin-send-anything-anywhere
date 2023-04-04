@@ -146,7 +146,7 @@ try:
                 raise NotImplementedError("QQ频道主动发送私信暂未实现")
 
     @register_list_targets(SupportedAdapters.qqguild)
-    async def get_targets(bot: BaseBot) -> list[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []

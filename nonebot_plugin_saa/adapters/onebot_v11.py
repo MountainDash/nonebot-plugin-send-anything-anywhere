@@ -144,7 +144,7 @@ try:
                 raise RuntimeError(f"{target.__class__.__name__} not supported")
 
     @register_list_targets(SupportedAdapters.onebot_v11)
-    async def get_targets(bot: Bot) -> list[PlatformTarget]:
+    async def list_targets(bot: Bot) -> list[PlatformTarget]:
         assert isinstance(bot, BotOB11)
 
         targets = []

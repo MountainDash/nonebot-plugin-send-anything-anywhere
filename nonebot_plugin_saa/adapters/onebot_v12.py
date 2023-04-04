@@ -163,7 +163,7 @@ try:
         await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 
     @register_list_targets(SupportedAdapters.onebot_v12)
-    async def get_targets(bot: BaseBot) -> list[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []
