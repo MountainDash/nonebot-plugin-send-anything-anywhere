@@ -57,8 +57,8 @@ async def refresh_bots():
     BOT_CACHE.clear()
     for bot in get_bots().values():
         adapter_name = extract_adapter_type(bot)
-        if get_targets := list_targets_map.get(adapter_name):
-            targets = await get_targets(bot)
+        if list_targets := list_targets_map.get(adapter_name):
+            targets = await list_targets(bot)
             for target in targets:
                 BOT_CACHE[target].append(bot)
 
