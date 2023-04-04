@@ -1,23 +1,21 @@
 from io import BytesIO
 from functools import partial
 
-import pytest
 from nonebug import App
 from nonebot import get_driver
 from nonebot.adapters.kaiheila import Bot
 from nonebot.adapters.kaiheila.api import URL
 
+from nonebot_plugin_saa.utils import SupportedAdapters
+
 from .utils import assert_ms, kaiheila_kwargs, mock_kaiheila_message_event
 
-
-@pytest.fixture
-async def assert_kaiheila(app: App):
-    from nonebot_plugin_saa.utils import SupportedAdapters
-
-    return partial(assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs())
+assert_kaiheila = partial(
+    assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs()
+)
 
 
-async def test_text(app: App, assert_kaiheila):
+async def test_text(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -29,7 +27,6 @@ async def test_image(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Image
-    from nonebot_plugin_saa.utils import SupportedAdapters
 
     adapter = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
     async with app.test_api() as ctx:
@@ -48,7 +45,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
 
-async def test_mention(app: App, assert_kaiheila):
+async def test_mention(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -58,7 +55,7 @@ async def test_mention(app: App, assert_kaiheila):
     )
 
 
-async def test_reply(app: App, assert_kaiheila):
+async def test_reply(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -146,11 +143,10 @@ async def test_send_with_reply(app: App):
         )
 
 
-async def test_send_active(app: App, assert_kaiheila):
+async def test_send_active(app: App):
     from nonebot import get_driver
 
     from nonebot_plugin_saa import MessageFactory
-    from nonebot_plugin_saa.utils import SupportedAdapters
     from nonebot_plugin_saa.utils.platform_send_target import (
         TargetKaiheilaChannel,
         TargetKaiheilaPrivate,

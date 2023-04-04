@@ -5,8 +5,10 @@ import pytest
 from nonebug import App
 from pydantic import BaseModel
 
+from nonebot_plugin_saa.utils.const import SupportedAdapters
 
-def test_register_deserializer(app: App):
+
+def test_register_deserializer():
     from nonebot_plugin_saa.utils import SupportedPlatform
     from nonebot_plugin_saa.utils.platform_send_target import PlatformTarget
 
@@ -54,7 +56,6 @@ async def test_export_args(app: App):
     from nonebot.adapters.onebot.v11 import Bot
 
     from nonebot_plugin_saa.utils import TargetQQGroup
-    from nonebot_plugin_saa.utils.const import SupportedAdapters
 
     target = TargetQQGroup(group_id=31415)
     async with app.test_api() as ctx:

@@ -4,10 +4,11 @@ from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
+from nonebot_plugin_saa import Text, MessageFactory
+from nonebot_plugin_saa.utils import SupportedAdapters
+
 
 def test_message_assamble():
-    from nonebot_plugin_saa import Text, MessageFactory
-
     target_two_msg = MessageFactory([Text("abc"), Text("123")])
 
     assert len(target_two_msg) == 2
@@ -25,9 +26,6 @@ def test_message_assamble():
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 async def test_build_message(app: App):
-    from nonebot_plugin_saa import Text, MessageFactory
-    from nonebot_plugin_saa.utils import SupportedAdapters
-
     async with app.test_api() as ctx:
         adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
         bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="123")

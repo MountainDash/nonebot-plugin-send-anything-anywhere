@@ -1,21 +1,17 @@
 from functools import partial
 
-import pytest
 from nonebug import App
 from nonebot import get_adapter
 from nonebot.adapters.onebot.v11 import Bot, Adapter
 
+from nonebot_plugin_saa.utils import SupportedAdapters
+
 from .utils import assert_ms, mock_obv11_message_event
 
-
-@pytest.fixture
-async def assert_onebot_v11(app: App):
-    from nonebot_plugin_saa.utils import SupportedAdapters
-
-    return partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
+assert_onebot_v11 = partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
 
 
-async def test_text(app: App, assert_onebot_v11):
+async def test_text(app: App):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -23,7 +19,7 @@ async def test_text(app: App, assert_onebot_v11):
     await assert_onebot_v11(app, Text("123"), MessageSegment.text("123"))
 
 
-async def test_image(app: App, assert_onebot_v11):
+async def test_image(app: App):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -31,7 +27,7 @@ async def test_image(app: App, assert_onebot_v11):
     await assert_onebot_v11(app, Image("123"), MessageSegment.image("123"))
 
 
-async def test_mention(app: App, assert_onebot_v11):
+async def test_mention(app: App):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -39,7 +35,7 @@ async def test_mention(app: App, assert_onebot_v11):
     await assert_onebot_v11(app, Mention("123"), MessageSegment.at("123"))
 
 
-async def test_reply(app: App, assert_onebot_v11):
+async def test_reply(app: App):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -118,7 +114,6 @@ async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v11 import Message
 
-    from nonebot_plugin_saa.utils import SupportedAdapters
     from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
 
     async with app.test_api() as ctx:
@@ -164,9 +159,7 @@ async def test_send_aggreted_ob11(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
-        bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, self_id="9988", auto_connect=False
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
         msg_event = mock_obv11_message_event(Message("321"))
 
         ctx.should_call_api(
@@ -199,9 +192,7 @@ async def test_send_aggreted_ob11(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
-        bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, self_id="9988", auto_connect=False
-        )
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="9988")
         msg_event = mock_obv11_message_event(Message("321"), group=True)
 
         ctx.should_call_api(
