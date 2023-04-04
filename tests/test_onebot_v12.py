@@ -3,6 +3,7 @@ from pathlib import Path
 from functools import partial
 
 from nonebug import App
+from pytest_mock import MockerFixture
 from nonebot import get_driver, get_adapter
 from nonebot.adapters.onebot.v12 import Bot, Adapter, Message, MessageSegment
 
@@ -176,14 +177,16 @@ async def test_send_active(app: App):
         await MessageFactory("123").send_to(target, bot)
 
 
-async def test_get_targets(app: App):
-    from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
+async def test_list_targets(app: App, mocker: MockerFixture):
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
     from nonebot_plugin_saa import (
         TargetQQGroup,
         TargetQQPrivate,
         TargetOB12Unknow,
         TargetQQGuildChannel,
     )
+
+    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)

@@ -3,6 +3,7 @@ from functools import partial
 
 from nonebug import App
 from nonebot import get_adapter
+from pytest_mock import MockerFixture
 from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
@@ -142,11 +143,13 @@ async def test_send_active(app: App):
         await MessageFactory("123").send_to(target, bot)
 
 
-async def test_get_targets(app: App):
+async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot.adapters.qqguild.api import Guild, Channel
 
     from nonebot_plugin_saa import TargetQQGuildChannel
-    from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+
+    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)

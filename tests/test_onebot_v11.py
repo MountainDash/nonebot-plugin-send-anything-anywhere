@@ -2,6 +2,7 @@ from functools import partial
 
 from nonebug import App
 from nonebot import get_adapter
+from pytest_mock import MockerFixture
 from nonebot.adapters.onebot.v11 import Bot, Adapter
 
 from nonebot_plugin_saa.utils import SupportedAdapters
@@ -224,9 +225,11 @@ async def test_send_aggreted_ob11(app: App):
         ctx.receive_event(bot, msg_event)
 
 
-async def test_get_targets(app: App):
+async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate
-    from nonebot_plugin_saa.utils.get_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+
+    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
