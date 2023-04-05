@@ -18,12 +18,14 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
 )
 
 try:
+    from nonebot.adapters.onebot.v12.exception import UnsupportedAction
     from nonebot.adapters.onebot.v12 import (  # ChannelMessageEvent,
         Bot,
         Message,
@@ -159,6 +161,69 @@ try:
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
         await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+
+    @register_list_targets(SupportedAdapters.onebot_v12)
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
+        assert isinstance(bot, Bot)
+
+        targets = []
+        try:
+            friends = await bot.get_friend_list()
+            for friend in friends:
+                match bot.platform:
+                    case "qq":
+                        targets.append(TargetQQPrivate(user_id=int(friend["user_id"])))
+                    case "qqguild":
+                        # FIXME: 怎么获取 src_guild_id 捏？
+                        pass
+                    case _:
+                        targets.append(
+                            TargetOB12Unknow(
+                                detail_type="private", user_id=friend["user_id"]
+                            )
+                        )
+        except UnsupportedAction:  # pragma: no cover
+            pass
+
+        try:
+            groups = await bot.get_group_list()
+            for group in groups:
+                match bot.platform:
+                    case "qq":
+                        targets.append(TargetQQGroup(group_id=int(group["group_id"])))
+                    case _:
+                        targets.append(
+                            TargetOB12Unknow(
+                                detail_type="group", group_id=group["group_id"]
+                            )
+                        )
+        except UnsupportedAction:  # pragma: no cover
+            pass
+
+        try:
+            guilds = await bot.get_guild_list()
+            for guild in guilds:
+                channels = await bot.get_channel_list(guild_id=guild["guild_id"])
+                for channel in channels:
+                    match bot.platform:
+                        case "qqguild":
+                            targets.append(
+                                TargetQQGuildChannel(
+                                    channel_id=int(channel["channel_id"])
+                                )
+                            )
+                        case _:
+                            targets.append(
+                                TargetOB12Unknow(
+                                    detail_type="channel",
+                                    channel_id=channel["channel_id"],
+                                    guild_id=guild["guild_id"],
+                                )
+                            )
+        except UnsupportedAction:  # pragma: no cover
+            pass
+
+        return targets
 
 except ImportError:
     pass

@@ -162,7 +162,7 @@ async def test_send_active(app: App):
             data={"type": 1, "content": "123", "target_id": "3344"},
             result=None,
         )
-        await MessageFactory("123").send_to(bot, send_target_private)
+        await MessageFactory("123").send_to(send_target_private, bot)
 
         send_target_group = TargetKaiheilaChannel(channel_id="1111")
         ctx.should_call_api(
@@ -170,4 +170,4 @@ async def test_send_active(app: App):
             data={"type": 1, "content": "123", "target_id": "1111"},
             result=None,
         )
-        await MessageFactory("123").send_to(bot, send_target_group)
+        await MessageFactory("123").send_to(send_target_group, bot)

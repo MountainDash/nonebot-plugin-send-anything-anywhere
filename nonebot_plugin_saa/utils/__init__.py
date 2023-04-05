@@ -1,5 +1,6 @@
 from .helpers import extract_adapter_type
 from .exceptions import AdapterNotInstalled, AdapterNotSupported
+from .auto_select_bot import register_list_targets, enable_auto_select_bot
 from .const import SupportedAdapters, SupportedPlatform, supported_adapter_names
 from .types import (
     BuildFunc,
@@ -56,4 +57,7 @@ __all__ = [
     "TargetQQGuildDirect",
     "TargetOB12Unknow",
     "AllSupportedPlatformTarget",
+    "auto_select_bot",
+    "register_list_targets",
+    "enable_auto_select_bot",
 ]

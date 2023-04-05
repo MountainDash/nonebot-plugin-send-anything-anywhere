@@ -1,6 +1,7 @@
 from functools import partial
 
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -12,6 +13,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_list_targets,
     assamble_message_factory,
     register_target_extractor,
 )
@@ -105,10 +107,10 @@ try:
         if event:  # reply to user
             if isinstance(event, DirectMessageCreateEvent):
                 await bot.post_dms_messages(
-                    guild_id=event.guild_id,
+                    guild_id=event.guild_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
-                    embed=embed,
+                    embed=embed,  # type: ignore
                     ark=ark,  # type: ignore
                     image=image,  # type: ignore
                     file_image=file_image,  # type: ignore
@@ -117,7 +119,7 @@ try:
                 )
             else:
                 await bot.post_messages(
-                    channel_id=event.channel_id,
+                    channel_id=event.channel_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
                     embed=embed,  # type: ignore
@@ -133,15 +135,35 @@ try:
                 await bot.post_messages(
                     channel_id=target.channel_id,
                     content=content,
-                    embed=embed,
-                    ark=ark,
-                    image=image,
-                    file_image=file_image,
-                    markdown=markdown,
-                    message_reference=reference,
+                    embed=embed,  # type: ignore
+                    ark=ark,  # type: ignore
+                    image=image,  # type: ignore
+                    file_image=file_image,  # type: ignore
+                    markdown=markdown,  # type: ignore
+                    message_reference=reference,  # type: ignore
                 )
             else:
                 raise NotImplementedError("QQ频道主动发送私信暂未实现")
+
+    @register_list_targets(SupportedAdapters.qqguild)
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
+        assert isinstance(bot, Bot)
+
+        targets = []
+
+        # TODO: 私聊
+
+        guilds = await bot.guilds()
+        for guild in guilds:
+            channels = await bot.get_channels(guild_id=guild.id)  # type: ignore
+            for channel in channels:
+                targets.append(
+                    TargetQQGuildChannel(
+                        channel_id=channel.id,  # type: ignore
+                    )
+                )
+
+        return targets
 
 except ImportError:
     pass

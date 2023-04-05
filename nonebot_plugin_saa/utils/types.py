@@ -18,6 +18,7 @@ from typing import (
 from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
 
+from .auto_select_bot import get_bot
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .exceptions import FallbackToDefault, AdapterNotInstalled
@@ -234,7 +235,9 @@ class MessageFactory(list[TMSF]):
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, bot: Bot, target: PlatformTarget):
+    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+        if bot is None:
+            bot = get_bot(target)
         await self._do_send(bot, target, None, False, False)
 
     async def _do_send(
@@ -308,7 +311,9 @@ class AggregatedMessageFactory:
         target = extract_target(event)
         await self._do_send(bot, target, event)
 
-    async def send_to(self, bot: Bot, target: PlatformTarget):
+    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+        if bot is None:
+            bot = get_bot(target)
         await self._do_send(bot, target, None)
 
 

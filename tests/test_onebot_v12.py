@@ -3,8 +3,9 @@ from pathlib import Path
 from functools import partial
 
 from nonebug import App
-from nonebot import get_driver
-from nonebot.adapters.onebot.v12 import Bot, Message, MessageSegment
+from pytest_mock import MockerFixture
+from nonebot import get_driver, get_adapter
+from nonebot.adapters.onebot.v12 import Bot, Adapter, Message, MessageSegment
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 from nonebot_plugin_saa import Text, Image, MessageFactory
@@ -146,7 +147,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)
 
         target = TargetQQPrivate(user_id=1122)
         ctx.should_call_api(
@@ -158,7 +159,7 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)
 
         target = TargetOB12Unknow(detail_type="channel", channel_id="3344")
         ctx.should_call_api(
@@ -173,4 +174,70 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        await MessageFactory("123").send_to(bot, target)
+        await MessageFactory("123").send_to(target, bot)
+
+
+async def test_list_targets(app: App, mocker: MockerFixture):
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetOB12Unknow,
+        TargetQQGuildChannel,
+    )
+
+    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
+
+    async with app.test_api() as ctx:
+        adapter = get_adapter(Adapter)
+        qq_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="qq", impl="walle", self_id="1"
+        )
+        qqguild_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="qqguild", impl="all4one", self_id="2"
+        )
+        unknown_bot = ctx.create_bot(
+            base=Bot, adapter=adapter, platform="test", impl="test", self_id="3"
+        )
+
+        # QQ
+        ctx.should_call_api("get_friend_list", {}, [{"user_id": "1"}])
+        ctx.should_call_api("get_group_list", {}, [{"group_id": "2"}])
+        ctx.should_call_api("get_guild_list", {}, [])
+
+        # QQGuild
+        ctx.should_call_api("get_friend_list", {}, [])
+        ctx.should_call_api("get_group_list", {}, [])
+        ctx.should_call_api("get_guild_list", {}, [{"guild_id": "1"}])
+        ctx.should_call_api(
+            "get_channel_list", {"guild_id": "1"}, [{"channel_id": "2"}]
+        )
+
+        # Unknown
+        ctx.should_call_api("get_friend_list", {}, [{"user_id": "1"}])
+        ctx.should_call_api("get_group_list", {}, [{"group_id": "2"}])
+        ctx.should_call_api("get_guild_list", {}, [{"guild_id": "3"}])
+        ctx.should_call_api(
+            "get_channel_list", {"guild_id": "3"}, [{"channel_id": "4"}]
+        )
+        await refresh_bots()
+
+        send_target_private = TargetQQPrivate(user_id=1)
+        assert qq_bot is get_bot(send_target_private)
+
+        send_target_group = TargetQQGroup(group_id=2)
+        assert qq_bot is get_bot(send_target_group)
+
+        send_target_qqguild = TargetQQGuildChannel(channel_id=2)
+        assert qqguild_bot is get_bot(send_target_qqguild)
+
+        send_private = TargetOB12Unknow(detail_type="private", user_id="1")
+        assert unknown_bot is get_bot(send_private)
+
+        send_group = TargetOB12Unknow(detail_type="group", group_id="2")
+        assert unknown_bot is get_bot(send_group)
+
+        send_channel = TargetOB12Unknow(
+            detail_type="channel", channel_id="4", guild_id="3"
+        )
+        assert unknown_bot is get_bot(send_channel)
