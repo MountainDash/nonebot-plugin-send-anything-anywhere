@@ -2,9 +2,10 @@
 
 ## 最近更新
 
+- ✨ send_to 支持自动选择合适的 bot 进行发送 [@he0119](https://github.com/he0119) ([#39](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/39))
+
 ### 新功能
 
-- 添加开黑啦适配 [@ssttkkl](https://github.com/ssttkkl) ([#43](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/43))
 - 添加反序列化带 PlatformTarget 的 pydantic 对象的支持 [@felinae98](https://github.com/felinae98) ([#42](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/42))
 
 ## v0.2.2
