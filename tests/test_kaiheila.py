@@ -1,15 +1,25 @@
-from functools import partial
 from io import BytesIO
+from functools import partial
 
-from nonebot import get_driver
-from nonebot.adapters.kaiheila import Bot
-from nonebot.adapters.kaiheila.api import URL, GuildsReturn, Meta, Guild, ChannelsReturn, Channel, UserChatsReturn, \
-    UserChat, TargetInfo
 from nonebug import App
+from nonebot import get_driver
 from pytest_mock import MockerFixture
+from nonebot.adapters.kaiheila import Bot
+from nonebot.adapters.kaiheila.api import (
+    URL,
+    Meta,
+    Guild,
+    Channel,
+    UserChat,
+    TargetInfo,
+    GuildsReturn,
+    ChannelsReturn,
+    UserChatsReturn,
+)
 
-from nonebot_plugin_saa import TargetKaiheilaChannel, TargetKaiheilaPrivate
 from nonebot_plugin_saa.utils import SupportedAdapters
+from nonebot_plugin_saa import TargetKaiheilaChannel, TargetKaiheilaPrivate
+
 from .utils import assert_ms, kaiheila_kwargs, mock_kaiheila_message_event
 
 assert_kaiheila = partial(
@@ -189,30 +199,24 @@ async def test_list_targets(app: App, mocker: MockerFixture):
             {},
             GuildsReturn(
                 meta=Meta(page=1, page_total=1, page_size=20, total=1),
-                items=[
-                    Guild(id="223")
-                ]
-            )
+                items=[Guild(id="223")],
+            ),
         )
         ctx.should_call_api(
             "channel_list",
             {"guild_id": "223"},
             ChannelsReturn(
                 meta=Meta(page=1, page_total=1, page_size=20, total=1),
-                items=[
-                    Channel(id="112")
-                ]
-            )
+                items=[Channel(id="112")],
+            ),
         )
         ctx.should_call_api(
             "userChat_list",
             {},
             UserChatsReturn(
                 meta=Meta(page=1, page_total=1, page_size=20, total=1),
-                items=[
-                    UserChat(target_info=TargetInfo(id="1122"))
-                ]
-            )
+                items=[UserChat(target_info=TargetInfo(id="1122"))],
+            ),
         )
         await refresh_bots()
 

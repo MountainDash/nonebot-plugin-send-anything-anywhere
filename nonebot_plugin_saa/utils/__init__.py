@@ -20,8 +20,6 @@ from .platform_send_target import (
     TargetOB12Unknow,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
-    TargetKaiheilaChannel,
-    TargetKaiheilaPrivate,
     AllSupportedPlatformTarget,
     get_target,
     extract_target,

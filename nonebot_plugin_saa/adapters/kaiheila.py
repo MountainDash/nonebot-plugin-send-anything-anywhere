@@ -1,10 +1,11 @@
-from functools import partial
 from typing import Any
+from functools import partial
 
-from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
+from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 from ..utils import (
     MessageFactory,
     PlatformTarget,
@@ -13,11 +14,11 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
-    register_target_extractor, register_list_targets,
+    register_target_extractor,
 )
-from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 
 try:
     from nonebot.adapters.kaiheila import Bot
@@ -28,7 +29,6 @@ try:
         ChannelMessageEvent,
         PrivateMessageEvent,
     )
-
 
     def _unwrap_paging_api(field: str):
         def decorator(func):
@@ -47,17 +47,14 @@ try:
 
         return decorator
 
-
     adapter = SupportedAdapters.kaiheila
     register_kaiheila = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(SupportedAdapters.kaiheila, Message)
 
-
     @register_kaiheila(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
-
 
     @register_kaiheila(Image)
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
@@ -67,28 +64,23 @@ try:
         file_key = await bot.upload_file(i.data["image"], i.data["name"])
         return MessageSegment.image(file_key)
 
-
     @register_kaiheila(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.KMarkdown("(met)" + m.data["user_id"] + "(met)")
 
-
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.quote(r.data["message_id"])
-
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetKaiheilaPrivate:
         assert isinstance(event, PrivateMessageEvent)
         return TargetKaiheilaPrivate(user_id=event.user_id)
 
-
     @register_target_extractor(ChannelMessageEvent)
     def _extract_channel_msg_event(event: Event) -> TargetKaiheilaChannel:
         assert isinstance(event, ChannelMessageEvent)
         return TargetKaiheilaChannel(channel_id=event.target_id)
-
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_private)
     def _gen_private(target: PlatformTarget) -> dict[str, Any]:
@@ -97,14 +89,12 @@ try:
             "user_id": target.user_id,
         }
 
-
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_channel)
     def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetKaiheilaChannel)
         return {
             "channel_id": target.channel_id,
         }
-
 
     @register_sender(SupportedAdapters.kaiheila)
     async def send(
@@ -137,7 +127,6 @@ try:
 
         await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
 
-
     @register_list_targets(SupportedAdapters.kaiheila)
     async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
@@ -148,7 +137,9 @@ try:
 
         async for guild in _unwrap_paging_api("guilds")(bot.guild_list)():
             guild: Guild
-            async for channel in _unwrap_paging_api("channels")(bot.channel_list)(guild_id=guild.id_):
+            async for channel in _unwrap_paging_api("channels")(bot.channel_list)(
+                guild_id=guild.id_
+            ):
                 channel: Channel
                 target = TargetKaiheilaChannel(channel_id=channel.id_)
                 targets.append(target)
