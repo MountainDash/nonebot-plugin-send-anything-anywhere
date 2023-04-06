@@ -9,6 +9,8 @@ from .utils import (
     SupportedAdapters,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
     MessageSegmentFactory,
     AggregatedMessageFactory,
     get_target,
