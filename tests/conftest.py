@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 import nonebot
 from nonebug import NONEBOT_INIT_KWARGS, App
@@ -27,7 +25,3 @@ def load_adapters(nonebug_init: None):
     driver.register_adapter(OnebotV11Adapter)
     driver.register_adapter(OnebotV12Adapter)
     driver.register_adapter(QQGuildAdapter)
-    if sys.version_info > (3, 9):
-        from nonebot.adapters.kaiheila import Adapter as KaiheilaAdapter
-
-        driver.register_adapter(KaiheilaAdapter)
