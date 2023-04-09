@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 from functools import partial
 
 from nonebot.adapters import Event
@@ -64,14 +64,14 @@ try:
         return TargetKaiheilaChannel(channel_id=event.target_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_private)
-    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetKaiheilaPrivate)
         return {
             "user_id": target.user_id,
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_channel)
-    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetKaiheilaChannel)
         return {
             "channel_id": target.channel_id,
@@ -87,7 +87,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, Bot)
-        assert isinstance(target, TargetKaiheilaPrivate | TargetKaiheilaChannel)
+        assert isinstance(target, (TargetKaiheilaPrivate, TargetKaiheilaChannel))
 
         if event:
             assert isinstance(event, MessageEvent)

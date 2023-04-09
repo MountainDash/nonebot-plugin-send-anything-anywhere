@@ -1,7 +1,7 @@
 """ 提供获取 Bot 的方法 """
 import random
 from collections import defaultdict
-from typing import Callable, Awaitable
+from typing import Dict, List, Callable, Awaitable
 
 from nonebot import get_bots
 from nonebot.adapters import Bot
@@ -10,11 +10,11 @@ from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .platform_send_target import PlatformTarget, TargetQQGuildDirect
 
-BOT_CACHE: dict[PlatformTarget, list[Bot]] = defaultdict(list)
+BOT_CACHE: Dict[PlatformTarget, List[Bot]] = defaultdict(list)
 
-ListTargetsFunc = Callable[[Bot], Awaitable[list[PlatformTarget]]]
+ListTargetsFunc = Callable[[Bot], Awaitable[List[PlatformTarget]]]
 
-list_targets_map: dict[str, ListTargetsFunc] = {}
+list_targets_map: Dict[str, ListTargetsFunc] = {}
 
 inited = False
 

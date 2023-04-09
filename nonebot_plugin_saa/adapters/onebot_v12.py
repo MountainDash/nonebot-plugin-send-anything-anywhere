@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import List
 from pathlib import Path
 from functools import partial
 
@@ -148,7 +149,7 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
-            TargetQQGroup | TargetQQPrivate | TargetQQGuildChannel | TargetOB12Unknow,
+            (TargetQQGroup, TargetQQPrivate, TargetQQGuildChannel, TargetOB12Unknow),
         )
 
         if event:
@@ -163,40 +164,42 @@ try:
         await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 
     @register_list_targets(SupportedAdapters.onebot_v12)
-    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []
         try:
             friends = await bot.get_friend_list()
             for friend in friends:
-                match bot.platform:
-                    case "qq":
-                        targets.append(TargetQQPrivate(user_id=int(friend["user_id"])))
-                    case "qqguild":
-                        # FIXME: 怎么获取 src_guild_id 捏？
-                        pass
-                    case _:
-                        targets.append(
-                            TargetOB12Unknow(
-                                detail_type="private", user_id=friend["user_id"]
-                            )
+                platform = bot.platform
+                if platform == "qq":
+                    targets.append(TargetQQPrivate(user_id=int(friend["user_id"])))
+                elif platform == "qqguild":
+                    # FIXME: 怎么获取 src_guild_id 捏？
+                    pass
+                else:
+                    targets.append(
+                        TargetOB12Unknow(
+                            detail_type="private", user_id=friend["user_id"]
                         )
+                    )
+
         except UnsupportedAction:  # pragma: no cover
             pass
 
         try:
             groups = await bot.get_group_list()
             for group in groups:
-                match bot.platform:
-                    case "qq":
-                        targets.append(TargetQQGroup(group_id=int(group["group_id"])))
-                    case _:
-                        targets.append(
-                            TargetOB12Unknow(
-                                detail_type="group", group_id=group["group_id"]
-                            )
+                platform = bot.platform
+                if platform == "qq":
+                    targets.append(TargetQQGroup(group_id=int(group["group_id"])))
+                else:
+                    targets.append(
+                        TargetOB12Unknow(
+                            detail_type="group", group_id=group["group_id"]
                         )
+                    )
+
         except UnsupportedAction:  # pragma: no cover
             pass
 
@@ -205,21 +208,20 @@ try:
             for guild in guilds:
                 channels = await bot.get_channel_list(guild_id=guild["guild_id"])
                 for channel in channels:
-                    match bot.platform:
-                        case "qqguild":
-                            targets.append(
-                                TargetQQGuildChannel(
-                                    channel_id=int(channel["channel_id"])
-                                )
+                    platform = bot.platform
+                    if platform == "qqguild":
+                        targets.append(
+                            TargetQQGuildChannel(channel_id=int(channel["channel_id"]))
+                        )
+                    else:
+                        targets.append(
+                            TargetOB12Unknow(
+                                detail_type="channel",
+                                channel_id=channel["channel_id"],
+                                guild_id=guild["guild_id"],
                             )
-                        case _:
-                            targets.append(
-                                TargetOB12Unknow(
-                                    detail_type="channel",
-                                    channel_id=channel["channel_id"],
-                                    guild_id=guild["guild_id"],
-                                )
-                            )
+                        )
+
         except UnsupportedAction:  # pragma: no cover
             pass
 
