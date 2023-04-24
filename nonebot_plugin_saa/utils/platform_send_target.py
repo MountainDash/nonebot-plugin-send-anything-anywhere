@@ -4,7 +4,10 @@ from typing_extensions import Self
 from typing import (
     TYPE_CHECKING,
     Any,
+    Dict,
     Type,
+    Tuple,
+    Union,
     Literal,
     Callable,
     ClassVar,
@@ -23,7 +26,7 @@ if TYPE_CHECKING:
 
 
 class PlatformTarget(BaseModel, ABC):
-    _deseriazer_map: ClassVar[dict[SupportedPlatform, Type["PlatformTarget"]]] = {}
+    _deseriazer_map: ClassVar[Dict[SupportedPlatform, Type["PlatformTarget"]]] = {}
     platform_type: SupportedPlatform
 
     class Config:
@@ -44,7 +47,7 @@ class PlatformTarget(BaseModel, ABC):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
     @classmethod
-    def deserialize(cls, source: str | dict) -> Self:
+    def deserialize(cls, source: Union[str, dict]) -> Self:
         if isinstance(source, str):
             raw_obj = json.loads(source)
         else:
@@ -149,19 +152,19 @@ class TargetKaiheilaPrivate(PlatformTarget):
 
 
 # this union type is for deserialize pydantic model with nested PlatformTarget
-AllSupportedPlatformTarget = (
-    TargetQQGroup
-    | TargetQQPrivate
-    | TargetQQGuildChannel
-    | TargetQQGuildDirect
-    | TargetKaiheilaPrivate
-    | TargetKaiheilaChannel
-    | TargetOB12Unknow
-)
+AllSupportedPlatformTarget = Union[
+    TargetQQGroup,
+    TargetQQPrivate,
+    TargetQQGuildChannel,
+    TargetQQGuildDirect,
+    TargetKaiheilaPrivate,
+    TargetKaiheilaChannel,
+    TargetOB12Unknow,
+]
 
 
-ConvertToArg = Callable[[PlatformTarget], dict[str, Any]]
-convert_to_arg_map: dict[tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
+ConvertToArg = Callable[[PlatformTarget], Dict[str, Any]]
+convert_to_arg_map: Dict[Tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
 
 
 def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatform):
@@ -173,7 +176,7 @@ def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatf
 
 
 Extractor = Callable[[Event], PlatformTarget]
-extractor_map: dict[Type[Event], Extractor] = {}
+extractor_map: Dict[Type[Event], Extractor] = {}
 
 
 def register_target_extractor(event: Type[Event]):
@@ -194,7 +197,7 @@ def extract_target(event: Event) -> PlatformTarget:
     raise RuntimeError(f"event {event.__class__} not supported")
 
 
-def get_target(event: Event) -> PlatformTarget | None:
+def get_target(event: Event) -> Optional[PlatformTarget]:
     "从事件中提取出发送目标，如果不能提取就返回 None"
     try:
         return extract_target(event)
@@ -207,7 +210,7 @@ Sender = Callable[
     Awaitable[None],
 ]
 
-sender_map: dict[SupportedAdapters, Sender] = {}
+sender_map: Dict[SupportedAdapters, Sender] = {}
 
 
 def register_sender(adapter: SupportedAdapters):

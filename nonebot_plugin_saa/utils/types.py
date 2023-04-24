@@ -5,7 +5,10 @@ from warnings import warn
 from inspect import signature
 from typing_extensions import Self
 from typing import (
+    Dict,
+    List,
     Type,
+    Union,
     TypeVar,
     Callable,
     ClassVar,
@@ -26,14 +29,14 @@ from .platform_send_target import PlatformTarget, sender_map, extract_target
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
-BuildFunc = (
-    Callable[[TMSF], MessageSegment | Awaitable[MessageSegment]]
-    | Callable[[TMSF, Bot], MessageSegment | Awaitable[MessageSegment]]
-)
-CustomBuildFunc = (
-    Callable[[], MessageSegment | Awaitable[MessageSegment]]
-    | Callable[[Bot], MessageSegment | Awaitable[MessageSegment]]
-)
+BuildFunc = Union[
+    Callable[[TMSF], Union[MessageSegment, Awaitable[MessageSegment]]],
+    Callable[[TMSF, Bot], Union[MessageSegment, Awaitable[MessageSegment]]],
+]
+CustomBuildFunc = Union[
+    Callable[[], Union[MessageSegment, Awaitable[MessageSegment]]],
+    Callable[[Bot], Union[MessageSegment, Awaitable[MessageSegment]]],
+]
 
 
 async def do_build(
@@ -42,7 +45,8 @@ async def do_build(
     if len(signature(builder).parameters) == 1:
         builder = cast(
             Callable[
-                ["MessageSegmentFactory"], MessageSegment | Awaitable[MessageSegment]
+                ["MessageSegmentFactory"],
+                Union[MessageSegment, Awaitable[MessageSegment]],
             ],
             builder,
         )
@@ -51,7 +55,7 @@ async def do_build(
         builder = cast(
             Callable[
                 ["MessageSegmentFactory", Bot],
-                MessageSegment | Awaitable[MessageSegment],
+                Union[MessageSegment, Awaitable[MessageSegment]],
             ],
             builder,
         )
@@ -68,13 +72,13 @@ async def do_build(
 async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
     if len(signature(builder).parameters) == 0:
         builder = cast(
-            Callable[[], MessageSegment | Awaitable[MessageSegment]],
+            Callable[[], Union[MessageSegment, Awaitable[MessageSegment]]],
             builder,
         )
         res = builder()
     elif len(signature(builder).parameters) == 1:
         builder = cast(
-            Callable[[Bot], MessageSegment | Awaitable[MessageSegment]],
+            Callable[[Bot], Union[MessageSegment, Awaitable[MessageSegment]]],
             builder,
         )
         res = builder(bot)
@@ -89,18 +93,20 @@ async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
 
 class MessageSegmentFactory(ABC):
     _builders: ClassVar[
-        dict[
+        Dict[
             SupportedAdapters,
-            Callable[[Self], MessageSegment | Awaitable[MessageSegment]]
-            | Callable[[Self, Bot], MessageSegment | Awaitable[MessageSegment]],
+            Union[
+                Callable[[Self], Union[MessageSegment, Awaitable[MessageSegment]]],
+                Callable[[Self, Bot], Union[MessageSegment, Awaitable[MessageSegment]]],
+            ],
         ]
     ]
 
     data: dict
-    _custom_builders: dict[SupportedAdapters, CustomBuildFunc]
+    _custom_builders: Dict[SupportedAdapters, CustomBuildFunc]
 
     def _register_custom_builder(
-        self, adapter: SupportedAdapters, ms: MessageSegment | CustomBuildFunc
+        self, adapter: SupportedAdapters, ms: Union[MessageSegment, CustomBuildFunc]
     ):
         if isinstance(ms, MessageSegment):
             self._custom_builders[adapter] = lambda _: ms
@@ -123,7 +129,7 @@ class MessageSegmentFactory(ABC):
         return self.data == other.data
 
     def overwrite(
-        self, adapter: SupportedAdapters, ms: MessageSegment | CustomBuildFunc
+        self, adapter: SupportedAdapters, ms: Union[MessageSegment, CustomBuildFunc]
     ) -> Self:
         "为某个 adapter 重写产生的 MessageSegment 或重写产生 MessageSegment 的方法"
         self._register_custom_builder(adapter, ms)
@@ -137,16 +143,16 @@ class MessageSegmentFactory(ABC):
             return await do_build(self, builder, bot)
         raise AdapterNotInstalled(adapter_name)
 
-    def __add__(self: TMSF, other: str | TMSF | Iterable[TMSF]):
+    def __add__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
         return MessageFactory(self) + other
 
-    def __radd__(self: TMSF, other: str | TMSF | Iterable[TMSF]):
+    def __radd__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
         return MessageFactory(other) + self
 
 
-class MessageFactory(list[TMSF]):
+class MessageFactory(List[TMSF]):
     _text_factory: Callable[[str], TMSF]
-    _message_registry: dict[SupportedAdapters, type[Message]] = {}
+    _message_registry: Dict[SupportedAdapters, Type[Message]] = {}
 
     @classmethod
     def register_text_ms(cls, factory: Callable[[str], TMSF]):
@@ -159,7 +165,7 @@ class MessageFactory(list[TMSF]):
 
     @classmethod
     def register_adapter_message(
-        cls, adapter: SupportedAdapters, message_class: type[Message]
+        cls, adapter: SupportedAdapters, message_class: Type[Message]
     ):
         cls._message_registry[adapter] = message_class
 
@@ -170,13 +176,13 @@ class MessageFactory(list[TMSF]):
     async def _build(self, bot: Bot) -> Message:
         adapter_name = extract_adapter_type(bot)
         if message_type := self._message_registry.get(adapter_name):
-            ms: tuple[MessageSegment] = await asyncio.gather(
+            ms: List[MessageSegment] = await asyncio.gather(
                 *[ms_factory.build(bot) for ms_factory in self]
             )
             return message_type(ms)
         raise AdapterNotInstalled(adapter_name)
 
-    def __init__(self, message: str | Iterable[TMSF] | TMSF):
+    def __init__(self, message: Union[str, Iterable[TMSF], TMSF]):
         super().__init__()
 
         if message is None:
@@ -188,16 +194,16 @@ class MessageFactory(list[TMSF]):
         elif isinstance(message, Iterable):
             self.extend(message)
 
-    def __add__(self: TMF, other: str | TMSF | Iterable[TMSF]) -> TMF:
+    def __add__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
         result = self.copy()
         result += other
         return result
 
-    def __radd__(self: TMF, other: str | TMSF | Iterable[TMSF]) -> TMF:
+    def __radd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
         result = self.__class__(other)
         return result + self
 
-    def __iadd__(self: TMF, other: str | TMSF | Iterable[TMSF]) -> TMF:
+    def __iadd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
         if isinstance(other, str):
             self.append(self.get_text_factory()(other))
         elif isinstance(other, MessageSegmentFactory):
@@ -207,7 +213,7 @@ class MessageFactory(list[TMSF]):
 
         return self
 
-    def append(self: TMF, obj: str | TMSF) -> TMF:
+    def append(self: TMF, obj: Union[str, TMSF]) -> TMF:
         if isinstance(obj, MessageSegmentFactory):
             super().append(obj)
         elif isinstance(obj, str):
@@ -215,7 +221,7 @@ class MessageFactory(list[TMSF]):
 
         return self
 
-    def extend(self: TMF, obj: TMF | Iterable[TMSF]) -> TMF:
+    def extend(self: TMF, obj: Union[TMF, Iterable[TMSF]]) -> TMF:
         for message_segment_factory in obj:
             self.append(message_segment_factory)
 
@@ -235,7 +241,7 @@ class MessageFactory(list[TMSF]):
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
         if bot is None:
             bot = get_bot(target)
         await self._do_send(bot, target, None, False, False)
@@ -257,15 +263,17 @@ class MessageFactory(list[TMSF]):
 
 
 AggregatedSender = Callable[
-    [Bot, list[MessageFactory], PlatformTarget, Optional[Event]], Awaitable[None]
+    [Bot, List[MessageFactory], PlatformTarget, Optional[Event]], Awaitable[None]
 ]
 
 
 class AggregatedMessageFactory:
-    message_factories: list[MessageFactory]
-    sender: ClassVar[dict[SupportedAdapters, AggregatedSender]] = {}
+    message_factories: List[MessageFactory]
+    sender: ClassVar[Dict[SupportedAdapters, AggregatedSender]] = {}
 
-    def __init__(self, msgs: list[MessageFactory | MessageSegmentFactory]) -> None:
+    def __init__(
+        self, msgs: List[Union[MessageFactory, MessageSegmentFactory]]
+    ) -> None:
         self.message_factories = []
         for msg in msgs:
             if isinstance(msg, MessageSegmentFactory):
@@ -311,7 +319,7 @@ class AggregatedMessageFactory:
         target = extract_target(event)
         await self._do_send(bot, target, event)
 
-    async def send_to(self, target: PlatformTarget, bot: Bot | None = None):
+    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
         if bot is None:
             bot = get_bot(target)
         await self._do_send(bot, target, None)

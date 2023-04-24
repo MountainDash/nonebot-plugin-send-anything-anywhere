@@ -1,6 +1,6 @@
 from io import BytesIO
 from pathlib import Path
-from typing import TypedDict
+from typing import Union, TypedDict
 
 from ..utils import MessageFactory, MessageSegmentFactory
 
@@ -31,7 +31,7 @@ MessageFactory.register_text_ms(lambda text: Text(text))
 
 
 class ImageData(TypedDict):
-    image: str | bytes | Path | BytesIO
+    image: Union[str, bytes, Path, BytesIO]
     name: str
 
 
@@ -41,7 +41,7 @@ class Image(MessageSegmentFactory):
     data: ImageData
 
     def __init__(
-        self, image: str | bytes | Path | BytesIO, name: str = "image"
+        self, image: Union[str, bytes, Path, BytesIO], name: str = "image"
     ) -> None:
         """图片消息段
 
@@ -84,7 +84,7 @@ class Reply(MessageSegmentFactory):
 
     data: ReplyData
 
-    def __init__(self, message_id: str | int):
+    def __init__(self, message_id: Union[str, int]):
         """回复其他消息的消息段
 
         参数:
