@@ -1,3 +1,4 @@
+from typing import List
 from functools import partial
 
 from nonebot.adapters import Event
@@ -75,7 +76,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, Bot)
-        assert isinstance(target, TargetQQGuildChannel | TargetQQGuildDirect)
+        assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
 
         full_msg = msg
         if event:
@@ -146,7 +147,7 @@ try:
                 raise NotImplementedError("QQ频道主动发送私信暂未实现")
 
     @register_list_targets(SupportedAdapters.qqguild)
-    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []

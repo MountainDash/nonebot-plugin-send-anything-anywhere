@@ -1,13 +1,21 @@
+# ruff: noqa: E402
+import pytest
+
+pytest.importorskip("nonebot.adapters.kaiheila")
+
 from io import BytesIO
 from functools import partial
 
+import nonebot
 from nonebug import App
 from nonebot import get_driver
 from pytest_mock import MockerFixture
-from nonebot.adapters.kaiheila import Bot
+from nonebot.adapters.kaiheila import Bot, Adapter
+from nonebot.adapters.kaiheila.event import Extra, EventMessage
 from nonebot.adapters.kaiheila.api import (
     URL,
     Meta,
+    User,
     Guild,
     Channel,
     UserChat,
@@ -20,7 +28,77 @@ from nonebot.adapters.kaiheila.api import (
 from nonebot_plugin_saa.utils import SupportedAdapters
 from nonebot_plugin_saa import TargetKaiheilaChannel, TargetKaiheilaPrivate
 
-from .utils import assert_ms, kaiheila_kwargs, mock_kaiheila_message_event
+from .utils import assert_ms
+
+
+@pytest.fixture(scope="session", autouse=True)
+def load_adapters(nonebug_init: None):
+    driver = nonebot.get_driver()
+    driver.register_adapter(Adapter)
+
+
+def mock_kaiheila_message_event(channel=False):
+    from nonebot.adapters.kaiheila.event import (
+        ChannelMessageEvent as KaiheilaChannelMessageEvent,
+    )
+    from nonebot.adapters.kaiheila.event import (
+        PrivateMessageEvent as KaiheilaPrivateMessageEvent,
+    )
+
+    if not channel:
+        return KaiheilaPrivateMessageEvent(
+            channel_type="PERSON",
+            type=9,
+            target_id="2233",
+            content="/abc",
+            msg_id="abcdef",
+            msg_timestamp=1145141919,
+            nonce="abcdef",
+            extra=Extra(type=9),  # type: ignore
+            user_id="3344",
+            sub_type="kmarkdown",
+            event=EventMessage(
+                type=9,
+                author=User(id="3344", username="3344", identify_num="3344"),
+                content="/abc",
+                kmarkdown={
+                    "raw_content": "/abc",
+                    "mention_part": [],
+                    "mention_role_part": [],
+                },
+            ),  # type: ignore
+            message_type="private",
+        )
+    else:
+        return KaiheilaChannelMessageEvent(
+            channel_type="GROUP",
+            type=9,
+            target_id="1111",
+            content="/abc",
+            msg_id="abcdef",
+            msg_timestamp=1145141919,
+            nonce="abcdef",
+            extra=Extra(type=9),  # type: ignore
+            user_id="3344",
+            sub_type="kmarkdown",
+            event=EventMessage(
+                type=9,
+                author=User(id="3344", username="3344", identify_num="3344"),
+                content="/abc",
+                kmarkdown={
+                    "raw_content": "/abc",
+                    "mention_part": [],
+                    "mention_role_part": [],
+                },
+            ),  # type: ignore
+            message_type="group",
+            group_id="1111",
+        )
+
+
+def kaiheila_kwargs(name="2233", token="hhhh"):
+    return {"name": name, "token": token}
+
 
 assert_kaiheila = partial(
     assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs()

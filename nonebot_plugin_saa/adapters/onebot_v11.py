@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 from nonebot.adapters import Bot, Event
 
@@ -62,7 +62,7 @@ try:
         return TargetQQGroup(group_id=event.group_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
-    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {
             "message_type": "private",
@@ -70,7 +70,7 @@ try:
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
-    def _gen_group(target: PlatformTarget) -> dict[str, Any]:
+    def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
         return {
             "message_type": "group",
@@ -87,7 +87,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, BotOB11)
-        assert isinstance(target, TargetQQGroup | TargetQQPrivate)
+        assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
         if event:
             assert isinstance(event, MessageEvent)
             full_msg = assamble_message_factory(
@@ -108,14 +108,14 @@ try:
     @AggregatedMessageFactory.register_aggragated_sender(adapter)
     async def aggregate_send(
         bot: Bot,
-        message_factories: list[MessageFactory],
+        message_factories: List[MessageFactory],
         target: PlatformTarget,
         event: Optional[Event],
     ):
         assert isinstance(bot, BotOB11)
         login_info = await bot.get_login_info()
 
-        msg_list: list[Message] = []
+        msg_list: List[Message] = []
         for msg_fac in message_factories:
             msg = await msg_fac.build(bot)
             assert isinstance(msg, Message)
@@ -131,20 +131,19 @@ try:
             ]
         )
 
-        match target:
-            case TargetQQGroup(group_id=group_id):
-                await bot.send_group_forward_msg(
-                    group_id=group_id, messages=aggregated_message_segment
-                )
-            case TargetQQPrivate(user_id=user_id):
-                await bot.send_private_forward_msg(
-                    user_id=user_id, messages=aggregated_message_segment
-                )
-            case _:  # pragma: no cover
-                raise RuntimeError(f"{target.__class__.__name__} not supported")
+        if isinstance(target, TargetQQGroup):
+            await bot.send_group_forward_msg(
+                group_id=target.group_id, messages=aggregated_message_segment
+            )
+        elif isinstance(target, TargetQQPrivate):
+            await bot.send_private_forward_msg(
+                user_id=target.user_id, messages=aggregated_message_segment
+            )
+        else:  # pragma: no cover
+            raise RuntimeError(f"{target.__class__.__name__} not supported")
 
     @register_list_targets(SupportedAdapters.onebot_v11)
-    async def list_targets(bot: Bot) -> list[PlatformTarget]:
+    async def list_targets(bot: Bot) -> List[PlatformTarget]:
         assert isinstance(bot, BotOB11)
 
         targets = []

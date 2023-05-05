@@ -17,7 +17,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 nonebot2 = "^2.0.0rc1"
 strenum = "^0.4.8"
 pydantic = "^1.10.5"
@@ -38,7 +38,7 @@ optional = true
 [tool.poetry.group.adapters.dependencies]
 nonebot-adapter-onebot = "^2.2.2"
 nonebot-adapter-qqguild = ">=0.2.1"
-nonebot-adapter-kaiheila = ">=0.2.4"
+nonebot-adapter-kaiheila = { version = "^0.2.4", python = ">=3.9" }
 
 [tool.black]
 line-length = 88
@@ -61,3 +61,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+
+[tool.pyright]
+pythonVersion = "3.8"
+pythonPlatform = "All"
