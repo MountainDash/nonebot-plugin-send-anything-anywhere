@@ -1,5 +1,5 @@
-from typing import Any, Dict
 from functools import partial
+from typing import Any, Dict, List
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -14,6 +14,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
@@ -21,12 +22,30 @@ from ..utils import (
 
 try:
     from nonebot.adapters.kaiheila import Bot
+    from nonebot.adapters.kaiheila.api import Guild, Channel, UserChat
     from nonebot.adapters.kaiheila.message import Message, MessageSegment
     from nonebot.adapters.kaiheila.event import (
         MessageEvent,
         ChannelMessageEvent,
         PrivateMessageEvent,
     )
+
+    def _unwrap_paging_api(field: str):
+        def decorator(func):
+            async def wrapper(*args, **kwargs):
+                result = await func(*args, **kwargs)
+                while True:
+                    for x in getattr(result, field):
+                        yield x
+
+                    if result.meta.page != result.meta.page_total:
+                        result = await func(*args, **kwargs, page=result.meta.page + 1)
+                    else:
+                        break
+
+            return wrapper
+
+        return decorator
 
     adapter = SupportedAdapters.kaiheila
     register_kaiheila = partial(register_ms_adapter, adapter)
@@ -107,6 +126,30 @@ try:
             message_to_send += message_segment
 
         await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+
+    @register_list_targets(SupportedAdapters.kaiheila)
+    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+        assert isinstance(bot, Bot)
+
+        targets = []
+
+        async for guild in _unwrap_paging_api("guilds")(bot.guild_list)():
+            guild: Guild
+            async for channel in _unwrap_paging_api("channels")(bot.channel_list)(
+                guild_id=guild.id_
+            ):
+                assert isinstance(channel, Channel)
+                assert channel.id_
+                target = TargetKaiheilaChannel(channel_id=channel.id_)
+                targets.append(target)
+
+        async for user_chat in _unwrap_paging_api("user_chats")(bot.userChat_list)():
+            user_chat: UserChat
+            assert user_chat.target_info and user_chat.target_info.id_
+            target = TargetKaiheilaPrivate(user_id=user_chat.target_info.id_)
+            targets.append(target)
+
+        return targets
 
 except ImportError:
     pass

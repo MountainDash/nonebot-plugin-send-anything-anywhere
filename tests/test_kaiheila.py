@@ -9,11 +9,24 @@ from functools import partial
 import nonebot
 from nonebug import App
 from nonebot import get_driver
+from pytest_mock import MockerFixture
 from nonebot.adapters.kaiheila import Bot, Adapter
-from nonebot.adapters.kaiheila.api import URL, User
 from nonebot.adapters.kaiheila.event import Extra, EventMessage
+from nonebot.adapters.kaiheila.api import (
+    URL,
+    Meta,
+    User,
+    Guild,
+    Channel,
+    UserChat,
+    TargetInfo,
+    GuildsReturn,
+    ChannelsReturn,
+    UserChatsReturn,
+)
 
 from nonebot_plugin_saa.utils import SupportedAdapters
+from nonebot_plugin_saa import TargetKaiheilaChannel, TargetKaiheilaPrivate
 
 from .utils import assert_ms
 
@@ -248,3 +261,45 @@ async def test_send_active(app: App):
             result=None,
         )
         await MessageFactory("123").send_to(send_target_group, bot)
+
+
+async def test_list_targets(app: App, mocker: MockerFixture):
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+
+    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
+
+    async with app.test_api() as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kaiheila_kwargs())
+
+        ctx.should_call_api(
+            "guild_list",
+            {},
+            GuildsReturn(
+                meta=Meta(page=1, page_total=1, page_size=20, total=1),
+                items=[Guild(id="223")],
+            ),
+        )
+        ctx.should_call_api(
+            "channel_list",
+            {"guild_id": "223"},
+            ChannelsReturn(
+                meta=Meta(page=1, page_total=1, page_size=20, total=1),
+                items=[Channel(id="112")],
+            ),
+        )
+        ctx.should_call_api(
+            "userChat_list",
+            {},
+            UserChatsReturn(
+                meta=Meta(page=1, page_total=1, page_size=20, total=1),
+                items=[UserChat(target_info=TargetInfo(id="1122"))],
+            ),
+        )
+        await refresh_bots()
+
+        send_target_channel = TargetKaiheilaChannel(channel_id="112")
+        assert bot is get_bot(send_target_channel)
+
+        send_target_private = TargetKaiheilaPrivate(user_id="1122")
+        assert bot is get_bot(send_target_private)

@@ -10,6 +10,8 @@ from .utils import (
     TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
     AggregatedMessageFactory,
     get_target,
     extract_target,
@@ -35,4 +37,6 @@ __all__ = [
     "TargetQQPrivate",
     "TargetQQGuildDirect",
     "TargetQQGuildChannel",
+    "TargetKaiheilaChannel",
+    "TargetKaiheilaPrivate",
 ]
