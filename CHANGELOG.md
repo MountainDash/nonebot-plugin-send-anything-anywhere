@@ -2,6 +2,7 @@
 
 ## 最近更新
 
+- 为kaiheila适配器添加list_targets支持 [@ssttkkl](https://github.com/ssttkkl) ([#44](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/44))
 - 降低 Python 版本要求至 3.8+ [@he0119](https://github.com/he0119) ([#45](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/45))
 - ✨ send_to 支持自动选择合适的 bot 进行发送 [@he0119](https://github.com/he0119) ([#39](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/39))
 
