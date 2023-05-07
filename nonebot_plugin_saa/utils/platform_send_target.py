@@ -3,23 +3,23 @@ from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
+    Dict,
+    Type,
+    Tuple,
+    Union,
+    Literal,
     Callable,
     ClassVar,
-    Dict,
-    Literal,
     Optional,
-    Tuple,
-    Type,
-    Union,
+    Awaitable,
     cast,
 )
 
-from nonebot.adapters import Bot, Event
 from pydantic import BaseModel
+from nonebot.adapters import Bot, Event
 
-from .const import SupportedAdapters, SupportedPlatform
 from .helpers import extract_adapter_type
+from .const import SupportedAdapters, SupportedPlatform
 
 if TYPE_CHECKING:
     from .types import MessageFactory

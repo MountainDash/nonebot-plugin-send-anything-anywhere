@@ -1,31 +1,31 @@
 import asyncio
 from abc import ABC
 from copy import deepcopy
+from warnings import warn
 from inspect import signature
+from typing_extensions import Self
 from typing import (
-    Awaitable,
+    Dict,
+    List,
+    Type,
+    Union,
+    TypeVar,
     Callable,
     ClassVar,
-    Dict,
     Iterable,
-    List,
     Optional,
-    Type,
-    TypeVar,
-    Union,
+    Awaitable,
     cast,
 )
-from warnings import warn
 
-from nonebot.adapters import Bot, Event, Message, MessageSegment
 from nonebot.matcher import current_bot, current_event
-from typing_extensions import Self
+from nonebot.adapters import Bot, Event, Message, MessageSegment
 
 from .auto_select_bot import get_bot
 from .const import SupportedAdapters
-from .exceptions import AdapterNotInstalled, FallbackToDefault
 from .helpers import extract_adapter_type
-from .platform_send_target import PlatformTarget, extract_target, sender_map
+from .exceptions import FallbackToDefault, AdapterNotInstalled
+from .platform_send_target import PlatformTarget, sender_map, extract_target
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
