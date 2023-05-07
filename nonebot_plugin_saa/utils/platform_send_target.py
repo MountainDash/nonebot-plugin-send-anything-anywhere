@@ -1,6 +1,5 @@
 import json
 from abc import ABC
-from typing_extensions import Self
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -13,6 +12,7 @@ from typing import (
     ClassVar,
     Optional,
     Awaitable,
+    cast,
 )
 
 from pydantic import BaseModel
@@ -26,7 +26,9 @@ if TYPE_CHECKING:
 
 
 class PlatformTarget(BaseModel, ABC):
-    _deseriazer_map: ClassVar[Dict[SupportedPlatform, Type["PlatformTarget"]]] = {}
+    _deseriazer_map: ClassVar[
+        Dict[SupportedPlatform, Type["AllSupportedPlatformTarget"]]
+    ] = {}
     platform_type: SupportedPlatform
 
     class Config:
@@ -35,6 +37,7 @@ class PlatformTarget(BaseModel, ABC):
 
     def __init_subclass__(cls) -> None:
         assert isinstance(cls.__fields__["platform_type"].default, SupportedPlatform)
+        cls = cast(Type["AllSupportedPlatformTarget"], cls)
         cls._deseriazer_map[cls.__fields__["platform_type"].default] = cls
         return super().__init_subclass__()
 
@@ -47,7 +50,7 @@ class PlatformTarget(BaseModel, ABC):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
     @classmethod
-    def deserialize(cls, source: Union[str, dict]) -> Self:
+    def deserialize(cls, source: Union[str, dict]) -> "AllSupportedPlatformTarget":
         if isinstance(source, str):
             raw_obj = json.loads(source)
         else:
