@@ -105,7 +105,7 @@ try:
             message_to_send += message_segment
         await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
 
-    @AggregatedMessageFactory.register_aggragated_sender(adapter)
+    @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
         bot: Bot,
         message_factories: List[MessageFactory],

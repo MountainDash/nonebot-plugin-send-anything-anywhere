@@ -3,23 +3,23 @@ from abc import ABC
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Type,
-    Tuple,
-    Union,
-    Literal,
+    Awaitable,
     Callable,
     ClassVar,
+    Dict,
+    Literal,
     Optional,
-    Awaitable,
+    Tuple,
+    Type,
+    Union,
     cast,
 )
 
-from pydantic import BaseModel
 from nonebot.adapters import Bot, Event
+from pydantic import BaseModel
 
-from .helpers import extract_adapter_type
 from .const import SupportedAdapters, SupportedPlatform
+from .helpers import extract_adapter_type
 
 if TYPE_CHECKING:
     from .types import MessageFactory
@@ -45,7 +45,7 @@ class PlatformTarget(BaseModel, ABC):
         adapter_type = extract_adapter_type(bot)
         if (self.platform_type, adapter_type) not in convert_to_arg_map.keys():
             raise RuntimeError(
-                f"PlatformTarget {self.platform_type} not support {adapter_type}"
+                f"PlatformTarget {self.platform_type} not support {adapter_type}",
             )
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
@@ -154,6 +154,34 @@ class TargetKaiheilaPrivate(PlatformTarget):
     user_id: str
 
 
+class TargetTelegramCommon(PlatformTarget):
+    """Telegram 普通对话
+
+    参数
+        user_id: 对话ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.telegram_common
+    ] = SupportedPlatform.telegram_common
+    chat_id: Union[int, str]
+
+
+class TargetTelegramForum(PlatformTarget):
+    """Telegram 频道
+
+    参数
+        chat_id: 频道ID
+        message_thread_id: 板块ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.telegram_forum
+    ] = SupportedPlatform.telegram_forum
+    chat_id: int
+    message_thread_id: int
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
@@ -163,6 +191,8 @@ AllSupportedPlatformTarget = Union[
     TargetKaiheilaPrivate,
     TargetKaiheilaChannel,
     TargetOB12Unknow,
+    TargetTelegramCommon,
+    TargetTelegramForum,
 ]
 
 
@@ -193,7 +223,7 @@ def register_target_extractor(event: Type[Event]):
 def extract_target(event: Event) -> PlatformTarget:
     "从事件中提取出发送目标，如果不能提取就抛出错误"
     for event_type in event.__class__.mro():
-        if event_type in extractor_map.keys():
+        if event_type in extractor_map:
             if not issubclass(event_type, Event):
                 break
             return extractor_map[event_type](event)

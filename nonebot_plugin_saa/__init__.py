@@ -1,21 +1,23 @@
-from . import adapters  # noqa: F401
-from .types import Text, Image, Reply, Custom, Mention
+from . import adapters as adapters
+from .types import Custom, Image, Mention, Reply, Text
 from .utils import (
-    TargetQQGroup,
+    AggregatedMessageFactory,
     MessageFactory,
-    PlatformTarget,
-    TargetQQPrivate,
-    TargetOB12Unknow,
-    SupportedAdapters,
-    TargetQQGuildDirect,
-    TargetQQGuildChannel,
     MessageSegmentFactory,
+    PlatformTarget,
+    SupportedAdapters,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
-    AggregatedMessageFactory,
-    get_target,
-    extract_target,
+    TargetOB12Unknow,
+    TargetQQGroup,
+    TargetQQGuildChannel,
+    TargetQQGuildDirect,
+    TargetQQPrivate,
+    TargetTelegramCommon,
+    TargetTelegramForum,
     enable_auto_select_bot,
+    extract_target,
+    get_target,
 )
 
 __all__ = [
@@ -39,4 +41,6 @@ __all__ = [
     "TargetQQGuildChannel",
     "TargetKaiheilaChannel",
     "TargetKaiheilaPrivate",
+    "TargetTelegramCommon",
+    "TargetTelegramForum",
 ]

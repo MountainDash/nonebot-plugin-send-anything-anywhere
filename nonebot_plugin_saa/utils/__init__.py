@@ -1,33 +1,35 @@
-from .helpers import extract_adapter_type
-from .exceptions import AdapterNotInstalled, AdapterNotSupported
-from .auto_select_bot import register_list_targets, enable_auto_select_bot
+from .auto_select_bot import enable_auto_select_bot, register_list_targets
 from .const import SupportedAdapters, SupportedPlatform, supported_adapter_names
+from .exceptions import AdapterNotInstalled, AdapterNotSupported
+from .helpers import extract_adapter_type
+from .platform_send_target import (
+    AllSupportedPlatformTarget,
+    PlatformTarget,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
+    TargetOB12Unknow,
+    TargetQQGroup,
+    TargetQQGuildChannel,
+    TargetQQGuildDirect,
+    TargetQQPrivate,
+    TargetTelegramCommon,
+    TargetTelegramForum,
+    extract_target,
+    get_target,
+    register_convert_to_arg,
+    register_sender,
+    register_target_extractor,
+)
 from .types import (
-    BuildFunc,
-    MessageFactory,
-    CustomBuildFunc,
-    MessageSegmentFactory,
     AggregatedMessageFactory,
+    BuildFunc,
+    CustomBuildFunc,
+    MessageFactory,
+    MessageSegmentFactory,
+    assamble_message_factory,
     do_build,
     do_build_custom,
     register_ms_adapter,
-    assamble_message_factory,
-)
-from .platform_send_target import (
-    TargetQQGroup,
-    PlatformTarget,
-    TargetQQPrivate,
-    TargetOB12Unknow,
-    TargetQQGuildDirect,
-    TargetQQGuildChannel,
-    TargetKaiheilaChannel,
-    TargetKaiheilaPrivate,
-    AllSupportedPlatformTarget,
-    get_target,
-    extract_target,
-    register_sender,
-    register_convert_to_arg,
-    register_target_extractor,
 )
 
 __all__ = [
@@ -60,6 +62,8 @@ __all__ = [
     "TargetKaiheilaChannel",
     "TargetKaiheilaPrivate",
     "TargetOB12Unknow",
+    "TargetTelegramCommon",
+    "TargetTelegramForum",
     "AllSupportedPlatformTarget",
     "auto_select_bot",
     "register_list_targets",
