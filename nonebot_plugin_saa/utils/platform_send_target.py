@@ -50,7 +50,7 @@ class PlatformTarget(BaseModel, ABC):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
     @classmethod
-    def deserialize(cls, source: Union[str, dict]) -> "AllSupportedPlatformTarget":
+    def deserialize(cls, source: Any) -> "AllSupportedPlatformTarget":
         if isinstance(source, str):
             raw_obj = json.loads(source)
         else:
