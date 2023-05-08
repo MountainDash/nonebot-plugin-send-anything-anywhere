@@ -10,5 +10,9 @@ class AdapterNotSupported(Exception):
         super().__init__(self, message)
 
 
+class NoBotFound(RuntimeError):
+    pass
+
+
 class FallbackToDefault(Exception):
     pass

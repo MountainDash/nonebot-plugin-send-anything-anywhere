@@ -6,6 +6,7 @@ from typing import Dict, List, Callable, Awaitable
 from nonebot import get_bots
 from nonebot.adapters import Bot
 
+from .exceptions import NoBotFound
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
 from .platform_send_target import PlatformTarget, TargetQQGuildDirect
@@ -74,6 +75,6 @@ def get_bot(target: PlatformTarget) -> Bot:
 
     bots = BOT_CACHE.get(target)
     if not bots:
-        raise RuntimeError("无法获取到发送目标对应的 bot")
+        raise NoBotFound()
 
     return random.choice(bots)
