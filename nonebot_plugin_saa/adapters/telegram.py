@@ -3,8 +3,8 @@ from pathlib import Path
 from functools import partial
 from dataclasses import dataclass
 from typing import Any, Union, Optional, cast
-import anyio
 
+import anyio
 from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
