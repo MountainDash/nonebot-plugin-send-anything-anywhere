@@ -1,23 +1,23 @@
 from . import adapters as adapters
-from .types import Custom, Image, Mention, Reply, Text
+from .types import Text, Image, Reply, Custom, Mention
 from .utils import (
-    AggregatedMessageFactory,
+    TargetQQGroup,
     MessageFactory,
-    MessageSegmentFactory,
     PlatformTarget,
+    TargetQQPrivate,
+    TargetOB12Unknow,
     SupportedAdapters,
+    TargetQQGuildDirect,
+    TargetTelegramForum,
+    TargetQQGuildChannel,
+    TargetTelegramCommon,
+    MessageSegmentFactory,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
-    TargetOB12Unknow,
-    TargetQQGroup,
-    TargetQQGuildChannel,
-    TargetQQGuildDirect,
-    TargetQQPrivate,
-    TargetTelegramCommon,
-    TargetTelegramForum,
-    enable_auto_select_bot,
-    extract_target,
+    AggregatedMessageFactory,
     get_target,
+    extract_target,
+    enable_auto_select_bot,
 )
 
 __all__ = [

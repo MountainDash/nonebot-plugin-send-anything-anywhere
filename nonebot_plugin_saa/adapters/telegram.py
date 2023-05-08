@@ -1,35 +1,35 @@
-from dataclasses import dataclass
-from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Optional, Union, cast
+from functools import partial
+from dataclasses import dataclass
+from typing import Any, Union, Optional, cast
 
 from nonebot.adapters import Event
 
-from ..types import Image, Mention, Reply, Text
+from ..types import Text, Image, Reply, Mention
 from ..utils import (
     MessageFactory,
-    MessageSegmentFactory,
     SupportedAdapters,
-    TargetTelegramCommon,
     TargetTelegramForum,
-    assamble_message_factory,
-    register_ms_adapter,
+    TargetTelegramCommon,
+    MessageSegmentFactory,
     register_sender,
+    register_ms_adapter,
+    assamble_message_factory,
     register_target_extractor,
 )
 
 try:
     from nonebot.adapters.telegram import Bot as BotTG
+    from nonebot.adapters.telegram.message import File, Entity
     from nonebot.adapters.telegram import Message, MessageSegment
     from nonebot.adapters.telegram.event import (
-        ChannelPostEvent,
-        ForumTopicMessageEvent,
-        GroupMessageEvent,
         MessageEvent,
+        ChannelPostEvent,
+        GroupMessageEvent,
         PrivateMessageEvent,
+        ForumTopicMessageEvent,
     )
-    from nonebot.adapters.telegram.message import Entity, File
 
     adapter = SupportedAdapters.telegram
     register_telegram = partial(register_ms_adapter, adapter)
