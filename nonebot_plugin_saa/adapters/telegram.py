@@ -3,6 +3,7 @@ from pathlib import Path
 from functools import partial
 from dataclasses import dataclass
 from typing import Any, Union, Optional, cast
+import anyio
 
 from nonebot.adapters import Event
 
@@ -53,7 +54,7 @@ try:
     async def _image(i: Image) -> MessageSegment:
         image = i.data["image"]
         if isinstance(image, Path):
-            image = image.read_bytes()
+            image = await anyio.Path(image).read_bytes()
         if isinstance(image, BytesIO):
             image = image.getvalue()
         return File.photo(image)
