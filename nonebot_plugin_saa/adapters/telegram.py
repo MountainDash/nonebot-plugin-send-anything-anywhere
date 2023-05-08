@@ -175,7 +175,7 @@ try:
             message_to_send += message_segment
 
         await bot.send(
-            cast(Any, build_fake_event(target)),
+            event or cast(Any, build_fake_event(target)),
             message=message_to_send,
             reply_to_message_id=reply_to_message_id,
         )
