@@ -72,18 +72,13 @@ try:
         return MessageSegment("reply", cast(dict, r.data))
 
     @register_target_extractor(PrivateMessageEvent)
-    def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
-        assert isinstance(event, PrivateMessageEvent)
-        return TargetTelegramCommon(chat_id=event.chat.id)
-
     @register_target_extractor(GroupMessageEvent)
-    def _extract_group_msg_event(event: Event) -> TargetTelegramCommon:
-        assert isinstance(event, GroupMessageEvent)
-        return TargetTelegramCommon(chat_id=event.chat.id)
-
     @register_target_extractor(ChannelPostEvent)
-    def _extract_channel_msg_event(event: Event) -> TargetTelegramCommon:
-        assert isinstance(event, ChannelPostEvent)
+    def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
+        assert isinstance(
+            event,
+            (PrivateMessageEvent, GroupMessageEvent, ChannelPostEvent),
+        )
         return TargetTelegramCommon(chat_id=event.chat.id)
 
     @register_target_extractor(ForumTopicMessageEvent)
