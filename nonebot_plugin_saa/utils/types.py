@@ -7,6 +7,7 @@ from typing_extensions import Self
 from typing import (
     Dict,
     List,
+    NoReturn,
     Type,
     Union,
     TypeVar,
@@ -18,6 +19,7 @@ from typing import (
     cast,
 )
 
+from nonebot.exception import FinishedException
 from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
 
@@ -246,6 +248,11 @@ class MessageFactory(List[TMSF]):
 
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
+
+    async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise FinishedException
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
         if bot is None:
