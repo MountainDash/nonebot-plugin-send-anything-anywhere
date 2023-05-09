@@ -8,6 +8,8 @@ class SupportedAdapters(StrEnum):
     kaiheila = "Kaiheila"
     telegram = "Telegram"
 
+    fake = "fake"  # for nonebug
+
 
 class SupportedPlatform(StrEnum):
     qq_group = "QQ Group"
