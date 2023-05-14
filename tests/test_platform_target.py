@@ -231,21 +231,21 @@ def test_extract_qqguild(app: App):
 
 
 def test_unsupported_event(app: App):
-    from nonebot.adapters.onebot.v11 import FriendRequestEvent
+    from nonebot.adapters.onebot.v11.event import Status
+    from nonebot.adapters.onebot.v11 import HeartbeatMetaEvent
 
     from nonebot_plugin_saa import extract_target
 
-    friend_req_event = FriendRequestEvent(
+    heartbeat_meta_event = HeartbeatMetaEvent(
         time=1122,
         self_id=2233,
-        post_type="request",
-        request_type="friend",
-        user_id=3344,
-        comment="666",
-        flag="123",
+        post_type="meta_event",
+        meta_event_type="heartbeat",
+        status=Status(online=True, good=True),
+        interval=10,
     )
     with pytest.raises(RuntimeError):
-        extract_target(friend_req_event)
+        extract_target(heartbeat_meta_event)
 
 
 async def test_unable_to_convert(app: App):
@@ -263,11 +263,11 @@ async def test_unable_to_convert(app: App):
 
 
 def test_get_target(app: App):
-    from nonebot.adapters.onebot.v11.event import Sender
+    from nonebot.adapters.onebot.v11.event import Sender, Status
     from nonebot.adapters.onebot.v11 import (
         Message,
         GroupMessageEvent,
-        FriendRequestEvent,
+        HeartbeatMetaEvent,
     )
 
     from nonebot_plugin_saa import TargetQQGroup, get_target
@@ -290,13 +290,12 @@ def test_get_target(app: App):
     )
     assert get_target(group_message_event) == TargetQQGroup(group_id=1122)
 
-    friend_req_event = FriendRequestEvent(
+    heartbeat_meta_event = HeartbeatMetaEvent(
         time=1122,
         self_id=2233,
-        post_type="request",
-        request_type="friend",
-        user_id=3344,
-        comment="666",
-        flag="123",
+        post_type="meta_event",
+        meta_event_type="heartbeat",
+        status=Status(online=True, good=True),
+        interval=10,
     )
-    assert get_target(friend_req_event) is None
+    assert get_target(heartbeat_meta_event) is None
