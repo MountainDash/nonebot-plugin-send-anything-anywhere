@@ -27,8 +27,21 @@ try:
     from nonebot.adapters.onebot.v11 import (
         NotifyEvent,
         MessageEvent,
+        PokeNotifyEvent,
+        HonorNotifyEvent,
         GroupMessageEvent,
+        GroupRequestEvent,
+        FriendRequestEvent,
+        GroupBanNoticeEvent,
         PrivateMessageEvent,
+        FriendAddNoticeEvent,
+        LuckyKingNotifyEvent,
+        GroupAdminNoticeEvent,
+        GroupRecallNoticeEvent,
+        GroupUploadNoticeEvent,
+        FriendRecallNoticeEvent,
+        GroupDecreaseNoticeEvent,
+        GroupIncreaseNoticeEvent,
     )
 
     adapter = SupportedAdapters.onebot_v11
@@ -62,10 +75,54 @@ try:
         assert isinstance(event, GroupMessageEvent)
         return TargetQQGroup(group_id=event.group_id)
 
-    @register_target_extractor(NotifyEvent)
-    def _extract_notify_event(event: Event) -> Union[TargetQQPrivate, TargetQQGroup]:
-        assert isinstance(event, NotifyEvent)
-        if event.group_id:
+    @register_target_extractor(FriendAddNoticeEvent)
+    @register_target_extractor(FriendRecallNoticeEvent)
+    def _extract_friend_notice_event(event: Event) -> TargetQQPrivate:
+        assert isinstance(event, (FriendAddNoticeEvent, FriendRecallNoticeEvent))
+        return TargetQQPrivate(user_id=event.user_id)
+
+    @register_target_extractor(GroupBanNoticeEvent)
+    @register_target_extractor(GroupAdminNoticeEvent)
+    @register_target_extractor(GroupRecallNoticeEvent)
+    @register_target_extractor(GroupUploadNoticeEvent)
+    @register_target_extractor(GroupDecreaseNoticeEvent)
+    @register_target_extractor(GroupIncreaseNoticeEvent)
+    def _extract_group_notice_event(event: Event) -> TargetQQGroup:
+        assert isinstance(
+            event,
+            (
+                GroupBanNoticeEvent,
+                GroupAdminNoticeEvent,
+                GroupRecallNoticeEvent,
+                GroupUploadNoticeEvent,
+                GroupDecreaseNoticeEvent,
+                GroupIncreaseNoticeEvent,
+            ),
+        )
+        return TargetQQGroup(group_id=event.group_id)
+
+    @register_target_extractor(HonorNotifyEvent)
+    @register_target_extractor(LuckyKingNotifyEvent)
+    def _extract_group_notify_event(event: Event) -> TargetQQGroup:
+        assert isinstance(event, (HonorNotifyEvent, LuckyKingNotifyEvent))
+        return TargetQQGroup(group_id=event.group_id)
+
+    @register_target_extractor(FriendRequestEvent)
+    def _extract_friend_request_event(event: Event) -> TargetQQPrivate:
+        assert isinstance(event, FriendRequestEvent)
+        return TargetQQPrivate(user_id=event.user_id)
+
+    @register_target_extractor(GroupRequestEvent)
+    def _extract_group_request_event(event: Event) -> TargetQQGroup:
+        assert isinstance(event, GroupRequestEvent)
+        return TargetQQGroup(group_id=event.group_id)
+
+    @register_target_extractor(PokeNotifyEvent)
+    def _extract_poke_notify_event(
+        event: Event,
+    ) -> Union[TargetQQPrivate, TargetQQGroup]:
+        assert isinstance(event, PokeNotifyEvent)
+        if event.group_id is not None:
             return TargetQQGroup(group_id=event.group_id)
         else:
             return TargetQQPrivate(user_id=event.user_id)
