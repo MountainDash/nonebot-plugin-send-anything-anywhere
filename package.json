@@ -1,0 +1,11 @@
+{
+    "name": "root",
+    "private":true,
+    "workspaces": [
+        "docs"
+    ],
+    "scripts": {
+        "docs:dev": "yarn workspace docs start",
+        "docs:build": "yarn workspace docs build"
+    }
+}
