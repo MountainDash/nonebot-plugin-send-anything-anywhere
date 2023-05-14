@@ -39,11 +39,13 @@ const config = {
       ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          routeBasePath: '/',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/docs',
         },
+        blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -94,6 +96,7 @@ const config = {
       docs: {
         sidebar: {
           hideable: true,
+          autoCollapseCategories: true,
         }
       },
       footer: {
@@ -105,11 +108,11 @@ const config = {
             items: [
               {
                 label: '使用',
-                to: '/docs/usage/todo',
+                to: '/usage',
               },
               {
                 label: '开发',
-                to: '/docs/dev/todo',
+                to: '/dev',
               },
             ],
           },
