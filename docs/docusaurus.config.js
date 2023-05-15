@@ -38,8 +38,8 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
-          routeBasePath: '/',
+          sidebarPath: require.resolve("./sidebars.js"),
+          routeBasePath: "/",
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
@@ -107,12 +107,12 @@ const config = {
             title: "文档",
             items: [
               {
-                label: '使用',
-                to: '/usage',
+                label: "使用",
+                to: "/usage",
               },
               {
-                label: '开发',
-                to: '/dev',
+                label: "开发",
+                to: "/dev",
               },
             ],
           },
