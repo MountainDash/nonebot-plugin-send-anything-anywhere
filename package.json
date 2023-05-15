@@ -1,0 +1,8 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "docs:dev": "pnpm --filter docs start",
+    "docs:build": "pnpm --filter docs build"
+  }
+}
