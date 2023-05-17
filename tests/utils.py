@@ -167,6 +167,7 @@ def ob12_kwargs(platform="qq", impl="walle"):
 def mock_telegram_message_event(
     message: "TGMessage",
     ev_type: Literal["private", "group", "forum", "channel"] = "private",
+    has_username: bool = True,
 ) -> "TGMessageEvent":
     from nonebot.adapters.telegram.model import Chat, User
     from nonebot.adapters.telegram.event import (
@@ -190,6 +191,7 @@ def mock_telegram_message_event(
             is_bot=False,
             first_name="homo",
             last_name="senpai",
+            username="homo_senpai" if has_username else None,
         ),
         "forward_from": None,
         "forward_from_chat": None,

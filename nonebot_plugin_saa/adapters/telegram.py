@@ -1,11 +1,11 @@
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from dataclasses import dataclass
 from typing import Any, Union, Optional, cast
 
 import anyio
 from nonebot.adapters import Event
+from pydantic import BaseModel
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -37,12 +37,10 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.telegram, Message)
 
-    @dataclass()
-    class FakeChat:
+    class FakeChat(BaseModel):
         id: Union[str, int]  # noqa: A003
 
-    @dataclass()
-    class FakeEvent:
+    class FakeEvent(BaseModel):
         chat: FakeChat
         message_thread_id: Optional[int]
 
@@ -91,7 +89,7 @@ try:
         target: Union[TargetTelegramCommon, TargetTelegramForum],
     ) -> FakeEvent:
         return FakeEvent(
-            chat=FakeChat(target.chat_id),
+            chat=FakeChat(id=target.chat_id),
             message_thread_id=(
                 target.message_thread_id
                 if isinstance(target, TargetTelegramForum)
