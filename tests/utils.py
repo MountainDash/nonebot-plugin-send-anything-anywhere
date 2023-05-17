@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from typing import TYPE_CHECKING, Type, Literal
+from typing import TYPE_CHECKING, Type, Literal, cast
 
 from nonebot import get_driver
 
@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
     from nonebot.adapters.telegram import Message as TGMessage
+    from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
@@ -163,23 +164,50 @@ def ob12_kwargs(platform="qq", impl="walle"):
     return {"platform": platform, "impl": impl}
 
 
-def mock_telegram_message_event(message: "TGMessage", direct=False):
-    from nonebot.adapters.telegram.model import Chat
-    from nonebot.adapters.telegram.event import MessageEvent
-
-    return MessageEvent(
-        message=message,
-        message_id=1145141919810,
-        date=1145141919810,
-        chat=Chat(id=1145141919810, type="private"),
-        forward_from=None,
-        forward_from_chat=None,
-        forward_from_message_id=None,
-        forward_signature=None,
-        forward_sender_name=None,
-        forward_date=None,
-        via_bot=None,
-        has_protected_content=None,
-        media_group_id=None,
-        author_signature=None,
+def mock_telegram_message_event(
+    message: "TGMessage",
+    ev_type: Literal["private", "group", "forum", "channel"] = "private",
+) -> "TGMessageEvent":
+    from nonebot.adapters.telegram.model import Chat, User
+    from nonebot.adapters.telegram.event import (
+        PrivateMessageEvent,
+        ChannelPostEvent,
+        ForumTopicMessageEvent,
+        GroupMessageEvent,
     )
+
+    chat_type = cast(
+        Literal["private", "supergroup", "channel"],
+        "supergroup" if ev_type in ["group", "forum"] else ev_type,
+    )
+    kwargs = {
+        "message": message,
+        "message_id": 1145141919810,
+        "date": 1145141919810,
+        "chat": Chat(id=1145141919810, type=chat_type),
+        "from": User(
+            id=1145141919810,
+            is_bot=False,
+            first_name="homo",
+            last_name="senpai",
+        ),
+        "forward_from": None,
+        "forward_from_chat": None,
+        "forward_from_message_id": None,
+        "forward_signature": None,
+        "forward_sender_name": None,
+        "forward_date": None,
+        "via_bot": None,
+        "has_protected_content": None,
+        "media_group_id": None,
+        "author_signature": None,
+    }
+
+    if ev_type == "channel":
+        del kwargs["from"]
+        return ChannelPostEvent(**kwargs)
+    if ev_type == "forum":
+        return ForumTopicMessageEvent(message_thread_id=1145141919810, **kwargs)
+    if ev_type == "group":
+        return GroupMessageEvent(**kwargs)
+    return PrivateMessageEvent(**kwargs)

@@ -67,12 +67,17 @@ async def test_send(app: App):
     matcher = on_message()
 
     @matcher.handle()
-    async def process():
+    async def _():
         await MessageFactory(Text("114514")).send()
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj)
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_obj,
+            config=BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"),
+        )
+
         msg_event = mock_telegram_message_event(Message("114514"))
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
@@ -84,6 +89,8 @@ async def test_send(app: App):
             result=None,
         )
 
+        msg_event=mock_telegram_message_event(Message("114514"))
+
 
 async def test_send_with_reply(app: App):
     from nonebot import get_driver, on_message
@@ -94,12 +101,16 @@ async def test_send_with_reply(app: App):
     matcher = on_message()
 
     @matcher.handle()
-    async def process():
+    async def _():
         await MessageFactory(Text("114514")).send(reply=True, at_sender=True)
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj)
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_obj,
+            config=BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"),
+        )
         msg_event = mock_telegram_message_event(Message("114514"))
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
@@ -124,7 +135,11 @@ async def test_send_active(app: App):
 
     async with app.test_api() as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj)
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_obj,
+            config=BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"),
+        )
 
         target_common = TargetTelegramCommon(chat_id=1145141919810)
         ctx.should_call_api(

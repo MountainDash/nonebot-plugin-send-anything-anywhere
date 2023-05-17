@@ -72,16 +72,6 @@ try:
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment("reply", cast(dict, r.data))
 
-    @register_target_extractor(PrivateMessageEvent)
-    @register_target_extractor(GroupMessageEvent)
-    @register_target_extractor(ChannelPostEvent)
-    def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
-        assert isinstance(
-            event,
-            (PrivateMessageEvent, GroupMessageEvent, ChannelPostEvent),
-        )
-        return TargetTelegramCommon(chat_id=event.chat.id)
-
     @register_target_extractor(ForumTopicMessageEvent)
     def _extract_forum_msg_event(event: Event) -> TargetTelegramForum:
         assert isinstance(event, ForumTopicMessageEvent)
@@ -89,6 +79,11 @@ try:
             chat_id=event.chat.id,
             message_thread_id=event.message_thread_id,
         )
+
+    @register_target_extractor(MessageEvent)
+    def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
+        assert isinstance(event, MessageEvent)
+        return TargetTelegramCommon(chat_id=event.chat.id)
 
     def build_fake_event(
         target: Union[TargetTelegramCommon, TargetTelegramForum],
