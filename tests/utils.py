@@ -7,11 +7,11 @@ from nonebot import get_driver
 if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
+    from nonebot.adapters.telegram import Message as TGMessage
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
-    from nonebot.adapters.telegram import Message as TGMessage
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
@@ -164,8 +164,8 @@ def ob12_kwargs(platform="qq", impl="walle"):
 
 
 def mock_telegram_message_event(message: "TGMessage", direct=False):
-    from nonebot.adapters.telegram.event import MessageEvent
     from nonebot.adapters.telegram.model import Chat
+    from nonebot.adapters.telegram.event import MessageEvent
 
     return MessageEvent(
         message=message,

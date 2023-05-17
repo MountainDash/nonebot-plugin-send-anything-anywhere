@@ -1,8 +1,9 @@
 from functools import partial
 
-from nonebot.adapters.telegram import Bot
-from nonebot_plugin_saa.utils import SupportedAdapters
 from nonebug import App
+from nonebot.adapters.telegram import Bot
+
+from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms, mock_telegram_message_event
 
@@ -11,6 +12,7 @@ assert_telegram = partial(assert_ms, Bot, SupportedAdapters.telegram)
 
 async def test_text(app: App):
     from nonebot.adapters.telegram.message import Entity
+
     from nonebot_plugin_saa import Text
 
     await assert_telegram(app, Text("114514"), Entity.text("114514"))
@@ -18,6 +20,7 @@ async def test_text(app: App):
 
 async def test_image(app: App):
     from nonebot.adapters.telegram.message import File
+
     from nonebot_plugin_saa import Image
 
     await assert_telegram(app, Image("114514"), File.photo("114514"))
@@ -25,6 +28,7 @@ async def test_image(app: App):
 
 async def test_mention(app: App):
     from nonebot.adapters.telegram.message import Entity
+
     from nonebot_plugin_saa import Mention
 
     await assert_telegram(app, Mention("@senpai"), Entity.mention("@senpai "))
@@ -38,6 +42,7 @@ async def test_mention(app: App):
 
 async def test_reply(app: App):
     from nonebot.adapters.telegram.message import MessageSegment
+
     from nonebot_plugin_saa import Reply
 
     await assert_telegram(
@@ -50,7 +55,8 @@ async def test_reply(app: App):
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.telegram import Bot, Message
-    from nonebot_plugin_saa import MessageFactory, SupportedAdapters, Text
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
     matcher = on_message()
 
@@ -76,7 +82,8 @@ async def test_send(app: App):
 async def test_send_with_reply(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.telegram import Bot, Message
-    from nonebot_plugin_saa import MessageFactory, SupportedAdapters, Text
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
     matcher = on_message()
 
@@ -102,10 +109,11 @@ async def test_send_with_reply(app: App):
 
 async def test_send_active(app: App):
     from nonebot import get_driver
+
     from nonebot_plugin_saa import (
         MessageFactory,
-        TargetTelegramCommon,
         TargetTelegramForum,
+        TargetTelegramCommon,
     )
 
     async with app.test_api() as ctx:
