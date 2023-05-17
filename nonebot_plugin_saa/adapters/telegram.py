@@ -4,8 +4,8 @@ from functools import partial
 from typing import Any, Union, Optional, cast
 
 import anyio
-from nonebot.adapters import Event
 from pydantic import BaseModel
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
