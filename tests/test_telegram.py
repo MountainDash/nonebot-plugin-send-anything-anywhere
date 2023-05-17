@@ -89,7 +89,7 @@ async def test_send(app: App):
             result=None,
         )
 
-        msg_event=mock_telegram_message_event(Message("114514"))
+        msg_event = mock_telegram_message_event(Message("114514"))
 
 
 async def test_send_with_reply(app: App):

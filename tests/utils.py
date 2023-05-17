@@ -8,11 +8,11 @@ if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
     from nonebot.adapters.telegram import Message as TGMessage
-    from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
+    from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
@@ -170,10 +170,10 @@ def mock_telegram_message_event(
 ) -> "TGMessageEvent":
     from nonebot.adapters.telegram.model import Chat, User
     from nonebot.adapters.telegram.event import (
-        PrivateMessageEvent,
         ChannelPostEvent,
-        ForumTopicMessageEvent,
         GroupMessageEvent,
+        PrivateMessageEvent,
+        ForumTopicMessageEvent,
     )
 
     chat_type = cast(
