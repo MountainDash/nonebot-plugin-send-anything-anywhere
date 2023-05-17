@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
+    from nonebot.adapters.telegram import Message as TGMessage
 
     from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
 
@@ -160,3 +161,25 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
 
 def ob12_kwargs(platform="qq", impl="walle"):
     return {"platform": platform, "impl": impl}
+
+
+def mock_telegram_message_event(message: "TGMessage", direct=False):
+    from nonebot.adapters.telegram.event import MessageEvent
+    from nonebot.adapters.telegram.model import Chat
+
+    return MessageEvent(
+        message=message,
+        message_id=1145141919810,
+        date=1145141919810,
+        chat=Chat(id=1145141919810, type="private"),
+        forward_from=None,
+        forward_from_chat=None,
+        forward_from_message_id=None,
+        forward_signature=None,
+        forward_sender_name=None,
+        forward_date=None,
+        via_bot=None,
+        has_protected_content=None,
+        media_group_id=None,
+        author_signature=None,
+    )
