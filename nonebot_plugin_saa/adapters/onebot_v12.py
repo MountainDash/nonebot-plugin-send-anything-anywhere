@@ -143,7 +143,6 @@ try:
                 GroupMessageDeleteEvent,
             ),
         )
-        assert isinstance(event, GroupMessageEvent)
         if event.self.platform == "qq":
             return TargetQQGroup(group_id=int(event.group_id))
         return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
