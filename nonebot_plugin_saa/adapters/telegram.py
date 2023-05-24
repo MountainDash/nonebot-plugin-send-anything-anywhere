@@ -1,10 +1,9 @@
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import Any, Union, Optional, cast
+from typing import cast
 
 import anyio
-from pydantic import BaseModel
 from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
@@ -36,13 +35,6 @@ try:
     register_telegram = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(SupportedAdapters.telegram, Message)
-
-    class FakeChat(BaseModel):
-        id: Union[str, int]  # noqa: A003
-
-    class FakeEvent(BaseModel):
-        chat: FakeChat
-        message_thread_id: Optional[int]
 
     @register_telegram(Text)
     def _text(t: Text) -> MessageSegment:
@@ -83,18 +75,6 @@ try:
         return TargetTelegramForum(
             chat_id=event.chat.id,
             message_thread_id=event.message_thread_id,
-        )
-
-    def build_fake_event(
-        target: Union[TargetTelegramCommon, TargetTelegramForum],
-    ) -> FakeEvent:
-        return FakeEvent(
-            chat=FakeChat(id=target.chat_id),
-            message_thread_id=(
-                target.message_thread_id
-                if isinstance(target, TargetTelegramForum)
-                else None
-            ),
         )
 
     def build_mention_from_event(event: MessageEvent) -> MessageSegment:
@@ -165,9 +145,16 @@ try:
 
             message_to_send += message_segment
 
-        await bot.send(
-            event or cast(Any, build_fake_event(target)),
-            message=message_to_send,
+        chat_id = target.chat_id
+        message_thread_id = (
+            target.message_thread_id
+            if isinstance(target, TargetTelegramForum)
+            else None
+        )
+        await bot.send_to(
+            chat_id,
+            message_to_send,
+            message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
         )
 
