@@ -1,11 +1,10 @@
-from typing import Any, cast
+import time
 from functools import partial
 
-from nonebug import App
 from nonebot.adapters.telegram import Bot
 from nonebot.adapters.telegram.config import BotConfig
-
 from nonebot_plugin_saa.utils import SupportedAdapters
+from nonebug import App
 
 from .utils import assert_ms, mock_telegram_message_event
 
@@ -17,10 +16,15 @@ assert_telegram = partial(
     config=BOT_CONFIG,
 )
 
+FAKE_MESSAGE_RETURN = {
+    "message_id": 1145141919810,
+    "date": round(time.time() * 1000),
+    "chat": {"id": 1145141919810, "type": "private"},
+}
+
 
 async def test_text(app: App):
     from nonebot.adapters.telegram.message import Entity
-
     from nonebot_plugin_saa import Text
 
     await assert_telegram(app, Text("114514"), Entity.text("114514"))
@@ -28,7 +32,6 @@ async def test_text(app: App):
 
 async def test_image(app: App):
     from nonebot.adapters.telegram.message import File
-
     from nonebot_plugin_saa import Image
 
     await assert_telegram(app, Image("114514"), File.photo("114514"))
@@ -36,7 +39,6 @@ async def test_image(app: App):
 
 async def test_mention(app: App):
     from nonebot.adapters.telegram.message import Entity
-
     from nonebot_plugin_saa import Mention
 
     await assert_telegram(app, Mention("@senpai"), Entity.mention("@senpai "))
@@ -50,7 +52,6 @@ async def test_mention(app: App):
 
 async def test_reply(app: App):
     from nonebot.adapters.telegram.message import MessageSegment
-
     from nonebot_plugin_saa import Reply
 
     await assert_telegram(
@@ -64,8 +65,7 @@ async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.telegram import Bot, Message
     from nonebot.adapters.telegram.event import MessageEvent
-
-    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa import MessageFactory, SupportedAdapters, Text
 
     matcher = on_message()
 
@@ -81,21 +81,31 @@ async def test_send(app: App):
 
         msg_event = mock_telegram_message_event(Message("114514"))
         ctx.receive_event(bot, msg_event)
-        ctx.should_call_send(
-            msg_event,
-            Message("homo senpai 114514"),
-            None,
-            reply_to_message_id=None,
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "text": "homo senpai 114514",
+                "entities": None,
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": None,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
         )
 
 
 async def test_send_with_reply(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.telegram import Bot, Message
-    from nonebot.adapters.telegram.message import Entity
     from nonebot.adapters.telegram.event import MessageEvent
-
-    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot.adapters.telegram.model import MessageEntity
+    from nonebot_plugin_saa import MessageFactory, SupportedAdapters, Text
 
     matcher = on_message()
 
@@ -111,35 +121,73 @@ async def test_send_with_reply(app: App):
 
         msg_event = mock_telegram_message_event(Message("1919810"))
         ctx.receive_event(bot, msg_event)
-        ctx.should_call_send(
-            msg_event,
-            Entity.mention("@homo_senpai ") + ("homo senpai 1919810"),
-            None,
-            reply_to_message_id=1145141919810,
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "text": "@homo_senpai homo senpai 1919810",
+                "entities": [
+                    MessageEntity(
+                        type="mention",
+                        offset=0,
+                        length=13,
+                        url=None,
+                        user=None,
+                        language=None,
+                        custom_emoji_id=None,
+                    )
+                ],
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": 1145141919810,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
         )
 
         msg_event = mock_telegram_message_event(Message("哼哼啊啊啊啊啊"), has_username=False)
         ctx.receive_event(bot, msg_event)
-        ctx.should_call_send(
-            msg_event,
-            (
-                Entity.text_link("homo senpai ", "tg://user?id=1145141919810")
-                + ("homo senpai 哼哼啊啊啊啊啊")
-            ),
-            None,
-            reply_to_message_id=1145141919810,
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "text": "homo senpai homo senpai 哼哼啊啊啊啊啊",
+                "entities": [
+                    MessageEntity(
+                        type="text_link",
+                        offset=0,
+                        length=12,
+                        url="tg://user?id=1145141919810",
+                        user=None,
+                        language=None,
+                        custom_emoji_id=None,
+                    )
+                ],
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": 1145141919810,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
         )
 
 
 async def test_send_active(app: App):
     from nonebot import get_driver
-    from nonebot.adapters.telegram import Message
-
-    from nonebot_plugin_saa.adapters.telegram import build_fake_event
+    from nonebot.adapters.telegram import Bot
     from nonebot_plugin_saa import (
         MessageFactory,
-        TargetTelegramForum,
+        SupportedAdapters,
         TargetTelegramCommon,
+        TargetTelegramForum,
     )
 
     async with app.test_api() as ctx:
@@ -147,19 +195,41 @@ async def test_send_active(app: App):
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, config=BOT_CONFIG)
 
         target_common = TargetTelegramCommon(chat_id=1145141919810)
-        ctx.should_call_send(
-            cast(Any, build_fake_event(target_common)),
-            Message("114514"),
-            None,
-            reply_to_message_id=None,
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "text": "114514",
+                "entities": None,
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": None,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
         )
         await MessageFactory("114514").send_to(target_common, bot)
 
         target_forum = TargetTelegramForum(chat_id=114514, message_thread_id=1919810)
-        ctx.should_call_send(
-            cast(Any, build_fake_event(target_forum)),
-            Message("1919810"),
-            None,
-            reply_to_message_id=None,
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 114514,
+                "message_thread_id": 1919810,
+                "text": "1919810",
+                "entities": None,
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": None,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
         )
         await MessageFactory("1919810").send_to(target_forum, bot)
