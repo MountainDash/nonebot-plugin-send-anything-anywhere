@@ -23,6 +23,7 @@ python = "^3.8"
 nonebot2 = "^2.0.0rc1"
 strenum = "^0.4.8"
 pydantic = "^1.10.5"
+anyio = "^3.6.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-asyncio = "^0.20.2"
@@ -41,6 +42,7 @@ optional = true
 nonebot-adapter-onebot = "^2.2.2"
 nonebot-adapter-qqguild = ">=0.2.1"
 nonebot-adapter-kaiheila = { version = "^0.2.4", python = ">=3.9" }
+nonebot-adapter-telegram = "^0.1.0b12"
 
 [tool.black]
 line-length = 88

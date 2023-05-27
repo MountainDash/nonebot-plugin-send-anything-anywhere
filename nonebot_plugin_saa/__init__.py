@@ -1,4 +1,4 @@
-from . import adapters  # noqa: F401
+from . import adapters as adapters
 from .types import Text, Image, Reply, Custom, Mention
 from .utils import (
     TargetQQGroup,
@@ -8,7 +8,9 @@ from .utils import (
     TargetOB12Unknow,
     SupportedAdapters,
     TargetQQGuildDirect,
+    TargetTelegramForum,
     TargetQQGuildChannel,
+    TargetTelegramCommon,
     MessageSegmentFactory,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
@@ -39,4 +41,6 @@ __all__ = [
     "TargetQQGuildChannel",
     "TargetKaiheilaChannel",
     "TargetKaiheilaPrivate",
+    "TargetTelegramCommon",
+    "TargetTelegramForum",
 ]

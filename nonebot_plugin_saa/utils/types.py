@@ -13,11 +13,13 @@ from typing import (
     Callable,
     ClassVar,
     Iterable,
+    NoReturn,
     Optional,
     Awaitable,
     cast,
 )
 
+from nonebot.exception import FinishedException
 from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
 
@@ -40,7 +42,9 @@ CustomBuildFunc = Union[
 
 
 async def do_build(
-    msf: "MessageSegmentFactory", builder: BuildFunc, bot: Bot
+    msf: "MessageSegmentFactory",
+    builder: BuildFunc,
+    bot: Bot,
 ) -> MessageSegment:
     if len(signature(builder).parameters) == 1:
         builder = cast(
@@ -61,12 +65,10 @@ async def do_build(
         )
         res = builder(msf, bot)
     else:
-        raise RuntimeError()
+        raise RuntimeError
     if asyncio.iscoroutine(res):
         return await res
-    else:
-        res = cast(MessageSegment, res)
-        return res
+    return cast(MessageSegment, res)
 
 
 async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
@@ -83,12 +85,10 @@ async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
         )
         res = builder(bot)
     else:
-        raise RuntimeError()
+        raise RuntimeError
     if asyncio.iscoroutine(res):
         return await res
-    else:
-        res = cast(MessageSegment, res)
-        return res
+    return cast(MessageSegment, res)
 
 
 class MessageSegmentFactory(ABC):
@@ -106,7 +106,9 @@ class MessageSegmentFactory(ABC):
     _custom_builders: Dict[SupportedAdapters, CustomBuildFunc]
 
     def _register_custom_builder(
-        self, adapter: SupportedAdapters, ms: Union[MessageSegment, CustomBuildFunc]
+        self,
+        adapter: SupportedAdapters,
+        ms: Union[MessageSegment, CustomBuildFunc],
     ):
         if isinstance(ms, MessageSegment):
             self._custom_builders[adapter] = lambda _: ms
@@ -114,7 +116,8 @@ class MessageSegmentFactory(ABC):
             self._custom_builders[adapter] = ms
 
     def _get_custom_builder(
-        self, adapter: SupportedAdapters
+        self,
+        adapter: SupportedAdapters,
     ) -> Optional[CustomBuildFunc]:
         return self._custom_builders.get(adapter)
 
@@ -129,7 +132,9 @@ class MessageSegmentFactory(ABC):
         return self.data == other.data
 
     def overwrite(
-        self, adapter: SupportedAdapters, ms: Union[MessageSegment, CustomBuildFunc]
+        self,
+        adapter: SupportedAdapters,
+        ms: Union[MessageSegment, CustomBuildFunc],
     ) -> Self:
         "为某个 adapter 重写产生的 MessageSegment 或重写产生 MessageSegment 的方法"
         self._register_custom_builder(adapter, ms)
@@ -165,7 +170,9 @@ class MessageFactory(List[TMSF]):
 
     @classmethod
     def register_adapter_message(
-        cls, adapter: SupportedAdapters, message_class: Type[Message]
+        cls,
+        adapter: SupportedAdapters,
+        message_class: Type[Message],
     ):
         cls._message_registry[adapter] = message_class
 
@@ -177,7 +184,7 @@ class MessageFactory(List[TMSF]):
         adapter_name = extract_adapter_type(bot)
         if message_type := self._message_registry.get(adapter_name):
             ms: List[MessageSegment] = await asyncio.gather(
-                *[ms_factory.build(bot) for ms_factory in self]
+                *[ms_factory.build(bot) for ms_factory in self],
             )
             return message_type(ms)
         raise AdapterNotInstalled(adapter_name)
@@ -187,7 +194,8 @@ class MessageFactory(List[TMSF]):
 
         if message is None:
             return
-        elif isinstance(message, str):
+
+        if isinstance(message, str):
             self.append(self.get_text_factory()(message))
         elif isinstance(message, MessageSegmentFactory):
             self.append(message)
@@ -231,15 +239,20 @@ class MessageFactory(List[TMSF]):
         return deepcopy(self)
 
     async def send(self, *, at_sender=False, reply=False):
-        "回复消息，仅能用在事件相应器中"
+        "回复消息，仅能用在事件响应器中"
         try:
             event = current_event.get()
             bot = current_bot.get()
-        except LookupError:
-            raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
+        except LookupError as e:
+            raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
+
+    async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise FinishedException
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
         if bot is None:
@@ -257,13 +270,14 @@ class MessageFactory(List[TMSF]):
         adapter = extract_adapter_type(bot)
         if not (sender := sender_map[adapter]):
             raise RuntimeError(
-                f"send method for {adapter} not registerd"
+                f"send method for {adapter} not registered",
             )  # pragma: no cover
         await sender(bot, self, target, event, at_sender, reply)
 
 
 AggregatedSender = Callable[
-    [Bot, List[MessageFactory], PlatformTarget, Optional[Event]], Awaitable[None]
+    [Bot, List[MessageFactory], PlatformTarget, Optional[Event]],
+    Awaitable[None],
 ]
 
 
@@ -272,7 +286,8 @@ class AggregatedMessageFactory:
     sender: ClassVar[Dict[SupportedAdapters, AggregatedSender]] = {}
 
     def __init__(
-        self, msgs: List[Union[MessageFactory, MessageSegmentFactory]]
+        self,
+        msgs: List[Union[MessageFactory, MessageSegmentFactory]],
     ) -> None:
         self.message_factories = []
         for msg in msgs:
@@ -285,7 +300,7 @@ class AggregatedMessageFactory:
         return self.message_factories == other.message_factories
 
     @classmethod
-    def register_aggragated_sender(cls, adapter: SupportedAdapters):
+    def register_aggregated_sender(cls, adapter: SupportedAdapters):
         def wrapper(func: AggregatedSender):
             cls.sender[adapter] = func
             return func
@@ -293,10 +308,13 @@ class AggregatedMessageFactory:
         return wrapper
 
     async def _send_aggregated_message_default(
-        self, bot: Bot, target: PlatformTarget, event: Optional[Event]
+        self,
+        bot: Bot,
+        target: PlatformTarget,
+        event: Optional[Event],
     ):
         for msg_fac in self.message_factories:
-            await msg_fac._do_send(bot, target, event, False, False)
+            await msg_fac._do_send(bot, target, event, False, False)  # noqa: SLF001
 
     async def _do_send(self, bot: Bot, target: PlatformTarget, event: Optional[Event]):
         adapter = extract_adapter_type(bot)
@@ -307,14 +325,15 @@ class AggregatedMessageFactory:
                 await self._send_aggregated_message_default(bot, target, event)
         # fallback
         await self._send_aggregated_message_default(bot, target, event)
+        return None
 
     async def send(self):
-        "回复消息，仅能用在事件相应器中"
+        "回复消息，仅能用在事件响应器中"
         try:
             event = current_event.get()
             bot = current_bot.get()
-        except LookupError:
-            raise RuntimeError("send() 仅能在事件相应器中使用，主动发送消息请使用 send_to")
+        except LookupError as e:
+            raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
         target = extract_target(event)
         await self._do_send(bot, target, event)
@@ -326,10 +345,11 @@ class AggregatedMessageFactory:
 
 
 def register_ms_adapter(
-    adapter: SupportedAdapters, ms_factory: Type[TMSF]
+    adapter: SupportedAdapters,
+    ms_factory: Type[TMSF],
 ) -> Callable[[BuildFunc], BuildFunc]:
     def decorator(builder: BuildFunc) -> BuildFunc:
-        ms_factory._builders[adapter] = builder
+        ms_factory._builders[adapter] = builder  # noqa: SLF001
         return builder
 
     return decorator

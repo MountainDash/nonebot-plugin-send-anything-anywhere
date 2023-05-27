@@ -41,7 +41,9 @@ class Image(MessageSegmentFactory):
     data: ImageData
 
     def __init__(
-        self, image: Union[str, bytes, Path, BytesIO], name: str = "image"
+        self,
+        image: Union[str, bytes, Path, BytesIO],
+        name: str = "image",
     ) -> None:
         """图片消息段
 

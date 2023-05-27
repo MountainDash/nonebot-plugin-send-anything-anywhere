@@ -6,6 +6,7 @@ class SupportedAdapters(StrEnum):
     onebot_v12 = "OneBot V12"
     qqguild = "QQ Guild"
     kaiheila = "Kaiheila"
+    telegram = "Telegram"
 
 
 class SupportedPlatform(StrEnum):
@@ -16,6 +17,8 @@ class SupportedPlatform(StrEnum):
     kaiheila_channel = "Kaiheila Channel"
     kaiheila_private = "Kaiheila Private"
     unknown_ob12 = "Unknow Onebot 12 Platform"
+    telegram_common = "Telegram Common"
+    telegram_forum = "Telegram Forum"
 
 
-supported_adapter_names = set(SupportedAdapters._member_map_.values())
+supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001
