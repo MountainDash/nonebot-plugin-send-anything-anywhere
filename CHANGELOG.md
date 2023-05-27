@@ -4,6 +4,7 @@
 
 ### 新功能
 
+- 支持 telegram [@lgc2333](https://github.com/lgc2333) ([#47](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/47))
 - “找不到合适的bot”抛出特定错误 [@felinae98](https://github.com/felinae98) ([#48](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/48))
 
 ### 文档
