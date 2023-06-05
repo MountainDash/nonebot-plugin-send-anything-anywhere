@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 为测试增加 fake 适配器 [@felinae98](https://github.com/felinae98) ([#52](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/52))
+
 ## v0.2.5
 
 ### 新功能
