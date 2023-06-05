@@ -20,7 +20,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-nonebot2 = "^2.0.0rc1"
+nonebot2 = "^2.0.0"
 strenum = "^0.4.8"
 pydantic = "^1.10.5"
 anyio = "^3.6.2"
