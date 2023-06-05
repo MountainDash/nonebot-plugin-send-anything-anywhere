@@ -1,3 +1,5 @@
+from nonebot.plugin import PluginMetadata
+
 from . import adapters as adapters
 from .types import Text, Image, Reply, Custom, Mention
 from .utils import (
@@ -44,3 +46,18 @@ __all__ = [
     "TargetTelegramCommon",
     "TargetTelegramForum",
 ]
+
+__plugin_meta__ = PluginMetadata(
+    name="峯驰物流",
+    description=("一个帮助处理不同 adapter 消息的适配和发送的插件 "),
+    usage="请开发者参考文档",
+    type="library",
+    homepage="https://send-anything-anywhere.felinae98.cn/",
+    supported_adapters={
+        "~onebot.v11",
+        "~onebot.v12",
+        "~kaiheila",
+        "~qqguild",
+        "~telegram",
+    },
+)
