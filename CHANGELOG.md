@@ -2,6 +2,10 @@
 
 ## 最近更新
 
+### 新功能
+
+- 支持 MessageSegment 发送 [@felinae98](https://github.com/felinae98) ([#54](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/54))
+
 ### 文档
 
 - 增加单元测试文档 [@felinae98](https://github.com/felinae98) ([#53](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/53))
