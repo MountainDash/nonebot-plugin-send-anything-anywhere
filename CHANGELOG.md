@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 文档
+
+- 增加单元测试文档 [@felinae98](https://github.com/felinae98) ([#53](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/53))
+
 ## v0.2.6
 
 ### 新功能
