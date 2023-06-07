@@ -19,9 +19,9 @@ from typing import (
     cast,
 )
 
-from nonebot.exception import FinishedException
-from nonebot.matcher import current_bot, current_event
 from nonebot.adapters import Bot, Event, Message, MessageSegment
+from nonebot.matcher import current_bot, current_event, current_matcher
+from nonebot.exception import PausedException, FinishedException, RejectedException
 
 from .auto_select_bot import get_bot
 from .const import SupportedAdapters
@@ -155,10 +155,43 @@ class MessageSegmentFactory(ABC):
         return MessageFactory(other) + self
 
     async def send(self, *, at_sender=False, reply=False):
+        "回复消息，仅能用在事件响应器中"
         return await MessageFactory(self).send(at_sender=at_sender, reply=reply)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
+        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
         return await MessageFactory(self).send_to(target, bot)
+
+    async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise FinishedException
+
+    async def pause(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.pause()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise PausedException
+
+    async def reject(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.reject()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise RejectedException
+
+    async def reject_arg(
+        self, key: str, *, at_sender=False, reply=False, **kwargs
+    ) -> NoReturn:
+        """与 `matcher.reject_arg()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        await matcher.reject_arg(key)
+
+    async def reject_receive(
+        self, key: str, *, at_sender=False, reply=False, **kwargs
+    ) -> NoReturn:
+        """与 `matcher.reject_receive()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        await matcher.reject_receive(key)
 
 
 class MessageFactory(List[TMSF]):
@@ -255,15 +288,42 @@ class MessageFactory(List[TMSF]):
         target = extract_target(event)
         await self._do_send(bot, target, event, at_sender, reply)
 
+    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
+        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
+        if bot is None:
+            bot = get_bot(target)
+        await self._do_send(bot, target, None, False, False)
+
     async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
         """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
         await self.send(at_sender=at_sender, reply=reply, **kwargs)
         raise FinishedException
 
-    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
-        if bot is None:
-            bot = get_bot(target)
-        await self._do_send(bot, target, None, False, False)
+    async def pause(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.pause()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise PausedException
+
+    async def reject(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
+        """与 `matcher.reject()` 作用相同，仅能用在事件响应器中"""
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        raise RejectedException
+
+    async def reject_arg(
+        self, key: str, *, at_sender=False, reply=False, **kwargs
+    ) -> NoReturn:
+        """与 `matcher.reject_arg()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        await matcher.reject_arg(key)
+
+    async def reject_receive(
+        self, key: str, *, at_sender=False, reply=False, **kwargs
+    ) -> NoReturn:
+        """与 `matcher.reject_receive()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(at_sender=at_sender, reply=reply, **kwargs)
+        await matcher.reject_receive(key)
 
     async def _do_send(
         self,
@@ -345,9 +405,37 @@ class AggregatedMessageFactory:
         await self._do_send(bot, target, event)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
+        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
         if bot is None:
             bot = get_bot(target)
         await self._do_send(bot, target, None)
+
+    async def finish(self, **kwargs) -> NoReturn:
+        """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
+        await self.send(**kwargs)
+        raise FinishedException
+
+    async def pause(self, **kwargs) -> NoReturn:
+        """与 `matcher.pause()` 作用相同，仅能用在事件响应器中"""
+        await self.send(**kwargs)
+        raise PausedException
+
+    async def reject(self, **kwargs) -> NoReturn:
+        """与 `matcher.reject()` 作用相同，仅能用在事件响应器中"""
+        await self.send(**kwargs)
+        raise RejectedException
+
+    async def reject_arg(self, key: str, **kwargs) -> NoReturn:
+        """与 `matcher.reject_arg()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(**kwargs)
+        await matcher.reject_arg(key)
+
+    async def reject_receive(self, key: str, **kwargs) -> NoReturn:
+        """与 `matcher.reject_receive()` 作用相同，仅能用在事件响应器中"""
+        matcher = current_matcher.get()
+        await self.send(**kwargs)
+        await matcher.reject_receive(key)
 
 
 def register_ms_adapter(
