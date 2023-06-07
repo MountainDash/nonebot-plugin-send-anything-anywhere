@@ -154,6 +154,12 @@ class MessageSegmentFactory(ABC):
     def __radd__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
         return MessageFactory(other) + self
 
+    async def send(self, *, at_sender=False, reply=False):
+        return await MessageFactory(self).send(at_sender=at_sender, reply=reply)
+
+    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
+        return await MessageFactory(self).send_to(target, bot)
+
 
 class MessageFactory(List[TMSF]):
     _text_factory: Callable[[str], TMSF]
