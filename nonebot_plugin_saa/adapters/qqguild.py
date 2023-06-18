@@ -25,6 +25,8 @@ try:
         Message,
         MessageEvent,
         MessageSegment,
+        MessageCreateEvent,
+        AtMessageCreateEvent,
         DirectMessageCreateEvent,
     )
 
@@ -54,17 +56,18 @@ try:
 
     @register_target_extractor(MessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:
-        assert isinstance(event, MessageEvent)
-        if not event.to_me:
-            assert event.channel_id
-            return TargetQQGuildChannel(channel_id=int(event.channel_id))
-        else:
+        if isinstance(event, DirectMessageCreateEvent):
             # TODO send dms not support yet
             assert event.guild_id
             assert event.author and event.author.id
             return TargetQQGuildDirect(
                 source_guild_id=event.guild_id, recipient_id=event.author.id
             )
+        elif isinstance(event, (MessageCreateEvent, AtMessageCreateEvent)):
+            assert event.channel_id
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+        else:
+            raise ValueError(f"{type(event)} not supported")
 
     @register_sender(SupportedAdapters.qqguild)
     async def send(
