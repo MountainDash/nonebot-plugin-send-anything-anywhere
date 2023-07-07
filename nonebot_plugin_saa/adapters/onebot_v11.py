@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union, Optional
 
 from nonebot.adapters import Bot, Event
 
@@ -25,9 +25,9 @@ try:
     from nonebot.adapters.onebot.v11 import Bot as BotOB11
     from nonebot.adapters.onebot.v11.message import Message, MessageSegment
     from nonebot.adapters.onebot.v11 import (
+        NotifyEvent,
         MessageEvent,
         GroupMessageEvent,
-        NotifyEvent,
         PrivateMessageEvent,
     )
 
