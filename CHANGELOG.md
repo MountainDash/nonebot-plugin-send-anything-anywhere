@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### Bug 修复
+
+- 修复 qqguild extract_target 类型错误问题 [@felinae98](https://github.com/felinae98) ([#57](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/57))
+
 ## v0.2.7
 
 ### 新功能
