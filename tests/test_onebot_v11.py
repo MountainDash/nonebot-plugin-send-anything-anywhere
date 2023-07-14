@@ -1,13 +1,13 @@
 from functools import partial
 
 from nonebug import App
-from nonebot import get_adapter, get_driver
+from nonebot import get_adapter
 from pytest_mock import MockerFixture
 from nonebot.adapters.onebot.v11 import Bot, Adapter
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, mock_obv11_message_event, mock_obv11_poke_event
+from .utils import assert_ms, mock_obv11_poke_event, mock_obv11_message_event
 
 assert_onebot_v11 = partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
 
@@ -45,10 +45,12 @@ async def test_reply(app: App):
 
 
 async def test_extract_notify_event(app: App):
-    from nonebot_plugin_saa import extract_target, TargetQQPrivate, TargetQQGroup
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
 
     assert extract_target(mock_obv11_poke_event()) == TargetQQPrivate(user_id=2233)
-    assert extract_target(mock_obv11_poke_event(group=True)) == TargetQQGroup(group_id=3344)
+    assert extract_target(mock_obv11_poke_event(group=True)) == TargetQQGroup(
+        group_id=3344
+    )
 
 
 async def test_send(app: App):

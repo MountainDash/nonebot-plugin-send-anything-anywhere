@@ -88,7 +88,8 @@ def mock_obv11_poke_event(group=False):
             notice_type="notify",
             sub_type="poke",
             user_id=2233,
-            target_id=2233)
+            target_id=2233,
+        )
     else:
         return OB11PokeNotifyEvent(
             time=1122,
@@ -98,7 +99,8 @@ def mock_obv11_poke_event(group=False):
             sub_type="poke",
             user_id=2233,
             group_id=3344,
-            target_id=2233)
+            target_id=2233,
+        )
 
 
 def mock_obv12_message_event(
