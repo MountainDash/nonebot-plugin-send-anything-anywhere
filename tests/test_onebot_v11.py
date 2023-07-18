@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import Bot, Adapter
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, mock_obv11_message_event
+from .utils import assert_ms, mock_obv11_poke_event, mock_obv11_message_event
 
 assert_onebot_v11 = partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
 
@@ -42,6 +42,15 @@ async def test_reply(app: App):
     from nonebot_plugin_saa import Reply
 
     await assert_onebot_v11(app, Reply(123), MessageSegment.reply(123))
+
+
+async def test_extract_notify_event(app: App):
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
+
+    assert extract_target(mock_obv11_poke_event()) == TargetQQPrivate(user_id=2233)
+    assert extract_target(mock_obv11_poke_event(group=True)) == TargetQQGroup(
+        group_id=3344
+    )
 
 
 async def test_send(app: App):

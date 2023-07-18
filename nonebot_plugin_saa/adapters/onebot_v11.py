@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Union, Optional
 
 from nonebot.adapters import Bot, Event
 
@@ -25,6 +25,7 @@ try:
     from nonebot.adapters.onebot.v11 import Bot as BotOB11
     from nonebot.adapters.onebot.v11.message import Message, MessageSegment
     from nonebot.adapters.onebot.v11 import (
+        NotifyEvent,
         MessageEvent,
         GroupMessageEvent,
         PrivateMessageEvent,
@@ -60,6 +61,14 @@ try:
     def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, GroupMessageEvent)
         return TargetQQGroup(group_id=event.group_id)
+
+    @register_target_extractor(NotifyEvent)
+    def _extract_notify_event(event: Event) -> Union[TargetQQPrivate, TargetQQGroup]:
+        assert isinstance(event, NotifyEvent)
+        if event.group_id:
+            return TargetQQGroup(group_id=event.group_id)
+        else:
+            return TargetQQPrivate(user_id=event.user_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
