@@ -2,6 +2,8 @@
 
 ## 最近更新
 
+- Support OB11 NotifyEvent [@ssttkkl](https://github.com/ssttkkl) ([#58](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/58))
+
 ### Bug 修复
 
 - 修复 qqguild extract_target 类型错误问题 [@felinae98](https://github.com/felinae98) ([#57](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/57))
