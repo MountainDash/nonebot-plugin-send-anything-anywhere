@@ -15,6 +15,7 @@ from ..utils import (
     TargetOB12Unknow,
     SupportedAdapters,
     SupportedPlatform,
+    TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
     register_sender,
@@ -27,12 +28,13 @@ from ..utils import (
 
 try:
     from nonebot.adapters.onebot.v12.exception import UnsupportedAction
-    from nonebot.adapters.onebot.v12 import (  # ChannelMessageEvent,
+    from nonebot.adapters.onebot.v12 import (
         Bot,
         Message,
         MessageEvent,
         MessageSegment,
         GroupMessageEvent,
+        ChannelMessageEvent,
         PrivateMessageEvent,
     )
 
@@ -90,15 +92,14 @@ try:
             return TargetQQGroup(group_id=int(event.group_id))
         return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
 
-    # @register_target_extractor(ChannelMessageEvent)
-    # def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
-    #     assert isinstance(event, ChannelMessageEvent)
-    #     if event.self.platform == 'qqguild': # all4one
-    #         return TargetQQGuildChannel(channel_id=int(event.channel_id))
-    #     return TargetOB12Unknow(
-    #         detail_type="channel", channel_id=event.channel_id,
-    #       guild_id=event.guild_id
-    #     )
+    @register_target_extractor(ChannelMessageEvent)
+    def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
+        assert isinstance(event, ChannelMessageEvent)
+        if event.self.platform == "qqguild":  # all4one
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+        return TargetOB12Unknow(
+            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+        )
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _to_qq_group(target: PlatformTarget):
@@ -116,21 +117,21 @@ try:
             "user_id": str(target.user_id),
         }
 
-    # @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_channel)
-    # def _to_qq_guild_channel(target: PlatformTarget):
-    #     assert isinstance(target, TargetQQGuildChannel)
-    #     return {
-    #             "detail_type": "channel",
-    #             "channel_id": target.channel_id,
-    #             }
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_channel)
+    def _to_qq_guild_channel(target: PlatformTarget):
+        assert isinstance(target, TargetQQGuildChannel)
+        return {
+            "detail_type": "channel",
+            "channel_id": target.channel_id,
+        }
 
-    # @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
-    # def _to_qq_guild_direct(target: PlatformTarget):
-    #     assert isinstance(target, TargetQQGuildDirect)
-    #     return {
-    #             "detail_type": "private",
-    #             "guild_id": target.source_guild_id,
-    #             }
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
+    def _to_qq_guild_direct(target: PlatformTarget):
+        assert isinstance(target, TargetQQGuildDirect)
+        return {
+            "detail_type": "private",
+            "guild_id": target.source_guild_id,
+        }
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
@@ -161,7 +162,20 @@ try:
             full_msg = msg
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
-        await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+        if bot.platform == "qqguild":
+            # 用来防止使用频道扩展补丁后，频道事件模型不统一的情况
+            event_dict = event.dict()
+            params = {}
+            # 传递 event_id，用来支持频道的被动消息
+            params.setdefault("event_id", event_dict["id"])
+            # 传递 guild_id，以支持私信
+            if isinstance(target, TargetQQGuildDirect):
+                params.setdefault("guild_id", event_dict["qqguild"]["guild_id"])
+            await bot.send_message(
+                message=msg_to_send, **target.arg_dict(bot), **params
+            )
+        else:
+            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
