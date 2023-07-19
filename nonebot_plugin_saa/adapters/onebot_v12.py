@@ -83,6 +83,12 @@ try:
         assert isinstance(event, PrivateMessageEvent)
         if event.self.platform == "qq":
             return TargetQQPrivate(user_id=int(event.user_id))
+        if event.self.platform == "qqguild":
+            event_dict = event.dict()
+            return TargetQQGuildDirect(
+                recipient_id=int(event.user_id),
+                source_guild_id=event_dict["qqguild"]["guild_id"],
+            )
         return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
 
     @register_target_extractor(GroupMessageEvent)
