@@ -87,7 +87,7 @@ try:
             event_dict = event.dict()
             return TargetQQGuildDirect(
                 recipient_id=int(event.user_id),
-                source_guild_id=event_dict["qqguild"]["guild_id"],
+                source_guild_id=event_dict["qqguild"]["src_guild_id"],
             )
         return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
 
@@ -133,10 +133,14 @@ try:
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
     def _to_qq_guild_direct(target: PlatformTarget):
+        """QQ频道 扩展标准所需参数
+
+        <https://he0119.github.io/onebot-qqguild-extension/interface/message/actions/>
+        """
         assert isinstance(target, TargetQQGuildDirect)
         return {
-            "detail_type": "private",
-            "guild_id": target.source_guild_id,
+            "user_id": str(target.recipient_id),
+            "src_guild_id": str(target.source_guild_id),
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
@@ -156,7 +160,13 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
-            (TargetQQGroup, TargetQQPrivate, TargetQQGuildChannel, TargetOB12Unknow),
+            (
+                TargetQQGroup,
+                TargetQQPrivate,
+                TargetQQGuildChannel,
+                TargetQQGuildDirect,
+                TargetOB12Unknow,
+            ),
         )
 
         if event:
@@ -169,17 +179,24 @@ try:
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
         if bot.platform == "qqguild":
-            # 用来防止使用频道扩展补丁后，频道事件模型不统一的情况
-            event_dict = event.dict()
             params = {}
-            # 传递 event_id，用来支持频道的被动消息
-            params.setdefault("event_id", event_dict["id"])
-            # 传递 guild_id，以支持私信
-            if isinstance(target, TargetQQGuildDirect):
-                params.setdefault("guild_id", event_dict["qqguild"]["guild_id"])
-            await bot.send_message(
-                message=msg_to_send, **target.arg_dict(bot), **params
-            )
+            assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
+            if event:
+                # 用来防止使用频道扩展补丁后，频道事件模型不统一的情况
+                event_dict = event.dict()
+                # 传递 event_id，用来支持频道的被动消息
+                params["event_id"] = event_dict["id"]
+                # 传递 guild_id，以支持私信
+                if isinstance(target, TargetQQGuildDirect):
+                    params["guild_id"] = event_dict["qqguild"]["guild_id"]
+            else:
+                if isinstance(target, TargetQQGuildDirect):
+                    # 需要先创建私信会话
+                    guild_id = (await bot.create_dms(**target.arg_dict(bot)))[
+                        "guild_id"
+                    ]
+                    params["guild_id"] = guild_id
+            await bot.send_message(message=msg_to_send, detail_type="private", **params)
         else:
             await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 

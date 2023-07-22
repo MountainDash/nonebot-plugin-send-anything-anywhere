@@ -117,7 +117,14 @@ def test_extract_ob12(app: App):
         PrivateMessageEvent,
     )
 
-    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetOB12Unknow,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+        extract_target,
+    )
 
     group_message_event = GroupMessageEvent(
         id="1122",
@@ -165,8 +172,51 @@ def test_extract_ob12(app: App):
         guild_id="5566",
         channel_id="6677",
     )
-    with pytest.raises(RuntimeError):
-        extract_target(channel_message_event)
+
+    assert extract_target(channel_message_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="5566", channel_id="6677"
+    )
+
+    qqguild_private_message_event = PrivateMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="private",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        qqguild={
+            "guild_id": "4455",
+            "src_guild_id": "5566",
+        },
+    )
+    assert extract_target(qqguild_private_message_event) == TargetQQGuildDirect(
+        recipient_id=3344, source_guild_id=5566
+    )
+
+    qqguild_channel_message_event = ChannelMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="channel",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        guild_id="5566",
+        channel_id="6677",
+    )
+
+    assert extract_target(qqguild_channel_message_event) == TargetQQGuildChannel(
+        channel_id=6677
+    )
 
 
 def test_extract_qqguild(app: App):
