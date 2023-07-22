@@ -38,6 +38,8 @@ try:
         PrivateMessageEvent,
     )
 
+    store = "future"
+
     adapter = SupportedAdapters.onebot_v12
     register_onebot_v12 = partial(register_ms_adapter, adapter)
 
@@ -133,14 +135,11 @@ try:
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
     def _to_qq_guild_direct(target: PlatformTarget):
-        """QQ频道 扩展标准所需参数
-
-        <https://he0119.github.io/onebot-qqguild-extension/interface/message/actions/>
-        """
         assert isinstance(target, TargetQQGuildDirect)
+        guild_id = store.get(target)
         return {
-            "user_id": str(target.recipient_id),
-            "src_guild_id": str(target.source_guild_id),
+            "detail_type": "private",
+            "guild_id": guild_id,
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
@@ -179,24 +178,22 @@ try:
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
         if bot.platform == "qqguild":
-            params = {}
             assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
+            if isinstance(target, TargetQQGuildDirect):
+                if not store.exists(target):
+                    if event:
+                        store.set(target, event.guild_id)
+                    else:
+                        await store.refresh(target)
+            params = {}
             if event:
-                # 用来防止使用频道扩展补丁后，频道事件模型不统一的情况
-                event_dict = event.dict()
                 # 传递 event_id，用来支持频道的被动消息
-                params["event_id"] = event_dict["id"]
-                # 传递 guild_id，以支持私信
-                if isinstance(target, TargetQQGuildDirect):
-                    params["guild_id"] = event_dict["qqguild"]["guild_id"]
-            else:
-                if isinstance(target, TargetQQGuildDirect):
-                    # 需要先创建私信会话
-                    guild_id = (await bot.create_dms(**target.arg_dict(bot)))[
-                        "guild_id"
-                    ]
-                    params["guild_id"] = guild_id
-            await bot.send_message(message=msg_to_send, detail_type="private", **params)
+                params["event_id"] = event.id
+            await bot.send_message(
+                message=msg_to_send,
+                **target.arg_dict(bot),
+                **params,
+            )
         else:
             await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 

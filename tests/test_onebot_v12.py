@@ -131,7 +131,13 @@ async def test_send(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
-    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, TargetOB12Unknow
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetOB12Unknow,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+    )
 
     async with app.test_api() as ctx:
         adapter_ob12 = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
@@ -171,6 +177,39 @@ async def test_send_active(app: App):
                 "guild_id": None,
                 "user_id": None,
                 "group_id": None,
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(target, bot)
+
+        bot.platform = "qqguild"
+        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
+        ctx.should_call_api(
+            "create_dms",
+            data={
+                "user_id": "1111",
+                "src_guild_id": "2222",
+            },
+            result={"guild_id": "3333"},
+        )
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "guild_id": "3333",
+                "detail_type": "private",
+            },
+            result=None,
+        )
+        await MessageFactory("123").send_to(target, bot)
+
+        target = TargetQQGuildChannel(channel_id=4444)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "detail_type": "channel",
+                "channel_id": "4444",
             },
             result=None,
         )
