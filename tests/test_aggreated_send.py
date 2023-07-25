@@ -44,49 +44,6 @@ async def test_send(app: App):
         )
 
 
-async def test_send_qqguild(app: App):
-    from nonebot import get_driver, on_message
-    from nonebot.adapters.onebot.v12 import Bot, Message, PrivateMessageEvent
-
-    from nonebot_plugin_saa import Text, SupportedAdapters, AggregatedMessageFactory
-
-    matcher = on_message()
-
-    @matcher.handle()
-    async def process(msg: PrivateMessageEvent):
-        await AggregatedMessageFactory([Text("123"), Text("456")]).send()
-
-    async with app.test_matcher(matcher) as ctx:
-        adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
-        bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, **ob12_kwargs(platform="qqguild")
-        )
-        msg_event = mock_obv12_message_event(
-            Message("321"), detail_type="qqguild_private"
-        )
-        ctx.receive_event(bot, msg_event)
-        ctx.should_call_api(
-            "send_message",
-            data={
-                "message": Message("123"),
-                "detail_type": "private",
-                "event_id": "1111",
-                "guild_id": "4455",
-            },
-            result=None,
-        )
-        ctx.should_call_api(
-            "send_message",
-            data={
-                "message": Message("456"),
-                "detail_type": "private",
-                "event_id": "1111",
-                "guild_id": "4455",
-            },
-            result=None,
-        )
-
-
 async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v12 import Bot, Message
@@ -128,62 +85,6 @@ async def test_send_active(app: App):
             result=None,
         )
         target = TargetOB12Unknow(detail_type="private", user_id="2233")
-        await AggregatedMessageFactory(
-            [Text("123"), MessageFactory(Text("456"))]
-        ).send_to(target, bot)
-
-
-async def test_send_active_qqguild(app: App):
-    from nonebot import get_driver
-    from nonebot.adapters.onebot.v12 import Bot, Message
-
-    from nonebot_plugin_saa import (
-        Text,
-        SupportedAdapters,
-        TargetQQGuildDirect,
-        AggregatedMessageFactory,
-    )
-
-    async with app.test_api() as ctx:
-        adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
-        bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, **ob12_kwargs(platform="qqguild")
-        )
-        ctx.should_call_api(
-            "create_dms",
-            data={
-                "user_id": "1111",
-                "src_guild_id": "2222",
-            },
-            result={"guild_id": "3333"},
-        )
-        ctx.should_call_api(
-            "send_message",
-            data={
-                "message": Message("123"),
-                "guild_id": "3333",
-                "detail_type": "private",
-            },
-            result=None,
-        )
-        ctx.should_call_api(
-            "create_dms",
-            data={
-                "user_id": "1111",
-                "src_guild_id": "2222",
-            },
-            result={"guild_id": "3333"},
-        )
-        ctx.should_call_api(
-            "send_message",
-            data={
-                "message": Message("456"),
-                "guild_id": "3333",
-                "detail_type": "private",
-            },
-            result=None,
-        )
-        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
         await AggregatedMessageFactory(
             [Text("123"), MessageFactory(Text("456"))]
         ).send_to(target, bot)

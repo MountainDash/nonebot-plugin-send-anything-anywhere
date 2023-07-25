@@ -13,6 +13,7 @@ from ..utils import (
     PlatformTarget,
     TargetQQPrivate,
     TargetOB12Unknow,
+    QQGuildDMSManager,
     SupportedAdapters,
     SupportedPlatform,
     TargetQQGuildDirect,
@@ -20,6 +21,7 @@ from ..utils import (
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_qqguild_dms,
     register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
@@ -38,7 +40,7 @@ try:
         PrivateMessageEvent,
     )
 
-    store = "future"
+    qqguild_dms_manager = QQGuildDMSManager()
 
     adapter = SupportedAdapters.onebot_v12
     register_onebot_v12 = partial(register_ms_adapter, adapter)
@@ -130,17 +132,26 @@ try:
         assert isinstance(target, TargetQQGuildChannel)
         return {
             "detail_type": "channel",
-            "channel_id": target.channel_id,
+            "channel_id": str(target.channel_id),
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
     def _to_qq_guild_direct(target: PlatformTarget):
         assert isinstance(target, TargetQQGuildDirect)
-        guild_id = store.get(target)
         return {
             "detail_type": "private",
-            "guild_id": guild_id,
+            "guild_id": str(qqguild_dms_manager.get_guild_id(target)),
         }
+
+    @register_qqguild_dms(adapter)
+    async def _qqguild_dms(target: PlatformTarget, bot: BaseBot) -> int:
+        assert isinstance(target, TargetQQGuildDirect)
+        assert isinstance(bot, Bot)
+
+        resp = await bot.create_dms(
+            user_id=str(target.recipient_id), src_guild_id=str(target.source_guild_id)
+        )
+        return resp["guild_id"]
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
@@ -180,11 +191,7 @@ try:
         if bot.platform == "qqguild":
             assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
             if isinstance(target, TargetQQGuildDirect):
-                if not store.exists(target):
-                    if event:
-                        store.set(target, event.guild_id)
-                    else:
-                        await store.refresh(target)
+                await qqguild_dms_manager.aget_guild_id(target, bot)
             params = {}
             if event:
                 # 传递 event_id，用来支持频道的被动消息

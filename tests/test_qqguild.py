@@ -4,6 +4,7 @@ from functools import partial
 from nonebug import App
 from nonebot import get_adapter
 from pytest_mock import MockerFixture
+from nonebot.adapters.qqguild.api import DMS
 from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
@@ -115,7 +116,11 @@ async def test_send(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
-    from nonebot_plugin_saa import MessageFactory, TargetQQGuildChannel
+    from nonebot_plugin_saa import (
+        MessageFactory,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+    )
 
     async with app.test_api() as ctx:
         adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
@@ -140,6 +145,31 @@ async def test_send_active(app: App):
             result=None,
         )
         target = TargetQQGuildChannel(channel_id=2233)
+        await MessageFactory("123").send_to(target, bot)
+
+        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
+        ctx.should_call_api(
+            "post_dms",
+            data={
+                "recipient_id": "1111",
+                "source_guild_id": "2222",
+            },
+            result=DMS(guild_id=3333),
+        )
+        ctx.should_call_api(
+            "post_dms_messages",
+            data={
+                "guild_id": 3333,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
         await MessageFactory("123").send_to(target, bot)
 
 
