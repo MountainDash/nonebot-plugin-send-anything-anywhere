@@ -172,6 +172,23 @@ async def test_send_active(app: App):
         )
         await MessageFactory("123").send_to(target, bot)
 
+        # 再次发送，这次直接从缓存中获取 guild_id
+        ctx.should_call_api(
+            "post_dms_messages",
+            data={
+                "guild_id": 3333,
+                "content": "1234",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=None,
+        )
+        await MessageFactory("1234").send_to(target, bot)
+
 
 async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot.adapters.qqguild.api import Guild, Channel
