@@ -127,6 +127,45 @@ async def test_send(app: App):
             result=None,
         )
 
+    async with app.test_matcher(matcher) as ctx:
+        bot = ctx.create_bot(
+            base=Bot, adapter=ob12_adapter, **ob12_kwargs(platform="qqguild")
+        )
+        message = Message("321")
+        message_event = mock_obv12_message_event(message, detail_type="qqguild_private")
+        ctx.receive_event(bot, message_event)
+        ctx.should_call_api(
+            "create_dms",
+            data={
+                "user_id": "2233",
+                "src_guild_id": "5566",
+            },
+            result={"guild_id": "3333"},
+        )
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "detail_type": "private",
+                "guild_id": "3333",
+                "event_id": "1111",
+            },
+            result=None,
+        )
+
+        message_event = mock_obv12_message_event(message, detail_type="qqguild_channel")
+        ctx.receive_event(bot, message_event)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "detail_type": "channel",
+                "channel_id": "6677",
+                "event_id": "1111",
+            },
+            result=None,
+        )
+
 
 async def test_send_active(app: App):
     from nonebot import get_driver

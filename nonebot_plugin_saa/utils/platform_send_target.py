@@ -278,11 +278,11 @@ class QQGuildDMSManager:
         if target in self._cache:
             return self._cache[target]
 
-        adapter_type = extract_adapter_type(bot)
-        if adapter_type not in qqguild_dms_map.keys():
+        adapter = extract_adapter_type(bot)
+        if not (qqguild_dms := qqguild_dms_map.get(adapter)):
             raise RuntimeError(
-                f"PlatformTarget {target.platform_type} not support {adapter_type}",
-            )
-        guild_id = await qqguild_dms_map[adapter_type](target, bot)
+                f"qqguild dms method for {adapter} not registered",
+            )  # pragma: no cover
+        guild_id = await qqguild_dms(target, bot)
         self._cache[target] = guild_id
         return guild_id
