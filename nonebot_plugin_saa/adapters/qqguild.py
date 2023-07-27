@@ -32,8 +32,6 @@ try:
         DirectMessageCreateEvent,
     )
 
-    dms_manager = QQGuildDMSManager()
-
     adapter = SupportedAdapters.qqguild
     register_qqguild = partial(register_ms_adapter, adapter)
 
@@ -74,9 +72,8 @@ try:
             raise ValueError(f"{type(event)} not supported")
 
     @register_qqguild_dms(adapter)
-    async def get_dms(target: PlatformTarget, bot: BaseBot) -> int:
+    async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
         assert isinstance(bot, Bot)
-        assert isinstance(target, TargetQQGuildDirect)
 
         dms = await bot.post_dms(
             recipient_id=str(target.recipient_id),
@@ -163,7 +160,7 @@ try:
                     message_reference=reference,  # type: ignore
                 )
             else:
-                guild_id = await dms_manager.aget_guild_id(target, bot)
+                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
                 await bot.post_dms_messages(
                     guild_id=guild_id,  # type: ignore
                     content=content,

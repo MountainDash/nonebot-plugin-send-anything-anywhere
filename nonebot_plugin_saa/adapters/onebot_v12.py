@@ -40,8 +40,6 @@ try:
         PrivateMessageEvent,
     )
 
-    qqguild_dms_manager = QQGuildDMSManager()
-
     adapter = SupportedAdapters.onebot_v12
     register_onebot_v12 = partial(register_ms_adapter, adapter)
 
@@ -140,12 +138,11 @@ try:
         assert isinstance(target, TargetQQGuildDirect)
         return {
             "detail_type": "private",
-            "guild_id": str(qqguild_dms_manager.get_guild_id(target)),
+            "guild_id": str(QQGuildDMSManager.get_guild_id(target)),
         }
 
     @register_qqguild_dms(adapter)
-    async def _qqguild_dms(target: PlatformTarget, bot: BaseBot) -> int:
-        assert isinstance(target, TargetQQGuildDirect)
+    async def _qqguild_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
         assert isinstance(bot, Bot)
 
         resp = await bot.create_dms(
@@ -191,7 +188,7 @@ try:
         if bot.platform == "qqguild":
             assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
             if isinstance(target, TargetQQGuildDirect):
-                await qqguild_dms_manager.aget_guild_id(target, bot)
+                await QQGuildDMSManager.aget_guild_id(target, bot)
             params = {}
             if event:
                 # 传递 event_id，用来支持频道的被动消息
