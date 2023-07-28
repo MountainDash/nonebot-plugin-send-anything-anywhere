@@ -334,7 +334,7 @@ class MessageFactory(List[TMSF]):
         reply: bool,
     ):
         adapter = extract_adapter_type(bot)
-        if not (sender := sender_map[adapter]):
+        if not (sender := sender_map.get(adapter)):
             raise RuntimeError(
                 f"send method for {adapter} not registered",
             )  # pragma: no cover

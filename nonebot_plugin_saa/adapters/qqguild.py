@@ -8,12 +8,14 @@ from ..types import Text, Image, Reply, Mention
 from ..utils import (
     MessageFactory,
     PlatformTarget,
+    QQGuildDMSManager,
     SupportedAdapters,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_qqguild_dms,
     register_list_targets,
     assamble_message_factory,
     register_target_extractor,
@@ -68,6 +70,17 @@ try:
             return TargetQQGuildChannel(channel_id=int(event.channel_id))
         else:
             raise ValueError(f"{type(event)} not supported")
+
+    @register_qqguild_dms(adapter)
+    async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
+        assert isinstance(bot, Bot)
+
+        dms = await bot.post_dms(
+            recipient_id=str(target.recipient_id),
+            source_guild_id=str(target.source_guild_id),
+        )
+        assert dms.guild_id
+        return dms.guild_id
 
     @register_sender(SupportedAdapters.qqguild)
     async def send(
@@ -147,7 +160,17 @@ try:
                     message_reference=reference,  # type: ignore
                 )
             else:
-                raise NotImplementedError("QQ频道主动发送私信暂未实现")
+                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
+                await bot.post_dms_messages(
+                    guild_id=guild_id,  # type: ignore
+                    content=content,
+                    embed=embed,  # type: ignore
+                    ark=ark,  # type: ignore
+                    image=image,  # type: ignore
+                    file_image=file_image,  # type: ignore
+                    markdown=markdown,  # type: ignore
+                    message_reference=reference,  # type: ignore
+                )
 
     @register_list_targets(SupportedAdapters.qqguild)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

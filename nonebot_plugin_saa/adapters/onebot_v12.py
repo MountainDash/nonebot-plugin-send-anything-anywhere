@@ -13,12 +13,15 @@ from ..utils import (
     PlatformTarget,
     TargetQQPrivate,
     TargetOB12Unknow,
+    QQGuildDMSManager,
     SupportedAdapters,
     SupportedPlatform,
+    TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
     register_sender,
     register_ms_adapter,
+    register_qqguild_dms,
     register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
@@ -27,12 +30,13 @@ from ..utils import (
 
 try:
     from nonebot.adapters.onebot.v12.exception import UnsupportedAction
-    from nonebot.adapters.onebot.v12 import (  # ChannelMessageEvent,
+    from nonebot.adapters.onebot.v12 import (
         Bot,
         Message,
         MessageEvent,
         MessageSegment,
         GroupMessageEvent,
+        ChannelMessageEvent,
         PrivateMessageEvent,
     )
 
@@ -81,6 +85,12 @@ try:
         assert isinstance(event, PrivateMessageEvent)
         if event.self.platform == "qq":
             return TargetQQPrivate(user_id=int(event.user_id))
+        if event.self.platform == "qqguild":
+            event_dict = event.dict()
+            return TargetQQGuildDirect(
+                recipient_id=int(event.user_id),
+                source_guild_id=event_dict["qqguild"]["src_guild_id"],
+            )
         return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
 
     @register_target_extractor(GroupMessageEvent)
@@ -90,15 +100,14 @@ try:
             return TargetQQGroup(group_id=int(event.group_id))
         return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
 
-    # @register_target_extractor(ChannelMessageEvent)
-    # def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
-    #     assert isinstance(event, ChannelMessageEvent)
-    #     if event.self.platform == 'qqguild': # all4one
-    #         return TargetQQGuildChannel(channel_id=int(event.channel_id))
-    #     return TargetOB12Unknow(
-    #         detail_type="channel", channel_id=event.channel_id,
-    #       guild_id=event.guild_id
-    #     )
+    @register_target_extractor(ChannelMessageEvent)
+    def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
+        assert isinstance(event, ChannelMessageEvent)
+        if event.self.platform == "qqguild":  # all4one
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+        return TargetOB12Unknow(
+            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+        )
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _to_qq_group(target: PlatformTarget):
@@ -116,21 +125,30 @@ try:
             "user_id": str(target.user_id),
         }
 
-    # @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_channel)
-    # def _to_qq_guild_channel(target: PlatformTarget):
-    #     assert isinstance(target, TargetQQGuildChannel)
-    #     return {
-    #             "detail_type": "channel",
-    #             "channel_id": target.channel_id,
-    #             }
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_channel)
+    def _to_qq_guild_channel(target: PlatformTarget):
+        assert isinstance(target, TargetQQGuildChannel)
+        return {
+            "detail_type": "channel",
+            "channel_id": str(target.channel_id),
+        }
 
-    # @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
-    # def _to_qq_guild_direct(target: PlatformTarget):
-    #     assert isinstance(target, TargetQQGuildDirect)
-    #     return {
-    #             "detail_type": "private",
-    #             "guild_id": target.source_guild_id,
-    #             }
+    @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
+    def _to_qq_guild_direct(target: PlatformTarget):
+        assert isinstance(target, TargetQQGuildDirect)
+        return {
+            "detail_type": "private",
+            "guild_id": str(QQGuildDMSManager.get_guild_id(target)),
+        }
+
+    @register_qqguild_dms(adapter)
+    async def _qqguild_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
+        assert isinstance(bot, Bot)
+
+        resp = await bot.create_dms(
+            user_id=str(target.recipient_id), src_guild_id=str(target.source_guild_id)
+        )
+        return resp["guild_id"]
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
@@ -149,7 +167,13 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
-            (TargetQQGroup, TargetQQPrivate, TargetQQGuildChannel, TargetOB12Unknow),
+            (
+                TargetQQGroup,
+                TargetQQPrivate,
+                TargetQQGuildChannel,
+                TargetQQGuildDirect,
+                TargetOB12Unknow,
+            ),
         )
 
         if event:
@@ -161,7 +185,21 @@ try:
             full_msg = msg
         msg_to_send = await full_msg.build(bot)
         assert isinstance(msg_to_send, Message)
-        await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+        if bot.platform == "qqguild":
+            assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
+            if isinstance(target, TargetQQGuildDirect):
+                await QQGuildDMSManager.aget_guild_id(target, bot)
+            params = {}
+            if event:
+                # 传递 event_id，用来支持频道的被动消息
+                params["event_id"] = event.id
+            await bot.send_message(
+                message=msg_to_send,
+                **target.arg_dict(bot),
+                **params,
+            )
+        else:
+            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

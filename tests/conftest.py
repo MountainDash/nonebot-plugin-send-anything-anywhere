@@ -13,11 +13,15 @@ def pytest_configure(config: pytest.Config) -> None:
 
 @pytest.fixture
 def app(app: App):
-    from nonebot_plugin_saa.utils.platform_send_target import PlatformTarget
+    from nonebot_plugin_saa.utils.platform_send_target import (
+        PlatformTarget,
+        QQGuildDMSManager,
+    )
 
     yield app
 
     PlatformTarget._deseriazer_map.clear()
+    QQGuildDMSManager._cache.clear()
 
 
 @pytest.fixture(scope="session", autouse=True)

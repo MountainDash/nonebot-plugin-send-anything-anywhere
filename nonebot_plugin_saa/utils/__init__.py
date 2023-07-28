@@ -18,6 +18,7 @@ from .platform_send_target import (
     PlatformTarget,
     TargetQQPrivate,
     TargetOB12Unknow,
+    QQGuildDMSManager,
     TargetQQGuildDirect,
     TargetTelegramForum,
     TargetQQGuildChannel,
@@ -28,6 +29,7 @@ from .platform_send_target import (
     get_target,
     extract_target,
     register_sender,
+    register_qqguild_dms,
     register_convert_to_arg,
     register_target_extractor,
 )
@@ -68,4 +70,6 @@ __all__ = [
     "auto_select_bot",
     "register_list_targets",
     "enable_auto_select_bot",
+    "register_qqguild_dms",
+    "QQGuildDMSManager",
 ]

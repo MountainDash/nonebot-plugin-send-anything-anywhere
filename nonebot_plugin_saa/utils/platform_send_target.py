@@ -252,3 +252,39 @@ def register_sender(adapter: SupportedAdapters):
         return sender
 
     return wrapper
+
+
+QQGuild_DMS = Callable[[TargetQQGuildDirect, Bot], Awaitable[int]]
+qqguild_dms_map: Dict[SupportedAdapters, QQGuild_DMS] = {}
+
+
+def register_qqguild_dms(adapter: SupportedAdapters):
+    def wrapper(func: QQGuild_DMS):
+        qqguild_dms_map[adapter] = func
+        return func
+
+    return wrapper
+
+
+class QQGuildDMSManager:
+    _cache: ClassVar[Dict[TargetQQGuildDirect, int]] = {}
+
+    @classmethod
+    def get_guild_id(cls, target: TargetQQGuildDirect) -> int:
+        """从缓存中获取私聊所需 guild_id"""
+        return cls._cache[target]
+
+    @classmethod
+    async def aget_guild_id(cls, target: TargetQQGuildDirect, bot: Bot) -> int:
+        """获取私聊所需 guild_id"""
+        if target in cls._cache:
+            return cls._cache[target]
+
+        adapter = extract_adapter_type(bot)
+        if not (qqguild_dms := qqguild_dms_map.get(adapter)):
+            raise RuntimeError(
+                f"qqguild dms method for {adapter} not registered",
+            )  # pragma: no cover
+        guild_id = await qqguild_dms(target, bot)
+        cls._cache[target] = guild_id
+        return guild_id

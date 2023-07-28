@@ -20,7 +20,7 @@ async def test_send(app: App):
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
         bot = ctx.create_bot(
-            base=Bot, adapter=adapter_obj, **ob12_kwargs(platform="qqguild")
+            base=Bot, adapter=adapter_obj, **ob12_kwargs(platform="qq")
         )
         msg_event = mock_obv12_message_event(Message("321"))
         ctx.receive_event(bot, msg_event)
