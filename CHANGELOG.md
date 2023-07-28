@@ -2,6 +2,7 @@
 
 ## 最近更新
 
+- 支持 qqguild 发送dms [@he0119](https://github.com/he0119) ([#62](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/62))
 - Support OB11 NotifyEvent [@ssttkkl](https://github.com/ssttkkl) ([#58](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/58))
 
 ### Bug 修复
