@@ -7,7 +7,7 @@ from nonebot.adapters.onebot.v11 import Bot, Adapter
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, mock_obv11_poke_event, mock_obv11_message_event
+from .utils import assert_ms, mock_obv11_message_event
 
 assert_onebot_v11 = partial(assert_ms, Bot, SupportedAdapters.onebot_v11)
 
@@ -42,15 +42,6 @@ async def test_reply(app: App):
     from nonebot_plugin_saa import Reply
 
     await assert_onebot_v11(app, Reply(123), MessageSegment.reply(123))
-
-
-async def test_extract_notify_event(app: App):
-    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
-
-    assert extract_target(mock_obv11_poke_event()) == TargetQQPrivate(user_id=2233)
-    assert extract_target(mock_obv11_poke_event(group=True)) == TargetQQGroup(
-        group_id=3344
-    )
 
 
 async def test_send(app: App):
@@ -253,3 +244,223 @@ async def test_list_targets(app: App, mocker: MockerFixture):
 
         send_target_group = TargetQQGroup(group_id=112)
         assert bot is get_bot(send_target_group)
+
+
+def test_extract_target(app: App):
+    from nonebot.adapters.onebot.v11.event import File, Sender
+    from nonebot.adapters.onebot.v11 import (
+        Message,
+        PokeNotifyEvent,
+        HonorNotifyEvent,
+        GroupMessageEvent,
+        GroupRequestEvent,
+        FriendRequestEvent,
+        GroupBanNoticeEvent,
+        PrivateMessageEvent,
+        FriendAddNoticeEvent,
+        LuckyKingNotifyEvent,
+        GroupAdminNoticeEvent,
+        GroupRecallNoticeEvent,
+        GroupUploadNoticeEvent,
+        FriendRecallNoticeEvent,
+        GroupDecreaseNoticeEvent,
+        GroupIncreaseNoticeEvent,
+    )
+
+    from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate, extract_target
+
+    sender = Sender(user_id=3344)
+    group_message_event = GroupMessageEvent(
+        group_id=1122,
+        time=1122,
+        self_id=2233,
+        post_type="message",
+        sub_type="",
+        user_id=3344,
+        message_id=4455,
+        message=Message("123"),
+        original_message=Message("123"),
+        message_type="group",
+        raw_message="123",
+        font=1,
+        sender=sender,
+    )
+    assert extract_target(group_message_event) == TargetQQGroup(group_id=1122)
+
+    private_message_event = PrivateMessageEvent(
+        time=1122,
+        self_id=2233,
+        post_type="message",
+        sub_type="",
+        user_id=3344,
+        message_id=4455,
+        message=Message("123"),
+        original_message=Message("123"),
+        message_type="private",
+        raw_message="123",
+        font=1,
+        sender=sender,
+    )
+    assert extract_target(private_message_event) == TargetQQPrivate(user_id=3344)
+
+    friend_add_notice_event = FriendAddNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="friend_add",
+        user_id=3344,
+    )
+    assert extract_target(friend_add_notice_event) == TargetQQPrivate(user_id=3344)
+
+    friend_recall_notice_event = FriendRecallNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="friend_recall",
+        user_id=3344,
+        message_id=4455,
+    )
+    assert extract_target(friend_recall_notice_event) == TargetQQPrivate(user_id=3344)
+
+    group_ban_notice_event = GroupBanNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_ban",
+        sub_type="",
+        group_id=1122,
+        operator_id=3344,
+        user_id=5566,
+        duration=10,
+    )
+    assert extract_target(group_ban_notice_event) == TargetQQGroup(group_id=1122)
+
+    group_recall_notice_event = GroupRecallNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_recall",
+        group_id=1122,
+        operator_id=3344,
+        user_id=5566,
+        message_id=4455,
+    )
+    assert extract_target(group_recall_notice_event) == TargetQQGroup(group_id=1122)
+
+    group_admin_notice_event = GroupAdminNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_admin",
+        sub_type="",
+        group_id=1122,
+        user_id=5566,
+    )
+    assert extract_target(group_admin_notice_event) == TargetQQGroup(group_id=1122)
+
+    group_decrease_notice_event = GroupDecreaseNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_decrease",
+        sub_type="",
+        group_id=1122,
+        operator_id=3344,
+        user_id=5566,
+    )
+    assert extract_target(group_decrease_notice_event) == TargetQQGroup(group_id=1122)
+
+    group_increase_notice_event = GroupIncreaseNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_increase",
+        sub_type="",
+        group_id=1122,
+        operator_id=3344,
+        user_id=5566,
+    )
+    assert extract_target(group_increase_notice_event) == TargetQQGroup(group_id=1122)
+
+    group_upload_notice_event = GroupUploadNoticeEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="group_upload",
+        group_id=1122,
+        user_id=3344,
+        file=File(id="4455", name="123", size=10, busid=6677),
+    )
+    assert extract_target(group_upload_notice_event) == TargetQQGroup(group_id=1122)
+
+    honor_notify_event = HonorNotifyEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="notify",
+        sub_type="honor",
+        group_id=1122,
+        user_id=3344,
+        honor_type="talkative",
+    )
+    assert extract_target(honor_notify_event) == TargetQQGroup(group_id=1122)
+
+    lucky_king_notify_event = LuckyKingNotifyEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="notify",
+        sub_type="lucky_king",
+        group_id=1122,
+        user_id=3344,
+        target_id=5566,
+    )
+    assert extract_target(lucky_king_notify_event) == TargetQQGroup(group_id=1122)
+
+    friend_request_event = FriendRequestEvent(
+        time=1122,
+        self_id=2233,
+        post_type="request",
+        request_type="friend",
+        user_id=3344,
+        comment="123",
+        flag="2233",
+    )
+    assert extract_target(friend_request_event) == TargetQQPrivate(user_id=3344)
+
+    group_request_event = GroupRequestEvent(
+        time=1122,
+        self_id=2233,
+        post_type="request",
+        request_type="group",
+        sub_type="",
+        group_id=1122,
+        user_id=3344,
+        comment="123",
+        flag="2233",
+    )
+    assert extract_target(group_request_event) == TargetQQGroup(group_id=1122)
+
+    poke_notify_event = PokeNotifyEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="notify",
+        sub_type="poke",
+        group_id=1122,
+        user_id=3344,
+        target_id=5566,
+    )
+    assert extract_target(poke_notify_event) == TargetQQGroup(group_id=1122)
+
+    poke_notify_event = PokeNotifyEvent(
+        time=1122,
+        self_id=2233,
+        post_type="notice",
+        notice_type="notify",
+        sub_type="poke",
+        group_id=None,
+        user_id=3344,
+        target_id=5566,
+    )
+    assert extract_target(poke_notify_event) == TargetQQPrivate(user_id=3344)
