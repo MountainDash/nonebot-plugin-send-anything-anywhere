@@ -56,7 +56,7 @@ def register_list_targets(adapter: SupportedAdapters):
 async def refresh_bots():
     """刷新缓存的 Bot 数据"""
     BOT_CACHE.clear()
-    for bot in get_bots().values():
+    for bot in list(get_bots().values()):
         adapter_name = extract_adapter_type(bot)
         if list_targets := list_targets_map.get(adapter_name):
             targets = await list_targets(bot)
