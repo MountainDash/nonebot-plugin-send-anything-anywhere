@@ -321,6 +321,7 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         )
         assert unknown_bot is get_bot(send_channel)
 
+
 def test_extract_target(app: App):
     from nonebot.adapters.onebot.v12.event import BotSelf
     from nonebot.adapters.onebot.v12 import (
