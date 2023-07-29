@@ -25,7 +25,6 @@ try:
     from nonebot.adapters.onebot.v11 import Bot as BotOB11
     from nonebot.adapters.onebot.v11.message import Message, MessageSegment
     from nonebot.adapters.onebot.v11 import (
-        NotifyEvent,
         MessageEvent,
         PokeNotifyEvent,
         HonorNotifyEvent,
