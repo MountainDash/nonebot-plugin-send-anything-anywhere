@@ -5,6 +5,10 @@
 - 支持 qqguild 发送dms [@he0119](https://github.com/he0119) ([#62](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/62))
 - Support OB11 NotifyEvent [@ssttkkl](https://github.com/ssttkkl) ([#58](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/58))
 
+### 新功能
+
+- 扩充 ob11 event 支持 [@MeetWq](https://github.com/MeetWq) ([#49](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/49))
+
 ### Bug 修复
 
 - 修复 qqguild extract_target 类型错误问题 [@felinae98](https://github.com/felinae98) ([#57](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/57))
