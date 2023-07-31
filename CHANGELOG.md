@@ -11,6 +11,7 @@
 
 ### Bug 修复
 
+- :bug: fix dictionary changed size during iteration error [@he0119](https://github.com/he0119) ([#64](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/64))
 - 修复 qqguild extract_target 类型错误问题 [@felinae98](https://github.com/felinae98) ([#57](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/57))
 
 ## v0.2.7
