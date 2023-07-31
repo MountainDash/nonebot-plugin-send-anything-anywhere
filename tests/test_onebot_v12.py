@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from datetime import datetime
 from functools import partial
 
 from nonebug import App
@@ -319,3 +320,439 @@ async def test_list_targets(app: App, mocker: MockerFixture):
             detail_type="channel", channel_id="4", guild_id="3"
         )
         assert unknown_bot is get_bot(send_channel)
+
+
+def test_extract_target(app: App):
+    from nonebot.adapters.onebot.v12.event import BotSelf
+    from nonebot.adapters.onebot.v12 import (
+        Message,
+        GroupMessageEvent,
+        ChannelCreateEvent,
+        ChannelDeleteEvent,
+        ChannelMessageEvent,
+        FriendDecreaseEvent,
+        FriendIncreaseEvent,
+        PrivateMessageEvent,
+        GroupMessageDeleteEvent,
+        GroupMemberDecreaseEvent,
+        GroupMemberIncreaseEvent,
+        ChannelMessageDeleteEvent,
+        PrivateMessageDeleteEvent,
+        ChannelMemberDecreaseEvent,
+        ChannelMemberIncreaseEvent,
+    )
+
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetOB12Unknow,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+        extract_target,
+    )
+
+    group_message_event = GroupMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="group",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qq", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        group_id="1122",
+    )
+    assert extract_target(group_message_event) == TargetQQGroup(group_id=1122)
+
+    private_message_event = PrivateMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="private",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qq", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+    )
+    assert extract_target(private_message_event) == TargetQQPrivate(user_id=3344)
+
+    channel_message_event = ChannelMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="channel",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qq", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        guild_id="5566",
+        channel_id="6677",
+    )
+
+    assert extract_target(channel_message_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="5566", channel_id="6677"
+    )
+
+    qqguild_private_message_event = PrivateMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="private",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        qqguild={
+            "guild_id": "4455",
+            "src_guild_id": "5566",
+        },
+    )
+    assert extract_target(qqguild_private_message_event) == TargetQQGuildDirect(
+        recipient_id=3344, source_guild_id=5566
+    )
+
+    qqguild_channel_message_event = ChannelMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="channel",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        guild_id="5566",
+        channel_id="6677",
+    )
+
+    assert extract_target(qqguild_channel_message_event) == TargetQQGuildChannel(
+        channel_id=6677
+    )
+
+    friend_decrease_event = FriendDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="friend_decrease",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+    )
+    assert extract_target(friend_decrease_event) == TargetQQPrivate(user_id=5566)
+
+    friend_decrease_event = FriendDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="friend_decrease",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+    )
+    assert extract_target(friend_decrease_event) == TargetOB12Unknow(
+        detail_type="private", user_id="5566"
+    )
+
+    friend_increase_event = FriendIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="friend_increase",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+    )
+    assert extract_target(friend_increase_event) == TargetQQPrivate(user_id=5566)
+
+    friend_increase_event = FriendIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="friend_increase",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+    )
+    assert extract_target(friend_increase_event) == TargetOB12Unknow(
+        detail_type="private", user_id="5566"
+    )
+
+    private_message_delete_event = PrivateMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="private_message_delete",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+        message_id="6677",
+    )
+    assert extract_target(private_message_delete_event) == TargetQQPrivate(user_id=5566)
+
+    private_message_delete_event = PrivateMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="private_message_delete",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        message_id="6677",
+    )
+    assert extract_target(private_message_delete_event) == TargetOB12Unknow(
+        detail_type="private", user_id="5566"
+    )
+
+    group_message_delete_event = GroupMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_message_delete",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        message_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(group_message_delete_event) == TargetQQGroup(group_id=6677)
+
+    group_message_delete_event = GroupMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_message_delete",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        message_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(group_message_delete_event) == TargetOB12Unknow(
+        detail_type="group", group_id="6677"
+    )
+
+    group_member_decrease_event = GroupMemberDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_member_decrease",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        operator_id="7788",
+    )
+    assert extract_target(group_member_decrease_event) == TargetQQGroup(group_id=6677)
+
+    group_member_decrease_event = GroupMemberDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_member_decrease",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        operator_id="7788",
+    )
+    assert extract_target(group_member_decrease_event) == TargetOB12Unknow(
+        detail_type="group", group_id="6677"
+    )
+
+    group_member_increase_event = GroupMemberIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_member_increase",
+        sub_type="",
+        self=BotSelf(platform="qq", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        operator_id="7788",
+    )
+    assert extract_target(group_member_increase_event) == TargetQQGroup(group_id=6677)
+
+    group_member_increase_event = GroupMemberIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="group_member_increase",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        group_id="6677",
+        operator_id="7788",
+    )
+    assert extract_target(group_member_increase_event) == TargetOB12Unknow(
+        detail_type="group", group_id="6677"
+    )
+
+    channel_create_event = ChannelCreateEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_create",
+        sub_type="",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_create_event) == TargetQQGuildChannel(channel_id=7788)
+
+    channel_create_event = ChannelCreateEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_create",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_create_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="6677", channel_id="7788"
+    )
+
+    channel_delete_event = ChannelDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_delete",
+        sub_type="",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_delete_event) == TargetQQGuildChannel(channel_id=7788)
+
+    channel_delete_event = ChannelDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_delete",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_delete_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="6677", channel_id="7788"
+    )
+
+    channel_message_delete_event = ChannelMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_message_delete",
+        sub_type="",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        message_id="2233",
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_message_delete_event) == TargetQQGuildChannel(
+        channel_id=7788
+    )
+
+    channel_message_delete_event = ChannelMessageDeleteEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_message_delete",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        message_id="2233",
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_message_delete_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="6677", channel_id="7788"
+    )
+
+    channel_member_decrease_event = ChannelMemberDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_member_decrease",
+        sub_type="",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_member_decrease_event) == TargetQQGuildChannel(
+        channel_id=7788
+    )
+
+    channel_member_decrease_event = ChannelMemberDecreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_member_decrease",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_member_decrease_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="6677", channel_id="7788"
+    )
+
+    channel_member_increase_event = ChannelMemberIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_member_increase",
+        sub_type="",
+        self=BotSelf(platform="qqguild", user_id="3344"),
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_member_increase_event) == TargetQQGuildChannel(
+        channel_id=7788
+    )
+
+    channel_member_increase_event = ChannelMemberIncreaseEvent(
+        id="1122",
+        time=datetime.now(),
+        type="notice",
+        detail_type="channel_member_increase",
+        sub_type="",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        user_id="5566",
+        guild_id="6677",
+        channel_id="7788",
+        operator_id="8899",
+    )
+    assert extract_target(channel_member_increase_event) == TargetOB12Unknow(
+        detail_type="channel", guild_id="6677", channel_id="7788"
+    )

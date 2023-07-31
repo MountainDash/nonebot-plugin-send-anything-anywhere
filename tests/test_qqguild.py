@@ -214,3 +214,14 @@ async def test_list_targets(app: App, mocker: MockerFixture):
 
         target = TargetQQGuildChannel(channel_id=2233)
         assert bot is get_bot(target)
+
+
+def test_extract_target(app: App):
+    from nonebot.adapters.qqguild import EventType, MessageCreateEvent
+
+    from nonebot_plugin_saa import TargetQQGuildChannel, extract_target
+
+    group_message_event = MessageCreateEvent(
+        __type__=EventType.CHANNEL_CREATE, channel_id=6677, guild_id=5566
+    )
+    assert extract_target(group_message_event) == TargetQQGuildChannel(channel_id=6677)

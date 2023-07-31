@@ -36,8 +36,19 @@ try:
         MessageEvent,
         MessageSegment,
         GroupMessageEvent,
+        ChannelCreateEvent,
+        ChannelDeleteEvent,
         ChannelMessageEvent,
+        FriendDecreaseEvent,
+        FriendIncreaseEvent,
         PrivateMessageEvent,
+        GroupMessageDeleteEvent,
+        GroupMemberDecreaseEvent,
+        GroupMemberIncreaseEvent,
+        ChannelMessageDeleteEvent,
+        PrivateMessageDeleteEvent,
+        ChannelMemberDecreaseEvent,
+        ChannelMemberIncreaseEvent,
     )
 
     adapter = SupportedAdapters.onebot_v12
@@ -103,6 +114,55 @@ try:
     @register_target_extractor(ChannelMessageEvent)
     def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, ChannelMessageEvent)
+        if event.self.platform == "qqguild":  # all4one
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+        return TargetOB12Unknow(
+            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+        )
+
+    @register_target_extractor(FriendIncreaseEvent)
+    @register_target_extractor(FriendDecreaseEvent)
+    @register_target_extractor(PrivateMessageDeleteEvent)
+    def _extract_private_notice_event(event: Event) -> PlatformTarget:
+        assert isinstance(
+            event, (FriendIncreaseEvent, FriendDecreaseEvent, PrivateMessageDeleteEvent)
+        )
+        if event.self.platform == "qq":
+            return TargetQQPrivate(user_id=int(event.user_id))
+        return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
+
+    @register_target_extractor(GroupMemberIncreaseEvent)
+    @register_target_extractor(GroupMemberDecreaseEvent)
+    @register_target_extractor(GroupMessageDeleteEvent)
+    def _extract_group_notice_event(event: Event) -> PlatformTarget:
+        assert isinstance(
+            event,
+            (
+                GroupMemberIncreaseEvent,
+                GroupMemberDecreaseEvent,
+                GroupMessageDeleteEvent,
+            ),
+        )
+        if event.self.platform == "qq":
+            return TargetQQGroup(group_id=int(event.group_id))
+        return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
+
+    @register_target_extractor(ChannelMemberIncreaseEvent)
+    @register_target_extractor(ChannelMemberDecreaseEvent)
+    @register_target_extractor(ChannelMessageDeleteEvent)
+    @register_target_extractor(ChannelCreateEvent)
+    @register_target_extractor(ChannelDeleteEvent)
+    def _extarct_channel_notice_event(event: Event) -> PlatformTarget:
+        assert isinstance(
+            event,
+            (
+                ChannelMemberIncreaseEvent,
+                ChannelMemberDecreaseEvent,
+                ChannelMessageDeleteEvent,
+                ChannelCreateEvent,
+                ChannelDeleteEvent,
+            ),
+        )
         if event.self.platform == "qqguild":  # all4one
             return TargetQQGuildChannel(channel_id=int(event.channel_id))
         return TargetOB12Unknow(

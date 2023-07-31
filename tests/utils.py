@@ -77,32 +77,6 @@ def mock_obv11_message_event(message: "OB11Message", group=False):
         )
 
 
-def mock_obv11_poke_event(group=False):
-    from nonebot.adapters.onebot.v11 import PokeNotifyEvent as OB11PokeNotifyEvent
-
-    if not group:
-        return OB11PokeNotifyEvent(
-            time=1122,
-            self_id=2233,
-            post_type="notice",
-            notice_type="notify",
-            sub_type="poke",
-            user_id=2233,
-            target_id=2233,
-        )
-    else:
-        return OB11PokeNotifyEvent(
-            time=1122,
-            self_id=2233,
-            post_type="notice",
-            notice_type="notify",
-            sub_type="poke",
-            user_id=2233,
-            group_id=3344,
-            target_id=2233,
-        )
-
-
 def mock_obv12_message_event(
     message: "OB12Message",
     detail_type: Literal[
