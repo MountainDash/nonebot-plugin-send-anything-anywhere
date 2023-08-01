@@ -84,7 +84,9 @@ async def test_send_active(app: App):
             },
             result=None,
         )
-        target = TargetOB12Unknow(detail_type="private", user_id="2233")
+        target = TargetOB12Unknow(
+            platform="banana", detail_type="private", user_id="2233"
+        )
         await AggregatedMessageFactory(
             [Text("123"), MessageFactory(Text("456"))]
         ).send_to(target, bot)

@@ -121,6 +121,7 @@ class TargetOB12Unknow(PlatformTarget):
     platform_type: Literal[
         SupportedPlatform.unknown_ob12
     ] = SupportedPlatform.unknown_ob12
+    platform: str
     detail_type: Literal["private", "group", "channel"]
     user_id: Optional[str] = None
     group_id: Optional[str] = None

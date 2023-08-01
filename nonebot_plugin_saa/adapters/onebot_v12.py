@@ -102,14 +102,18 @@ try:
                 recipient_id=int(event.user_id),
                 source_guild_id=event_dict["qqguild"]["src_guild_id"],
             )
-        return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
+        return TargetOB12Unknow(
+            platform=event.self.platform, detail_type="private", user_id=event.user_id
+        )
 
     @register_target_extractor(GroupMessageEvent)
     def _extract_group_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, GroupMessageEvent)
         if event.self.platform == "qq":
             return TargetQQGroup(group_id=int(event.group_id))
-        return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
+        return TargetOB12Unknow(
+            platform=event.self.platform, detail_type="group", group_id=event.group_id
+        )
 
     @register_target_extractor(ChannelMessageEvent)
     def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
@@ -117,7 +121,10 @@ try:
         if event.self.platform == "qqguild":  # all4one
             return TargetQQGuildChannel(channel_id=int(event.channel_id))
         return TargetOB12Unknow(
-            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+            platform=event.self.platform,
+            detail_type="channel",
+            channel_id=event.channel_id,
+            guild_id=event.guild_id,
         )
 
     @register_target_extractor(FriendIncreaseEvent)
@@ -213,7 +220,7 @@ try:
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
         assert isinstance(target, TargetOB12Unknow)
-        return target.dict(exclude={"platform_type"})
+        return target.dict(exclude={"platform", "platform_type"})
 
     @register_sender(SupportedAdapters.onebot_v12)
     async def send(
@@ -278,7 +285,9 @@ try:
                 else:
                     targets.append(
                         TargetOB12Unknow(
-                            detail_type="private", user_id=friend["user_id"]
+                            platform=platform,
+                            detail_type="private",
+                            user_id=friend["user_id"],
                         )
                     )
 
@@ -294,7 +303,9 @@ try:
                 else:
                     targets.append(
                         TargetOB12Unknow(
-                            detail_type="group", group_id=group["group_id"]
+                            platform=platform,
+                            detail_type="group",
+                            group_id=group["group_id"],
                         )
                     )
 
@@ -314,6 +325,7 @@ try:
                     else:
                         targets.append(
                             TargetOB12Unknow(
+                                platform=platform,
                                 detail_type="channel",
                                 channel_id=channel["channel_id"],
                                 guild_id=guild["guild_id"],

@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime
 from functools import partial
 
+import pytest
 from nonebug import App
 from pytest_mock import MockerFixture
 from nonebot import get_driver, get_adapter
@@ -207,7 +208,9 @@ async def test_send_active(app: App):
         )
         await MessageFactory("123").send_to(target, bot)
 
-        target = TargetOB12Unknow(detail_type="channel", channel_id="3344")
+        target = TargetOB12Unknow(
+            platform="unknow", detail_type="channel", channel_id="3344"
+        )
         ctx.should_call_api(
             "send_message",
             data={
@@ -257,7 +260,11 @@ async def test_send_active(app: App):
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
-    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa.utils.auto_select_bot import (
+        NoBotFound,
+        get_bot,
+        refresh_bots,
+    )
     from nonebot_plugin_saa import (
         TargetQQGroup,
         TargetQQPrivate,
@@ -310,16 +317,26 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         send_target_qqguild = TargetQQGuildChannel(channel_id=2)
         assert qqguild_bot is get_bot(send_target_qqguild)
 
-        send_private = TargetOB12Unknow(detail_type="private", user_id="1")
+        send_private = TargetOB12Unknow(
+            platform="test", detail_type="private", user_id="1"
+        )
         assert unknown_bot is get_bot(send_private)
 
-        send_group = TargetOB12Unknow(detail_type="group", group_id="2")
+        send_group = TargetOB12Unknow(
+            platform="test", detail_type="group", group_id="2"
+        )
         assert unknown_bot is get_bot(send_group)
 
         send_channel = TargetOB12Unknow(
-            detail_type="channel", channel_id="4", guild_id="3"
+            platform="test", detail_type="channel", channel_id="4", guild_id="3"
         )
         assert unknown_bot is get_bot(send_channel)
+
+        send_missing = TargetOB12Unknow(
+            platform="missing", detail_type="private", user_id="1"
+        )
+        with pytest.raises(NoBotFound):
+            get_bot(send_missing)
 
 
 def test_extract_target(app: App):

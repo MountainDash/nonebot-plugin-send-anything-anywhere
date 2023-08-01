@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from typing import TYPE_CHECKING, Type, Literal, cast
+from typing import TYPE_CHECKING, Any, Dict, Type, Literal, cast
 
 from nonebot import get_driver
 
@@ -148,7 +148,7 @@ def mock_obv12_message_event(
             original_message=message,
             alt_message=str(message),
             user_id="2233",
-            qqguild={
+            qqguild={  # type: ignore
                 "guild_id": "4455",
                 "src_guild_id": "5566",
             },
@@ -196,7 +196,7 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
         )
 
 
-def ob12_kwargs(platform="qq", impl="walle"):
+def ob12_kwargs(platform="qq", impl="walle") -> Dict[str, Any]:
     return {"platform": platform, "impl": impl}
 
 
