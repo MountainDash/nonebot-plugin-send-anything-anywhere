@@ -1,29 +1,29 @@
-from functools import partial
 from io import BytesIO
 from typing import cast
+from functools import partial
 
-from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
-from ..types import Image, Mention, Reply, Text
+from ..types import Text, Image, Reply, Mention
+from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 from ..utils import (
     MessageFactory,
-    MessageSegmentFactory,
     SupportedAdapters,
-    assamble_message_factory,
-    register_ms_adapter,
+    MessageSegmentFactory,
     register_sender,
+    register_ms_adapter,
+    assamble_message_factory,
     register_target_extractor,
 )
-from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 
 try:
     from nonebot.adapters.feishu import (
         Bot,
-        GroupMessageEvent,
         Message,
         MessageEvent,
         MessageSegment,
+        GroupMessageEvent,
         MessageSerializer,
         PrivateMessageEvent,
     )

@@ -1,13 +1,13 @@
 from functools import partial
+
 from nonebug import App
+from nonebot.adapters.feishu.bot import BotInfo
 from nonebot.adapters.feishu import Bot, Message
 from nonebot.adapters.feishu.config import BotConfig
-from nonebot.adapters.feishu.bot import BotInfo
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms
-
 
 BOT_CONFIG = BotConfig(app_id="114", app_secret="514", verification_token="1919810")
 BOT_INFO = BotInfo.parse_obj(
@@ -26,15 +26,15 @@ assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **create_bot_k
 def mock_feishu_message_event(message: Message, group=False):
     from nonebot.adapters.feishu.event import Sender
     from nonebot.adapters.feishu import (
-        GroupMessageEvent,
-        PrivateMessageEvent,
-        PrivateMessageEventDetail,
         Sender,
-        PrivateEventMessage,
         UserId,
         EventHeader,
-        GroupMessageEventDetail,
         GroupEventMessage,
+        GroupMessageEvent,
+        PrivateEventMessage,
+        PrivateMessageEvent,
+        GroupMessageEventDetail,
+        PrivateMessageEventDetail,
     )
 
     header = EventHeader(
@@ -135,8 +135,8 @@ async def test_send(app: App):
         Bot,
         Message,
         MessageEvent,
-        MessageSerializer,
         MessageSegment,
+        MessageSerializer,
     )
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
@@ -177,8 +177,8 @@ async def test_send_with_reply(app: App):
         Bot,
         Message,
         MessageEvent,
-        MessageSerializer,
         MessageSegment,
+        MessageSerializer,
     )
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
@@ -207,12 +207,13 @@ async def test_send_with_reply(app: App):
 
 async def test_send_active(app: App):
     from nonebot import get_driver
-    from nonebot.adapters.feishu import Bot, Message, MessageSerializer, MessageSegment
+    from nonebot.adapters.feishu import Bot, Message, MessageSegment, MessageSerializer
+
     from nonebot_plugin_saa import (
         MessageFactory,
         SupportedAdapters,
-        TargetFeishuPrivate,
         TargetFeishuGroup,
+        TargetFeishuPrivate,
     )
 
     async with app.test_api() as ctx:

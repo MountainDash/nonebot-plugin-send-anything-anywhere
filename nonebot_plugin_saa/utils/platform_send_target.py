@@ -189,7 +189,9 @@ class TargetFeishuPrivate(PlatformTarget):
         open_id: 用户 Open ID
     """
 
-    platform_type: Literal[SupportedPlatform.feishu_private] = SupportedPlatform.feishu_private
+    platform_type: Literal[
+        SupportedPlatform.feishu_private
+    ] = SupportedPlatform.feishu_private
     open_id: str
 
 
@@ -200,7 +202,9 @@ class TargetFeishuGroup(PlatformTarget):
         chat_id: 群 ID
     """
 
-    platform_type: Literal[SupportedPlatform.feishu_group] = SupportedPlatform.feishu_group
+    platform_type: Literal[
+        SupportedPlatform.feishu_group
+    ] = SupportedPlatform.feishu_group
     chat_id: str
 
 
