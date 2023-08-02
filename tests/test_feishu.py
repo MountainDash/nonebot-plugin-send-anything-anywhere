@@ -14,7 +14,7 @@ BOT_INFO = BotInfo.parse_obj(
     {
         "activate_status": 2,
         "app_name": "name",
-        "avatar_url": "https://s1-imfile.feishucdn.com/static-resource/v1/da5xxxx14b16113",
+        "avatar_url": "https://s1-imfile.feishucdn.com/test.jpg",
         "ip_white_list": [],
         "open_id": "ou_123456",
     }
@@ -24,7 +24,6 @@ assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **create_bot_k
 
 
 def mock_feishu_message_event(message: Message, group=False):
-    from nonebot.adapters.feishu.event import Sender
     from nonebot.adapters.feishu import (
         Sender,
         UserId,
