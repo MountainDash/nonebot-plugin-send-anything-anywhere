@@ -16,6 +16,8 @@ from .utils import (
     MessageSegmentFactory,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
+    TargetFeishuPrivate,
+    TargetFeishuGroup,
     AggregatedMessageFactory,
     get_target,
     extract_target,
@@ -45,6 +47,8 @@ __all__ = [
     "TargetKaiheilaPrivate",
     "TargetTelegramCommon",
     "TargetTelegramForum",
+    "TargetFeishuPrivate",
+    "TargetFeishuGroup",
 ]
 
 __plugin_meta__ = PluginMetadata(

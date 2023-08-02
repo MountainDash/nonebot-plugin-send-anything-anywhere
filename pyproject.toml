@@ -43,6 +43,7 @@ nonebot-adapter-onebot = "^2.2.2"
 nonebot-adapter-qqguild = ">=0.2.1"
 nonebot-adapter-kaiheila = { version = "^0.2.4", python = ">=3.9" }
 nonebot-adapter-telegram = "^0.1.0b12"
+nonebot-adapter-feishu = "^2.0.0"
 
 [tool.black]
 line-length = 88

@@ -7,6 +7,7 @@ class SupportedAdapters(StrEnum):
     qqguild = "QQ Guild"
     kaiheila = "Kaiheila"
     telegram = "Telegram"
+    feishu = "Feishu"
 
     fake = "fake"  # for nonebug
 
@@ -21,6 +22,8 @@ class SupportedPlatform(StrEnum):
     unknown_ob12 = "Unknow Onebot 12 Platform"
     telegram_common = "Telegram Common"
     telegram_forum = "Telegram Forum"
+    feishu_private = "Feishu Private"
+    feishu_group = "Feishu Group"
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001

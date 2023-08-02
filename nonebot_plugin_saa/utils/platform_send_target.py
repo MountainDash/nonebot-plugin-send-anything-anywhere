@@ -182,6 +182,28 @@ class TargetTelegramForum(PlatformTarget):
     message_thread_id: int
 
 
+class TargetFeishuPrivate(PlatformTarget):
+    """飞书私聊
+
+    参数
+        open_id: 用户 Open ID
+    """
+
+    platform_type: Literal[SupportedPlatform.feishu_private] = SupportedPlatform.feishu_private
+    open_id: str
+
+
+class TargetFeishuGroup(PlatformTarget):
+    """飞书群聊
+
+    参数
+        chat_id: 群 ID
+    """
+
+    platform_type: Literal[SupportedPlatform.feishu_group] = SupportedPlatform.feishu_group
+    chat_id: str
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
@@ -193,6 +215,8 @@ AllSupportedPlatformTarget = Union[
     TargetOB12Unknow,
     TargetTelegramCommon,
     TargetTelegramForum,
+    TargetFeishuPrivate,
+    TargetFeishuGroup,
 ]
 
 
