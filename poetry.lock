@@ -1022,14 +1022,14 @@ files = [
 
 [[package]]
 name = "nonebot-adapter-feishu"
-version = "2.0.0"
+version = "2.0.1"
 description = "feishu(larksuite) adapter for nonebot2"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot_adapter_feishu-2.0.0-py3-none-any.whl", hash = "sha256:8cb3c2ec499d331225ee109638c08c880bcd955e736dec447543ddbb12dba445"},
-    {file = "nonebot_adapter_feishu-2.0.0.tar.gz", hash = "sha256:82782300b495ada8dd28b9239ac0417fea35b75cd2b8a72683f7af1955454a57"},
+    {file = "nonebot_adapter_feishu-2.0.1-py3-none-any.whl", hash = "sha256:6f85266ab5308c40e6ec4283787e3f15f3bee43f87b730f3667a7a2052331f40"},
+    {file = "nonebot_adapter_feishu-2.0.1.tar.gz", hash = "sha256:f355a7f899a114db529e703a213f7a5d1961488714795d7ee5771c9d2d18c6dd"},
 ]
 
 [package.dependencies]
@@ -2121,4 +2121,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "42ca53276048dd436441c5544e4b6d128cf7ed39b8f70dfa40435bac4ed5ff31"
+content-hash = "db4030f189beea0277250a08dba9fbb6e381fa9c30bb4b4c26d3ff5642b2df1c"
