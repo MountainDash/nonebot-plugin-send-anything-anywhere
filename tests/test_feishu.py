@@ -1,6 +1,10 @@
+from io import BytesIO
+from pathlib import Path
 from functools import partial
 
+import httpx
 from nonebug import App
+from nonebot import get_driver
 from nonebot.adapters.feishu.bot import BotInfo
 from nonebot.adapters.feishu import Bot, Message
 from nonebot.adapters.feishu.config import BotConfig
@@ -19,8 +23,12 @@ BOT_INFO = BotInfo.parse_obj(
         "open_id": "ou_123456",
     }
 )
-create_bot_kwargs = {"bot_config": BOT_CONFIG, "bot_info": BOT_INFO}
-assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **create_bot_kwargs)
+feishu_kwargs = {
+    "self_id": "123456",
+    "bot_config": BOT_CONFIG,
+    "bot_info": BOT_INFO,
+}
+assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **feishu_kwargs)
 
 
 def mock_feishu_message_event(message: Message, group=False):
@@ -30,6 +38,7 @@ def mock_feishu_message_event(message: Message, group=False):
         EventHeader,
         GroupEventMessage,
         GroupMessageEvent,
+        MessageSerializer,
         PrivateEventMessage,
         PrivateMessageEvent,
         GroupMessageEventDetail,
@@ -55,14 +64,15 @@ def mock_feishu_message_event(message: Message, group=False):
         tenant_key="tenant_key",
         sender_type="user",
     )
+    msg_type, content = MessageSerializer(message).serialize()
     event_message_dict = {
         "message_id": "message_id",
         "root_id": "root_id",
         "parent_id": "parent_id",
         "create_time": "create_time",
         "chat_id": "chat_id",
-        "chat_type": "p2p",
-        "message_type": "message_type",
+        "message_type": msg_type,
+        "content": content,
         "mentions": None,
     }
 
@@ -72,9 +82,7 @@ def mock_feishu_message_event(message: Message, group=False):
             header=header,
             event=PrivateMessageEventDetail(
                 sender=sender,
-                message=PrivateEventMessage(
-                    chat_type="p2p", content=message, **event_message_dict
-                ),
+                message=PrivateEventMessage(chat_type="p2p", **event_message_dict),
             ),
             reply=None,
         )
@@ -84,9 +92,7 @@ def mock_feishu_message_event(message: Message, group=False):
             header=header,
             event=GroupMessageEventDetail(
                 sender=sender,
-                message=GroupEventMessage(
-                    chat_type="group", content=message, **event_message_dict
-                ),
+                message=GroupEventMessage(chat_type="group", **event_message_dict),
             ),
             reply=None,
         )
@@ -100,12 +106,71 @@ async def test_text(app: App):
     await assert_feishu(app, Text("114514"), MessageSegment.text("114514"))
 
 
-async def test_image(app: App):
+async def test_image(app: App, tmp_path: Path):
     from nonebot.adapters.feishu import MessageSegment
 
     from nonebot_plugin_saa import Image
 
-    await assert_feishu(app, Image("114514"), MessageSegment.image("114514"))
+    async with app.test_api() as ctx:
+        adapter = get_driver()._adapters[str(SupportedAdapters.feishu)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter, **feishu_kwargs)
+
+        url = "https://nonebot.dev/logo.png"
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            data = resp.content
+        ctx.should_call_api(
+            "im/v1/images",
+            {
+                "method": "POST",
+                "data": {"image_type": "message"},
+                "files": {"image": ("file", data)},
+            },
+            {"image_key": "114514"},
+        )
+        generated_ms = await Image(url).build(bot)
+        assert generated_ms == MessageSegment.image("114514")
+
+        data = b"\x89PNG\r"
+        ctx.should_call_api(
+            "im/v1/images",
+            {
+                "method": "POST",
+                "data": {"image_type": "message"},
+                "files": {"image": ("file", data)},
+            },
+            {"image_key": "114514"},
+        )
+        generated_ms = await Image(data).build(bot)
+        assert generated_ms == MessageSegment.image("114514")
+
+        image_path = tmp_path / "test.png"
+        with image_path.open("wb") as f:
+            f.write(data)
+        ctx.should_call_api(
+            "im/v1/images",
+            {
+                "method": "POST",
+                "data": {"image_type": "message"},
+                "files": {"image": ("file", data)},
+            },
+            {"image_key": "114514"},
+        )
+        generated_ms = await Image(image_path).build(bot)
+        assert generated_ms == MessageSegment.image("114514")
+
+        ctx.should_call_api(
+            "im/v1/images",
+            {
+                "method": "POST",
+                "data": {"image_type": "message"},
+                "files": {"image": ("file", data)},
+            },
+            {"image_key": "114514"},
+        )
+        generated_ms = await Image(BytesIO(data)).build(bot)
+        assert generated_ms == MessageSegment.image("114514")
 
 
 async def test_mention(app: App):
@@ -148,7 +213,7 @@ async def test_send(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **create_bot_kwargs)
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
         msg_event = mock_feishu_message_event(Message("114514"))
         msg_type, content = MessageSerializer(
@@ -190,9 +255,9 @@ async def test_send_with_reply(app: App):
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **create_bot_kwargs)
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
-        msg_event = mock_feishu_message_event(Message("114514"))
+        msg_event = mock_feishu_message_event(Message("114514"), group=True)
         msg_type, content = MessageSerializer(
             Message([MessageSegment.at("open_id"), MessageSegment.text("1919810")])
         ).serialize()
@@ -217,7 +282,7 @@ async def test_send_active(app: App):
 
     async with app.test_api() as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
-        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **create_bot_kwargs)
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
         msg_type, content = MessageSerializer(
             Message([MessageSegment.text("114514")])

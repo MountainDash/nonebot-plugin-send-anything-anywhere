@@ -1,5 +1,6 @@
 from io import BytesIO
 from typing import cast
+from pathlib import Path
 from functools import partial
 
 from nonebot.adapters import Event
@@ -18,6 +19,7 @@ from ..utils import (
 )
 
 try:
+    import httpx
     from nonebot.adapters.feishu import (
         Bot,
         Message,
@@ -43,11 +45,18 @@ try:
             raise TypeError(f"Unsupported type of bot: {type(bot)}")
 
         image = i.data["image"]
-        if isinstance(image, BytesIO):
+        if isinstance(image, str):
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(image, timeout=10, follow_redirects=True)
+                resp.raise_for_status()
+                image = resp.content
+        elif isinstance(image, Path):
+            image = image.read_bytes()
+        elif isinstance(image, BytesIO):
             image = image.getvalue()
 
         data = {"image_type": "message"}
-        files = {"image": open(image, "rb")}
+        files = {"image": ("file", image)}
         params = {"method": "POST", "data": data, "files": files}
         result = await bot.call_api("im/v1/images", **params)
         file_key = result["image_key"]
