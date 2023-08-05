@@ -59,7 +59,6 @@ try:
     @register_target_extractor(MessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:
         if isinstance(event, DirectMessageCreateEvent):
-            # TODO send dms not support yet
             assert event.guild_id
             assert event.author and event.author.id
             return TargetQQGuildDirect(
