@@ -7,6 +7,7 @@
 
 ### 新功能
 
+- 在 TargetOB12Unknow 中加入 platform 字段 [@he0119](https://github.com/he0119) ([#63](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/63))
 - 扩充 ob11 event 支持 [@MeetWq](https://github.com/MeetWq) ([#49](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/49))
 
 ### Bug 修复
