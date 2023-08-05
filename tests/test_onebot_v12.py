@@ -416,7 +416,7 @@ def test_extract_target(app: App):
     )
 
     assert extract_target(channel_message_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="5566", channel_id="6677"
+        platform="qq", detail_type="channel", guild_id="5566", channel_id="6677"
     )
 
     qqguild_private_message_event = PrivateMessageEvent(
@@ -431,7 +431,7 @@ def test_extract_target(app: App):
         original_message=Message("123"),
         alt_message="123",
         user_id="3344",
-        qqguild={
+        qqguild={  # type: ignore
             "guild_id": "4455",
             "src_guild_id": "5566",
         },
@@ -481,7 +481,7 @@ def test_extract_target(app: App):
         user_id="5566",
     )
     assert extract_target(friend_decrease_event) == TargetOB12Unknow(
-        detail_type="private", user_id="5566"
+        platform="wechat", detail_type="private", user_id="5566"
     )
 
     friend_increase_event = FriendIncreaseEvent(
@@ -505,7 +505,7 @@ def test_extract_target(app: App):
         user_id="5566",
     )
     assert extract_target(friend_increase_event) == TargetOB12Unknow(
-        detail_type="private", user_id="5566"
+        platform="wechat", detail_type="private", user_id="5566"
     )
 
     private_message_delete_event = PrivateMessageDeleteEvent(
@@ -531,7 +531,7 @@ def test_extract_target(app: App):
         message_id="6677",
     )
     assert extract_target(private_message_delete_event) == TargetOB12Unknow(
-        detail_type="private", user_id="5566"
+        platform="wechat", detail_type="private", user_id="5566"
     )
 
     group_message_delete_event = GroupMessageDeleteEvent(
@@ -561,7 +561,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(group_message_delete_event) == TargetOB12Unknow(
-        detail_type="group", group_id="6677"
+        platform="wechat", detail_type="group", group_id="6677"
     )
 
     group_member_decrease_event = GroupMemberDecreaseEvent(
@@ -589,7 +589,7 @@ def test_extract_target(app: App):
         operator_id="7788",
     )
     assert extract_target(group_member_decrease_event) == TargetOB12Unknow(
-        detail_type="group", group_id="6677"
+        platform="wechat", detail_type="group", group_id="6677"
     )
 
     group_member_increase_event = GroupMemberIncreaseEvent(
@@ -617,7 +617,7 @@ def test_extract_target(app: App):
         operator_id="7788",
     )
     assert extract_target(group_member_increase_event) == TargetOB12Unknow(
-        detail_type="group", group_id="6677"
+        platform="wechat", detail_type="group", group_id="6677"
     )
 
     channel_create_event = ChannelCreateEvent(
@@ -645,7 +645,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_create_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="6677", channel_id="7788"
+        platform="wechat", detail_type="channel", guild_id="6677", channel_id="7788"
     )
 
     channel_delete_event = ChannelDeleteEvent(
@@ -673,7 +673,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_delete_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="6677", channel_id="7788"
+        platform="wechat", detail_type="channel", guild_id="6677", channel_id="7788"
     )
 
     channel_message_delete_event = ChannelMessageDeleteEvent(
@@ -707,7 +707,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_message_delete_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="6677", channel_id="7788"
+        platform="wechat", detail_type="channel", guild_id="6677", channel_id="7788"
     )
 
     channel_member_decrease_event = ChannelMemberDecreaseEvent(
@@ -739,7 +739,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_member_decrease_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="6677", channel_id="7788"
+        platform="wechat", detail_type="channel", guild_id="6677", channel_id="7788"
     )
 
     channel_member_increase_event = ChannelMemberIncreaseEvent(
@@ -771,5 +771,5 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_member_increase_event) == TargetOB12Unknow(
-        detail_type="channel", guild_id="6677", channel_id="7788"
+        platform="wechat", detail_type="channel", guild_id="6677", channel_id="7788"
     )

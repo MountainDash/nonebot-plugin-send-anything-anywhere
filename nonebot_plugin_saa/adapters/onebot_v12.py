@@ -136,7 +136,9 @@ try:
         )
         if event.self.platform == "qq":
             return TargetQQPrivate(user_id=int(event.user_id))
-        return TargetOB12Unknow(detail_type="private", user_id=event.user_id)
+        return TargetOB12Unknow(
+            platform=event.self.platform, detail_type="private", user_id=event.user_id
+        )
 
     @register_target_extractor(GroupMemberIncreaseEvent)
     @register_target_extractor(GroupMemberDecreaseEvent)
@@ -152,7 +154,9 @@ try:
         )
         if event.self.platform == "qq":
             return TargetQQGroup(group_id=int(event.group_id))
-        return TargetOB12Unknow(detail_type="group", group_id=event.group_id)
+        return TargetOB12Unknow(
+            platform=event.self.platform, detail_type="group", group_id=event.group_id
+        )
 
     @register_target_extractor(ChannelMemberIncreaseEvent)
     @register_target_extractor(ChannelMemberDecreaseEvent)
@@ -173,7 +177,10 @@ try:
         if event.self.platform == "qqguild":  # all4one
             return TargetQQGuildChannel(channel_id=int(event.channel_id))
         return TargetOB12Unknow(
-            detail_type="channel", channel_id=event.channel_id, guild_id=event.guild_id
+            platform=event.self.platform,
+            detail_type="channel",
+            channel_id=event.channel_id,
+            guild_id=event.guild_id,
         )
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
