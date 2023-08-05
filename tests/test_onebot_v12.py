@@ -384,6 +384,24 @@ def test_extract_target(app: App):
     )
     assert extract_target(group_message_event) == TargetQQGroup(group_id=1122)
 
+    group_message_event = GroupMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="group",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+        group_id="1122",
+    )
+    assert extract_target(group_message_event) == TargetOB12Unknow(
+        platform="wechat", detail_type="group", group_id="1122"
+    )
+
     private_message_event = PrivateMessageEvent(
         id="1122",
         time=datetime.now(),
@@ -398,6 +416,23 @@ def test_extract_target(app: App):
         user_id="3344",
     )
     assert extract_target(private_message_event) == TargetQQPrivate(user_id=3344)
+
+    private_message_event = PrivateMessageEvent(
+        id="1122",
+        time=datetime.now(),
+        type="message",
+        detail_type="private",
+        sub_type="",
+        message_id="2233",
+        self=BotSelf(platform="wechat", user_id="3344"),
+        message=Message("123"),
+        original_message=Message("123"),
+        alt_message="123",
+        user_id="3344",
+    )
+    assert extract_target(private_message_event) == TargetOB12Unknow(
+        platform="wechat", detail_type="private", user_id="3344"
+    )
 
     channel_message_event = ChannelMessageEvent(
         id="1122",
