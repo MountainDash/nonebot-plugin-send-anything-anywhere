@@ -9,6 +9,8 @@ from .utils import (
     TargetQQPrivate,
     TargetOB12Unknow,
     SupportedAdapters,
+    TargetFeishuGroup,
+    TargetFeishuPrivate,
     TargetQQGuildDirect,
     TargetTelegramForum,
     TargetQQGuildChannel,
@@ -45,6 +47,8 @@ __all__ = [
     "TargetKaiheilaPrivate",
     "TargetTelegramCommon",
     "TargetTelegramForum",
+    "TargetFeishuPrivate",
+    "TargetFeishuGroup",
 ]
 
 __plugin_meta__ = PluginMetadata(
