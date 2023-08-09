@@ -1,11 +1,14 @@
 # Change Log
 
-## v0.2.8
+## v0.3.0
+
+### 破坏性更新
+
+- 在 TargetOB12Unknow 中加入 platform 字段 [@he0119](https://github.com/he0119) ([#63](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/63))
 
 ### 新功能
 
 - 适配飞书 [@MeetWq](https://github.com/MeetWq) ([#66](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/66))
-- 在 TargetOB12Unknow 中加入 platform 字段 [@he0119](https://github.com/he0119) ([#63](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/63))
 - 扩充 ob11 event 支持 [@MeetWq](https://github.com/MeetWq) ([#49](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/49))
 - 支持 qqguild 发送dms [@he0119](https://github.com/he0119) ([#62](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/62))
 - Support OB11 NotifyEvent [@ssttkkl](https://github.com/ssttkkl) ([#58](https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/pull/58))
