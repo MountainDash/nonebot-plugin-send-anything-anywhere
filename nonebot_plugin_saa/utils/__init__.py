@@ -32,6 +32,8 @@ from .platform_send_target import TargetTelegramCommon as TargetTelegramCommon
 from .platform_send_target import register_qqguild_dms as register_qqguild_dms
 from .platform_send_target import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .platform_send_target import TargetKaiheilaPrivate as TargetKaiheilaPrivate
+from .platform_send_target import TargetDiscordDirect as TargetDiscordDirect
+from .platform_send_target import TargetDiscordChannel as TargetDiscordChannel
 from .platform_send_target import register_convert_to_arg as register_convert_to_arg
 from .platform_send_target import register_target_extractor as register_target_extractor
 from .platform_send_target import (

@@ -23,6 +23,8 @@ from .utils import TargetTelegramCommon as TargetTelegramCommon
 from .utils import MessageSegmentFactory as MessageSegmentFactory
 from .utils import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .utils import TargetKaiheilaPrivate as TargetKaiheilaPrivate
+from .utils import TargetDiscordDirect as TargetDiscordDirect
+from .utils import TargetDiscordChannel as TargetDiscordChannel
 from .utils import enable_auto_select_bot as enable_auto_select_bot
 from .utils import AggregatedMessageFactory as AggregatedMessageFactory
 

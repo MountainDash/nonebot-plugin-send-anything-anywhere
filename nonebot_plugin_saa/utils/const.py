@@ -8,6 +8,7 @@ class SupportedAdapters(StrEnum):
     kaiheila = "Kaiheila"
     telegram = "Telegram"
     feishu = "Feishu"
+    discord = "Discord"
 
     fake = "fake"  # for nonebug
 
@@ -24,6 +25,8 @@ class SupportedPlatform(StrEnum):
     telegram_forum = "Telegram Forum"
     feishu_private = "Feishu Private"
     feishu_group = "Feishu Group"
+    discord_channel = "Discord Channel"
+    discord_direct = "Discord Direct"
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001
