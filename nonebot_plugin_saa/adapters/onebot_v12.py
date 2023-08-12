@@ -1,10 +1,10 @@
-from io import BytesIO
-from typing import List
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import List
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -267,13 +267,15 @@ try:
             if event:
                 # 传递 event_id，用来支持频道的被动消息
                 params["event_id"] = event.id
-            await bot.send_message(
+            return await bot.send_message(
                 message=msg_to_send,
                 **target.arg_dict(bot),
                 **params,
             )
         else:
-            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            sent_msg = await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            return {"msg_id":sent_msg["msg_id"],time:sent_msg["time"]}
+
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

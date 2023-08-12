@@ -168,7 +168,8 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
-        await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        return {"msg_id":sent_msg["message_id"]}
 
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(

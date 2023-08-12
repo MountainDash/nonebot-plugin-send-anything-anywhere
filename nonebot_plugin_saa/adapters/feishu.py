@@ -1,13 +1,12 @@
-from io import BytesIO
-from typing import cast
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import cast
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
-from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 from ..utils import (
     MessageFactory,
     SupportedAdapters,
@@ -17,6 +16,7 @@ from ..utils import (
     assamble_message_factory,
     register_target_extractor,
 )
+from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 
 try:
     import httpx
@@ -134,14 +134,16 @@ try:
                     "msg_type": msg_type,
                 },
             }
-            await bot.call_api("im/v1/messages", **params)
+            sent_msg = await bot.call_api("im/v1/messages", **params)
 
         else:
             params = {
                 "method": "POST",
                 "body": {"content": content, "msg_type": msg_type},
             }
-            await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
+            sent_msg = await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
+        sent_msg["msg_id"] = sent_msg["data"]["message_id"]
+        return sent_msg
 
 except ImportError:
     pass

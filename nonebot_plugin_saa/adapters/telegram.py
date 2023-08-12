@@ -1,7 +1,7 @@
-from io import BytesIO
-from typing import cast
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import cast
 
 import anyio
 from nonebot.adapters import Event
@@ -151,12 +151,15 @@ try:
             if isinstance(target, TargetTelegramForum)
             else None
         )
-        await bot.send_to(
+        sent_msg = await bot.send_to(
             chat_id,
             message_to_send,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
         )
+        sent_data = sent_msg.dict()
+        sent_data['msg_id'] = f"{sent_msg.message_id}.{sent_msg.chat.id}"
+        return sent_data
 
 except ImportError:
     pass

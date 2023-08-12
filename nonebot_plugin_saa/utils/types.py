@@ -286,7 +286,7 @@ class MessageFactory(List[TMSF]):
             raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
         target = extract_target(event)
-        await self._do_send(bot, target, event, at_sender, reply)
+        return await self._do_send(bot, target, event, at_sender, reply)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
         "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
@@ -338,7 +338,7 @@ class MessageFactory(List[TMSF]):
             raise RuntimeError(
                 f"send method for {adapter} not registered",
             )  # pragma: no cover
-        await sender(bot, self, target, event, at_sender, reply)
+        return await sender(bot, self, target, event, at_sender, reply)
 
 
 AggregatedSender = Callable[

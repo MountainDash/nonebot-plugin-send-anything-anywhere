@@ -1,11 +1,10 @@
 from functools import partial
 from typing import Any, Dict, List
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
-from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 from ..utils import (
     MessageFactory,
     PlatformTarget,
@@ -19,6 +18,7 @@ from ..utils import (
     assamble_message_factory,
     register_target_extractor,
 )
+from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 
 try:
     from nonebot.adapters.kaiheila import Bot
@@ -125,7 +125,8 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
 
-        await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        return sent_msg.dict()
 
     @register_list_targets(SupportedAdapters.kaiheila)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
