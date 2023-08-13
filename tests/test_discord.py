@@ -1,13 +1,10 @@
 # ruff: noqa: E402
 import tempfile
-import threading
 from io import BytesIO
 from pathlib import Path
 
+import httpx
 import pytest
-import uvicorn
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
 
 pytest.importorskip("nonebot.adapters.discord")
 
@@ -124,25 +121,17 @@ async def test_image(app: App):
             Image(str(temp_file_path)),
             MessageSegment.attachment(file=temp_file_path.name, content=b"\x89PNG\r"),
         )
-        faapp = FastAPI()
 
-        @faapp.get("/image.png")
-        async def get_image():
-            return FileResponse(path=temp_file_path, media_type="image/png")
-
-        async def run_server():
-            web_ui_thread = threading.Thread(
-                target=lambda: uvicorn.run(faapp, host="127.0.0.1", port=2312)
-            )
-            web_ui_thread.daemon = True
-            web_ui_thread.start()
-
-        await run_server()
+        async with httpx.AsyncClient() as client:
+            resp = await client.get("https://nonebot.dev/logo.png")
+            resp.raise_for_status()
+            data = resp.content
         await assert_discord(
             app,
-            Image(str("http://127.0.0.1:2312/image.png")),
-            MessageSegment.attachment(file="image.png", content=b"\x89PNG\r"),
+            Image(str("https://nonebot.dev/logo.png")),
+            MessageSegment.attachment(file="logo.png", content=data),
         )
+
     try:
         await assert_discord(
             app, Image(1), MessageSegment.attachment(file="1.png", content=b"\x89PNG\r")
