@@ -273,12 +273,14 @@ try:
                 **params,
             )
         else:
-            sent_msg = await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            sent_msg = await bot.send_message(
+                message=msg_to_send, **target.arg_dict(bot)
+            )
         if sent_msg is not None:
             return {
                 "msg_id": str(sent_msg["message_id"]),
                 "time": sent_msg["time"],
-                "message_id": sent_msg["message_id"]
+                "message_id": sent_msg["message_id"],
             }
         else:
             return sent_msg

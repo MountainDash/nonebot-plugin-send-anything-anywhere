@@ -170,7 +170,10 @@ try:
             message_to_send += message_segment
         sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
         if sent_msg:
-            return {"msg_id": str(sent_msg["message_id"]), "message_id": sent_msg["message_id"]}
+            return {
+                "msg_id": str(sent_msg["message_id"]),
+                "message_id": sent_msg["message_id"],
+            }
         else:
             return None
 
