@@ -15,14 +15,15 @@ from typing import (
     cast,
 )
 
-from pydantic import BaseModel
 from nonebot.adapters import Bot, Event
+from pydantic import BaseModel
 
-from .helpers import extract_adapter_type
 from .const import SupportedAdapters, SupportedPlatform
+from .helpers import extract_adapter_type
 
 if TYPE_CHECKING:
     from .types import MessageFactory
+
 
 
 class PlatformTarget(BaseModel, ABC):
@@ -209,21 +210,8 @@ class TargetFeishuGroup(PlatformTarget):
     chat_id: str
 
 
-class TargetDiscordDirect(PlatformTarget):
-    """Discord私聊
-
-    参数
-        channel_id: 私聊频道ID
-    """
-
-    platform_type: Literal[
-        SupportedPlatform.discord_direct
-    ] = SupportedPlatform.discord_direct
-    channel_id: int
-
-
 class TargetDiscordChannel(PlatformTarget):
-    """Discord频道
+    """Discord频道,包括群聊和私聊
 
     参数
         channel_id: 频道 ID
@@ -248,7 +236,6 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
-    TargetDiscordDirect,
     TargetDiscordChannel,
 ]
 

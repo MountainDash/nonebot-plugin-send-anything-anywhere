@@ -26,7 +26,6 @@ class SupportedPlatform(StrEnum):
     feishu_private = "Feishu Private"
     feishu_group = "Feishu Group"
     discord_channel = "Discord Channel"
-    discord_direct = "Discord Direct"
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001

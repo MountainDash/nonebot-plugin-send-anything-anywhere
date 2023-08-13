@@ -15,7 +15,6 @@ from .utils import TargetQQPrivate as TargetQQPrivate
 from .utils import TargetOB12Unknow as TargetOB12Unknow
 from .utils import SupportedAdapters as SupportedAdapters
 from .utils import TargetFeishuGroup as TargetFeishuGroup
-from .utils import TargetDiscordDirect as TargetDiscordDirect
 from .utils import TargetFeishuPrivate as TargetFeishuPrivate
 from .utils import TargetQQGuildDirect as TargetQQGuildDirect
 from .utils import TargetTelegramForum as TargetTelegramForum

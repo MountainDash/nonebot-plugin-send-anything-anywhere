@@ -12,7 +12,6 @@ from ..utils import (
     PlatformTarget,
     SupportedAdapters,
     SupportedPlatform,
-    TargetDiscordDirect,
     TargetDiscordChannel,
     MessageSegmentFactory,
     register_sender,
@@ -92,21 +91,13 @@ try:
     @register_target_extractor(ChannelPinsUpdateEvent)
     @register_target_extractor(MessageCreateEvent)
     @register_target_extractor(MessageEvent)
-    def _extract_private_msg_event(event: Event) -> TargetDiscordDirect:
-        assert isinstance(event, MessageEvent)
-        return TargetDiscordDirect(channel_id=event.channel_id)
-
-    @register_target_extractor(ChannelPinsUpdateEvent)
-    @register_target_extractor(MessageCreateEvent)
-    @register_target_extractor(MessageEvent)
-    def _extract_group_msg_event(event: Event) -> TargetDiscordChannel:
+    def _extract_msg_event(event: Event) -> TargetDiscordChannel:
         assert isinstance(event, MessageEvent)
         return TargetDiscordChannel(channel_id=event.channel_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.discord_channel)
-    @register_convert_to_arg(adapter, SupportedPlatform.discord_direct)
     def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
-        assert isinstance(target, (TargetDiscordChannel, TargetDiscordDirect))
+        assert isinstance(target, TargetDiscordChannel)
         return {
             "channel_id": target.channel_id,
         }
@@ -121,7 +112,7 @@ try:
         reply: bool,
     ):
         assert isinstance(bot, Bot)
-        assert isinstance(target, (TargetDiscordChannel, TargetDiscordDirect))
+        assert isinstance(target, TargetDiscordChannel)
         if event:
             assert isinstance(event, MessageEvent)
             full_msg = assamble_message_factory(
