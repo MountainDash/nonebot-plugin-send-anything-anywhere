@@ -292,7 +292,7 @@ class MessageFactory(List[TMSF]):
         "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
         if bot is None:
             bot = get_bot(target)
-        await self._do_send(bot, target, None, False, False)
+        return await self._do_send(bot, target, None, False, False)
 
     async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
         """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
