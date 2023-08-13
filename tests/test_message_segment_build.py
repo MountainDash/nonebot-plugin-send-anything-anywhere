@@ -150,7 +150,7 @@ async def test_send_with_reply(app: App):
                 "user_id": 2233,
                 "message_type": "private",
             },
-            result=None,
+            result={"message_id": 12451},
         )
 
 
@@ -172,6 +172,6 @@ async def test_send_active(app: App):
                 "user_id": 1122,
                 "message_type": "private",
             },
-            result=None,
+            result={"message_id": 12451},
         )
         await Text("123").send_to(send_target_private, bot)

@@ -1,10 +1,11 @@
 from functools import partial
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Union, Literal, Optional, cast
 
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
+    Receipt,
     TargetQQGroup,
     MessageFactory,
     PlatformTarget,
@@ -13,13 +14,14 @@ from ..utils import (
     SupportedPlatform,
     MessageSegmentFactory,
     AggregatedMessageFactory,
+    get_bot_id,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
-    register_get_bot_id,
 )
 
 try:
@@ -143,6 +145,19 @@ try:
             "group_id": target.group_id,
         }
 
+    class OB11Receipt(Receipt):
+        message_id: int
+        adapter_name: Literal[adapter] = adapter
+
+        async def revoke(self):
+            return await cast(BotOB11, self._get_bot()).delete_msg(
+                message_id=self.message_id
+            )
+
+        @property
+        def raw(self) -> Any:
+            return self.message_id
+
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
         bot,
@@ -151,7 +166,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> OB11Receipt:
         assert isinstance(bot, BotOB11)
         assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
         if event:
@@ -169,7 +184,10 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
-        await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        # https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_msg-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF
+        res_dict = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
+        message_id = cast(int, res_dict["message_id"])
+        return OB11Receipt(bot_id=get_bot_id(bot), message_id=message_id)
 
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(

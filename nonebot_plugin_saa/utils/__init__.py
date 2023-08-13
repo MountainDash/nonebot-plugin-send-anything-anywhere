@@ -1,6 +1,8 @@
+from .receipt import Receipt as Receipt
 from .types import do_build as do_build
 from .types import BuildFunc as BuildFunc
 from .types import MessageFactory as MessageFactory
+from .auto_select_bot import get_bot_id as get_bot_id
 from .types import CustomBuildFunc as CustomBuildFunc
 from .types import do_build_custom as do_build_custom
 from .const import SupportedAdapters as SupportedAdapters
@@ -18,13 +20,12 @@ from .platform_send_target import TargetQQPrivate as TargetQQPrivate
 from .platform_send_target import register_sender as register_sender
 from .const import supported_adapter_names as supported_adapter_names
 from .platform_send_target import TargetOB12Unknow as TargetOB12Unknow
+from .auto_select_bot import register_get_bot_id as register_get_bot_id
 from .types import AggregatedMessageFactory as AggregatedMessageFactory
 from .types import assamble_message_factory as assamble_message_factory
 from .platform_send_target import QQGuildDMSManager as QQGuildDMSManager
 from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
 from .auto_select_bot import register_list_targets as register_list_targets
-from .auto_select_bot import register_get_bot_id as register_get_bot_id
-from .auto_select_bot import get_bot_id as get_bot_id
 from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect
 from .platform_send_target import TargetTelegramForum as TargetTelegramForum

@@ -1,13 +1,14 @@
 from io import BytesIO
-from typing import List
 from pathlib import Path
 from functools import partial
+from typing import List, Literal
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
+    Receipt,
     TargetQQGroup,
     MessageFactory,
     PlatformTarget,
@@ -19,14 +20,15 @@ from ..utils import (
     TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
+    get_bot_id,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     register_qqguild_dms,
     register_list_targets,
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
-    register_get_bot_id,
 )
 
 try:
@@ -230,6 +232,17 @@ try:
         assert isinstance(target, TargetOB12Unknow)
         return target.dict(exclude={"platform", "platform_type"})
 
+    class OB12Receipt(Receipt):
+        message_id: str
+        adapter_name: Literal[adapter] = adapter
+
+        async def revoke(self):
+            return await self._get_bot().delete_message(message_id=self.message_id)
+
+        @property
+        def raw(self):
+            return self.message_id
+
     @register_sender(SupportedAdapters.onebot_v12)
     async def send(
         bot,
@@ -238,7 +251,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> OB12Receipt:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
@@ -268,13 +281,15 @@ try:
             if event:
                 # 传递 event_id，用来支持频道的被动消息
                 params["event_id"] = event.id
-            await bot.send_message(
+            resp = await bot.send_message(
                 message=msg_to_send,
                 **target.arg_dict(bot),
                 **params,
             )
         else:
-            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            resp = await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+        message_id = resp["message_id"]
+        return OB12Receipt(bot_id=get_bot_id(bot), message_id=message_id)
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

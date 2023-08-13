@@ -173,7 +173,7 @@ async def test_send(app: App):
         ctx.should_call_api(
             "direct-message/create",
             data={"type": 1, "content": "123", "target_id": "3344"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -184,7 +184,7 @@ async def test_send(app: App):
         ctx.should_call_api(
             "message/create",
             data={"type": 1, "content": "123", "target_id": "1111"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
 
@@ -213,7 +213,7 @@ async def test_send_with_reply(app: App):
                 "quote": "abcdef",
                 "target_id": "3344",
             },
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -229,7 +229,7 @@ async def test_send_with_reply(app: App):
                 "quote": "abcdef",
                 "target_id": "1111",
             },
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
 
@@ -250,7 +250,7 @@ async def test_send_active(app: App):
         ctx.should_call_api(
             "direct-message/create",
             data={"type": 1, "content": "123", "target_id": "3344"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
         await MessageFactory("123").send_to(send_target_private, bot)
 
@@ -258,7 +258,7 @@ async def test_send_active(app: App):
         ctx.should_call_api(
             "message/create",
             data={"type": 1, "content": "123", "target_id": "1111"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
         await MessageFactory("123").send_to(send_target_group, bot)
 

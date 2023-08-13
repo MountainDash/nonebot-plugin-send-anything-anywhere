@@ -68,7 +68,7 @@ async def test_enable(app: App, mocker: MockerFixture):
 
 async def test_send_auto_select(app: App, mocker: MockerFixture):
     from nonebot import get_driver
-    from nonebot.adapters.qqguild.api import Guild, Channel
+    from nonebot.adapters.qqguild.api import Guild, Channel, Message
 
     from nonebot_plugin_saa.utils.auto_select_bot import refresh_bots
     from nonebot_plugin_saa import (
@@ -107,7 +107,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=Message(id="1255124", channel_id=2233),
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target)
@@ -142,7 +142,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=Message(id="1255124", channel_id=2233),
         )
         ctx.should_call_api(
             "post_messages",
@@ -156,7 +156,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=Message(id="1255124", channel_id=2233),
         )
 
         target = TargetQQGuildChannel(channel_id=2233)
