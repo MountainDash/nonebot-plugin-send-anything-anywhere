@@ -81,6 +81,17 @@ deserialized_target = PlatformTarget.deserialize(serialized_target)
 assert deserialized_target == target
 ```
 
+发送消息后提取发出消息的信息:
+```python
+@matcher.handle()
+async def handle(event: MessageEvent):
+  # 直接调用 MessageFactory.send() 在 handler 中回复消息
+  sent_data = await MessageFactory("你好").send()
+  # sent_data为dict格式,其中键"msg_id"为发出消息的唯一id,各平台msg_id统一为str
+  await MessageFactory("bot发送的上一条消息的消息id为"+sent_data["msg_id"]).send()
+  await matcher.finish()
+```
+
 ## 支持情况
 
 ✅:支持 ✖️:支持不了 🚧:等待适配
