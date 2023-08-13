@@ -147,7 +147,7 @@ async def test_image(app: App):
         await assert_discord(
             app, Image(1), MessageSegment.attachment(file="1.png", content=b"\x89PNG\r")
         )
-    except:
+    except Exception:
         pass
 
 
