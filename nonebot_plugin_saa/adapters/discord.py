@@ -1,7 +1,7 @@
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import Any, Dict, Union
+from typing import Any, Dict
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -36,9 +36,11 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.discord, Message)
 
+
     @register_discord(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
+
 
     @register_discord(Image)
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
@@ -46,7 +48,7 @@ try:
             raise TypeError(f"Unsupported type of bot: {type(bot)}")
         image = i.data["image"]
         img_bytes = b""
-        if isinstance(image, Union[str, Path]):
+        if isinstance(image, (str, Path)):
             path = Path(image)
             if i.data["name"] == "image":
                 if path.suffix not in [".jpg", ".jpeg", ".png", ".gif"]:
@@ -80,13 +82,16 @@ try:
             file=i.data["name"] if i.data["name"] != "image" else "image.png",
         )
 
+
     @register_discord(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention_user(user_id=int(m.data["user_id"]))
 
+
     @register_discord(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.reference(reference=int(r.data["message_id"]))
+
 
     @register_target_extractor(ChannelPinsUpdateEvent)
     @register_target_extractor(MessageCreateEvent)
@@ -95,6 +100,7 @@ try:
         assert isinstance(event, MessageEvent)
         return TargetDiscordChannel(channel_id=event.channel_id)
 
+
     @register_convert_to_arg(adapter, SupportedPlatform.discord_channel)
     def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetDiscordChannel)
@@ -102,14 +108,15 @@ try:
             "channel_id": target.channel_id,
         }
 
+
     @register_sender(SupportedAdapters.discord)
     async def send(
-        bot: Bot,
-        msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
-        at_sender: bool,
-        reply: bool,
+            bot: Bot,
+            msg: MessageFactory[MessageSegmentFactory],
+            target,
+            event,
+            at_sender: bool,
+            reply: bool,
     ):
         assert isinstance(bot, Bot)
         assert isinstance(target, TargetDiscordChannel)
