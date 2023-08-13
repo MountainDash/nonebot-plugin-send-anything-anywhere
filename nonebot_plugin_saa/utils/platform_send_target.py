@@ -18,6 +18,7 @@ from typing import (
 from pydantic import BaseModel
 from nonebot.adapters import Bot, Event
 
+from .receipt import Receipt
 from .helpers import extract_adapter_type
 from .const import SupportedAdapters, SupportedPlatform
 
@@ -269,7 +270,7 @@ def get_target(event: Event) -> Optional[PlatformTarget]:
 
 Sender = Callable[
     [Bot, "MessageFactory", "PlatformTarget", Optional[Event], bool, bool],
-    Awaitable[None],
+    Awaitable[Receipt],
 ]
 
 sender_map: Dict[SupportedAdapters, Sender] = {}

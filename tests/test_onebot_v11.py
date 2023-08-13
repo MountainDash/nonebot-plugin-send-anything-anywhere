@@ -68,7 +68,9 @@ async def test_send(app: App):
                 "user_id": 2233,
                 "message_type": "private",
             },
-            result=None,
+            result={
+                "message_id": 667788,
+            },
         )
 
 
@@ -107,7 +109,7 @@ async def test_send_with_reply(app: App):
                 "user_id": 2233,
                 "message_type": "private",
             },
-            result=None,
+            result={"message_id": 66778},
         )
 
 
@@ -129,7 +131,7 @@ async def test_send_active(app: App):
                 "user_id": 1122,
                 "message_type": "private",
             },
-            result=None,
+            result={"message_id": 79767},
         )
         await MessageFactory("123").send_to(send_target_private, bot)
 
@@ -141,7 +143,7 @@ async def test_send_active(app: App):
                 "group_id": 1122,
                 "message_type": "group",
             },
-            result=None,
+            result={"message_id": 1232451},
         )
         await MessageFactory("123").send_to(send_target_group, bot)
 
