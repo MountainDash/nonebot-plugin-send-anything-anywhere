@@ -126,8 +126,9 @@ try:
             message_to_send += message_segment
 
         sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
-        sent_msg = sent_msg.dict()
-        sent_msg["msg_id"] = str(sent_msg["msg_id"])
+        if sent_msg:
+            sent_msg = sent_msg.dict()
+            sent_msg["msg_id"] = str(sent_msg["msg_id"])
         return sent_msg
 
     @register_list_targets(SupportedAdapters.kaiheila)

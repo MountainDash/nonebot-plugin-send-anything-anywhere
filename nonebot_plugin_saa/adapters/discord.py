@@ -144,9 +144,12 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
         sent_msg = await bot.send_to(message=message_to_send, **target.arg_dict(bot))
-        sent_data = sent_msg.dict()
-        sent_data["msg_id"] = str(sent_msg.id)
-        return sent_data
+        if sent_msg:
+            sent_data = sent_msg.dict()
+            sent_data["msg_id"] = str(sent_msg.id)
+            return sent_data
+        else:
+            return None
 
 except ImportError:
     pass

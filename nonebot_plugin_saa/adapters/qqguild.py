@@ -177,10 +177,12 @@ try:
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
                 )
-        sent_data = sent_msg.dict()
-        sent_data["msg_id"] = str(sent_msg.id)
-        return sent_data
-
+        if sent_msg:
+            sent_data = sent_msg.dict()
+            sent_data["msg_id"] = str(sent_msg.id)
+            return sent_data
+        else:
+            return None
 
     @register_list_targets(SupportedAdapters.qqguild)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

@@ -130,7 +130,7 @@ try:
 
     @register_target_extractor(PokeNotifyEvent)
     def _extract_poke_notify_event(
-            event: Event,
+        event: Event,
     ) -> Union[TargetQQPrivate, TargetQQGroup]:
         assert isinstance(event, PokeNotifyEvent)
         if event.group_id is not None:
@@ -159,12 +159,12 @@ try:
 
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
-            bot,
-            msg: MessageFactory[MessageSegmentFactory],
-            target,
-            event,
-            at_sender: bool,
-            reply: bool,
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
     ):
         assert isinstance(bot, BotOB11)
         assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
@@ -184,15 +184,18 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
         sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
-        return {"msg_id": str(sent_msg["message_id"])}
+        if sent_msg:
+            return {"msg_id": str(sent_msg["message_id"]), "message_id": sent_msg["message_id"]}
+        else:
+            return None
 
 
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
-            bot: Bot,
-            message_factories: List[MessageFactory],
-            target: PlatformTarget,
-            event: Optional[Event],
+        bot: Bot,
+        message_factories: List[MessageFactory],
+        target: PlatformTarget,
+        event: Optional[Event],
     ):
         assert isinstance(bot, BotOB11)
         login_info = await bot.get_login_info()

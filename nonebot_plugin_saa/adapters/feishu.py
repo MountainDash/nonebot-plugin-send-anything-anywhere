@@ -142,7 +142,8 @@ try:
                 "body": {"content": content, "msg_type": msg_type},
             }
             sent_msg = await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
-        sent_msg["msg_id"] = str(sent_msg["message_id"])
+        if sent_msg:
+            sent_msg["msg_id"] = str(sent_msg["message_id"])
         return sent_msg
 
 except ImportError:
