@@ -1,12 +1,13 @@
-from functools import partial
 from io import BytesIO
-from pathlib import Path
 from typing import cast
+from pathlib import Path
+from functools import partial
 
-from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
+from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 from ..utils import (
     MessageFactory,
     SupportedAdapters,
@@ -16,7 +17,6 @@ from ..utils import (
     assamble_message_factory,
     register_target_extractor,
 )
-from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 
 try:
     import httpx
