@@ -15,11 +15,11 @@ from typing import (
     cast,
 )
 
-from nonebot.adapters import Bot, Event
 from pydantic import BaseModel
+from nonebot.adapters import Bot, Event
 
-from .const import SupportedAdapters, SupportedPlatform
 from .helpers import extract_adapter_type
+from .const import SupportedAdapters, SupportedPlatform
 
 if TYPE_CHECKING:
     from .types import MessageFactory
@@ -215,6 +215,7 @@ class TargetDiscordDirect(PlatformTarget):
     参数
         channel_id: 私聊频道ID
     """
+
     platform_type: Literal[
         SupportedPlatform.discord_direct
     ] = SupportedPlatform.discord_direct
@@ -248,7 +249,7 @@ AllSupportedPlatformTarget = Union[
     TargetFeishuPrivate,
     TargetFeishuGroup,
     TargetDiscordDirect,
-    TargetDiscordChannel
+    TargetDiscordChannel,
 ]
 
 ConvertToArg = Callable[[PlatformTarget], Dict[str, Any]]

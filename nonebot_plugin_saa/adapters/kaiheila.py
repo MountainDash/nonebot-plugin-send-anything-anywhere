@@ -1,10 +1,11 @@
 from functools import partial
 from typing import Any, Dict, List
 
-from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
+from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 from ..utils import (
     MessageFactory,
     PlatformTarget,
@@ -18,7 +19,6 @@ from ..utils import (
     assamble_message_factory,
     register_target_extractor,
 )
-from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
 
 try:
     from nonebot.adapters.kaiheila import Bot

@@ -15,16 +15,16 @@ from .utils import TargetQQPrivate as TargetQQPrivate
 from .utils import TargetOB12Unknow as TargetOB12Unknow
 from .utils import SupportedAdapters as SupportedAdapters
 from .utils import TargetFeishuGroup as TargetFeishuGroup
+from .utils import TargetDiscordDirect as TargetDiscordDirect
 from .utils import TargetFeishuPrivate as TargetFeishuPrivate
 from .utils import TargetQQGuildDirect as TargetQQGuildDirect
 from .utils import TargetTelegramForum as TargetTelegramForum
+from .utils import TargetDiscordChannel as TargetDiscordChannel
 from .utils import TargetQQGuildChannel as TargetQQGuildChannel
 from .utils import TargetTelegramCommon as TargetTelegramCommon
 from .utils import MessageSegmentFactory as MessageSegmentFactory
 from .utils import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .utils import TargetKaiheilaPrivate as TargetKaiheilaPrivate
-from .utils import TargetDiscordDirect as TargetDiscordDirect
-from .utils import TargetDiscordChannel as TargetDiscordChannel
 from .utils import enable_auto_select_bot as enable_auto_select_bot
 from .utils import AggregatedMessageFactory as AggregatedMessageFactory
 

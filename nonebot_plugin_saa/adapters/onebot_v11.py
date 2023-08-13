@@ -48,45 +48,37 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.onebot_v11, Message)
 
-
     @register_onebot_v11(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
-
 
     @register_onebot_v11(Image)
     async def _image(i: Image) -> MessageSegment:
         return MessageSegment.image(i.data["image"])
 
-
     @register_onebot_v11(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
 
-
     @register_onebot_v11(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.reply(int(r.data["message_id"]))
-
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
         assert isinstance(event, PrivateMessageEvent)
         return TargetQQPrivate(user_id=event.user_id)
 
-
     @register_target_extractor(GroupMessageEvent)
     def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, GroupMessageEvent)
         return TargetQQGroup(group_id=event.group_id)
-
 
     @register_target_extractor(FriendAddNoticeEvent)
     @register_target_extractor(FriendRecallNoticeEvent)
     def _extract_friend_notice_event(event: Event) -> TargetQQPrivate:
         assert isinstance(event, (FriendAddNoticeEvent, FriendRecallNoticeEvent))
         return TargetQQPrivate(user_id=event.user_id)
-
 
     @register_target_extractor(GroupBanNoticeEvent)
     @register_target_extractor(GroupAdminNoticeEvent)
@@ -108,36 +100,31 @@ try:
         )
         return TargetQQGroup(group_id=event.group_id)
 
-
     @register_target_extractor(HonorNotifyEvent)
     @register_target_extractor(LuckyKingNotifyEvent)
     def _extract_group_notify_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, (HonorNotifyEvent, LuckyKingNotifyEvent))
         return TargetQQGroup(group_id=event.group_id)
 
-
     @register_target_extractor(FriendRequestEvent)
     def _extract_friend_request_event(event: Event) -> TargetQQPrivate:
         assert isinstance(event, FriendRequestEvent)
         return TargetQQPrivate(user_id=event.user_id)
-
 
     @register_target_extractor(GroupRequestEvent)
     def _extract_group_request_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, GroupRequestEvent)
         return TargetQQGroup(group_id=event.group_id)
 
-
     @register_target_extractor(PokeNotifyEvent)
     def _extract_poke_notify_event(
-            event: Event,
+        event: Event,
     ) -> Union[TargetQQPrivate, TargetQQGroup]:
         assert isinstance(event, PokeNotifyEvent)
         if event.group_id is not None:
             return TargetQQGroup(group_id=event.group_id)
         else:
             return TargetQQPrivate(user_id=event.user_id)
-
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
@@ -147,7 +134,6 @@ try:
             "user_id": target.user_id,
         }
 
-
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
@@ -156,15 +142,14 @@ try:
             "group_id": target.group_id,
         }
 
-
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
-            bot,
-            msg: MessageFactory[MessageSegmentFactory],
-            target,
-            event,
-            at_sender: bool,
-            reply: bool,
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
     ):
         assert isinstance(bot, BotOB11)
         assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
@@ -186,13 +171,12 @@ try:
         sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
         return {"msg_id": str(sent_msg["message_id"])}
 
-
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
-            bot: Bot,
-            message_factories: List[MessageFactory],
-            target: PlatformTarget,
-            event: Optional[Event],
+        bot: Bot,
+        message_factories: List[MessageFactory],
+        target: PlatformTarget,
+        event: Optional[Event],
     ):
         assert isinstance(bot, BotOB11)
         login_info = await bot.get_login_info()
@@ -223,7 +207,6 @@ try:
             )
         else:  # pragma: no cover
             raise RuntimeError(f"{target.__class__.__name__} not supported")
-
 
     @register_list_targets(SupportedAdapters.onebot_v11)
     async def list_targets(bot: Bot) -> List[PlatformTarget]:
