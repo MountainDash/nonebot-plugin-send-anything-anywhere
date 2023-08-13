@@ -15,15 +15,14 @@ from typing import (
     cast,
 )
 
-from nonebot.adapters import Bot, Event
 from pydantic import BaseModel
+from nonebot.adapters import Bot, Event
 
-from .const import SupportedAdapters, SupportedPlatform
 from .helpers import extract_adapter_type
+from .const import SupportedAdapters, SupportedPlatform
 
 if TYPE_CHECKING:
     from .types import MessageFactory
-
 
 
 class PlatformTarget(BaseModel, ABC):
