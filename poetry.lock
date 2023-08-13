@@ -986,6 +986,24 @@ files = [
 ]
 
 [[package]]
+name = "nonebot-adapter-discord"
+version = "0.1.0"
+description = "Discord adapter for nonebot2"
+optional = false
+python-versions = "^3.8"
+files = []
+develop = false
+
+[package.dependencies]
+nonebot2 = "^2.0.0-beta.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/CMHopeSunshine/adapter-discord.git"
+reference = "HEAD"
+resolved_reference = "c9a06b4271d3f03ad2e2d771c20d97eca576be02"
+
+[[package]]
 name = "nonebot-adapter-feishu"
 version = "2.0.1"
 description = "feishu(larksuite) adapter for nonebot2"
@@ -2041,4 +2059,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "af760920e843a6b53b1761e60d3b7e7926355997655afa13980578ba5ba2211c"
+content-hash = "f4add1edf229e6c9cdafab18a8adcdba218ebfd0b10c054307a3e9eee1447b7b"

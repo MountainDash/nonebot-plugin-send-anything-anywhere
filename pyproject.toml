@@ -7,15 +7,15 @@ license = "MIT"
 readme = "README.md"
 packages = [{ include = "nonebot_plugin_saa" }]
 classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Operating System :: Microsoft :: Windows",
-  "Operating System :: POSIX :: Linux",
-  "Operating System :: MacOS",
-  "License :: OSI Approved :: MIT License",
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "License :: OSI Approved :: MIT License",
 ]
 
 [tool.poetry.dependencies]
@@ -45,6 +45,7 @@ nonebot-adapter-qqguild = ">=0.2.1"
 nonebot-adapter-kaiheila = { version = "^0.2.4", python = ">=3.9" }
 nonebot-adapter-telegram = "^0.1.0b12"
 nonebot-adapter-feishu = "^2.0.1"
+nonebot-adapter-discord = { git = "https://github.com/CMHopeSunshine/adapter-discord.git" }
 
 [tool.black]
 line-length = 88
