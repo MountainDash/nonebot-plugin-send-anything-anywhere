@@ -4,7 +4,7 @@ from pathlib import Path
 from functools import partial
 
 import anyio
-from nonebot.adapters import Event
+from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -14,6 +14,7 @@ from ..utils import (
     TargetTelegramCommon,
     MessageSegmentFactory,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     assamble_message_factory,
     register_target_extractor,
@@ -157,6 +158,11 @@ try:
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
         )
+
+    @register_get_bot_id(adapter)
+    def _get_id(bot: Bot):
+        assert isinstance(bot, BotTG)
+        return bot.self_id
 
 except ImportError:
     pass

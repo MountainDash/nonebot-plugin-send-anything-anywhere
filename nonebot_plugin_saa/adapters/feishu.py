@@ -13,6 +13,7 @@ from ..utils import (
     SupportedAdapters,
     MessageSegmentFactory,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     assamble_message_factory,
     register_target_extractor,
@@ -142,6 +143,11 @@ try:
                 "body": {"content": content, "msg_type": msg_type},
             }
             await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
+
+    @register_get_bot_id(adapter)
+    def _get_id(bot: BaseBot):
+        assert isinstance(bot, Bot)
+        return bot.self_id
 
 except ImportError:
     pass
