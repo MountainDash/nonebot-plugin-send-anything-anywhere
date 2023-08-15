@@ -42,23 +42,23 @@ try:
 
 
     def build_entities_form_msg(
-         message: Sequence[MessageSegment]
+        message: Sequence[MessageSegment]
     ) -> Optional[List[MessageEntity]]:
         return (
             (
-                    [
-                        MessageEntity(
-                            type=entity.type,
-                            offset=sum(map(len, message[:i])),
-                            length=len(entity.data["text"]),
-                            url=entity.data.get("url"),
-                            user=entity.data.get("user"),
-                            language=entity.data.get("language"),
-                        )
-                        for i, entity in enumerate(message)
-                        if entity.is_text() and entity.type != "text"
-                    ]
-                    or None
+                [
+                    MessageEntity(
+                        type=entity.type,
+                        offset=sum(map(len, message[:i])),
+                        length=len(entity.data["text"]),
+                        url=entity.data.get("url"),
+                        user=entity.data.get("user"),
+                        language=entity.data.get("language"),
+                    )
+                    for i, entity in enumerate(message)
+                    if entity.is_text() and entity.type != "text"
+                ]
+                or None
             )
             if message
             else None
@@ -90,9 +90,9 @@ try:
                 continue
 
             if (
-                    event
-                    and isinstance(message_segment_factory, Mention)
-                    and message_segment_factory.data["user_id"] == event.get_user_id()
+                event
+                and isinstance(message_segment_factory, Mention)
+                and message_segment_factory.data["user_id"] == event.get_user_id()
             ):
                 message_segment = build_mention_from_event(event)
             else:
@@ -152,8 +152,8 @@ try:
     def build_mention_from_event(event: MessageEvent) -> MessageSegment:
         # has user
         if isinstance(
-                event,
-                (PrivateMessageEvent, GroupMessageEvent, ForumTopicMessageEvent),
+            event,
+            (PrivateMessageEvent, GroupMessageEvent, ForumTopicMessageEvent),
         ):
             user = event.from_
 
@@ -174,55 +174,41 @@ try:
 
     @register_sender(SupportedAdapters.telegram)
     async def send(
-            bot,
-            msg: MessageFactory[MessageSegmentFactory],
-            target,
-            event,
-            at_sender: bool,
-            reply: bool,
+        bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        event,
+        at_sender: bool,
+        reply: bool,
     ):
         assert isinstance(bot, BotTG)
         assert isinstance(target, (TargetTelegramCommon, TargetTelegramForum))
 
         message_to_send, reply_to_message_id = await process_data(bot, event, msg, at_sender, reply)  # noqa: E501
 
+        chat_id = target.chat_id
         message_thread_id = (
             target.message_thread_id
             if isinstance(target, TargetTelegramForum)
             else None
         )
-<<<<<<< Updated upstream
         await bot.send_to(
             chat_id,
-=======
-        sent_msg = await bot.send_to(
-            target.chat_id,
->>>>>>> Stashed changes
             message_to_send,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
         )
-<<<<<<< Updated upstream
-=======
-        if isinstance(sent_msg,list):
-            sent_data = sent_msg[0].dict()
-        if sent_msg:
-            sent_data["msg_id"] = f"{sent_data['message_id']}.{sent_data['chat']['id']}"
-            return sent_data
-        else:
-            return None
->>>>>>> Stashed changes
 
 
     @register_editor(SupportedEditorAdapters.telegram)
     async def edit(
-            bot: nonebot.adapters.telegram.Bot,
-            msg: MessageFactory[MessageSegmentFactory],
-            target,
-            message_target,
-            event,
-            at_sender: bool,
-            reply: bool,
+        bot: nonebot.adapters.telegram.Bot,
+        msg: MessageFactory[MessageSegmentFactory],
+        target,
+        message_target,
+        event,
+        at_sender: bool,
+        reply: bool,
     ):
         message_to_send, reply_to_message_id = await process_data(bot, event, msg, at_sender, reply)  # noqa: E501
 
@@ -239,13 +225,14 @@ try:
             if len(files) > 1:
                 logger.error("Telegram的edit方法受限于官方api限制,目前只能编辑一个图片,无法实现多个")
             # 只能单个图片
-            return await bot.edit_message_media(
-                media=InputMedia(type=files[0].type, media=files[0].data["file"], caption=str(entities),caption_entities=build_entities_form_msg(message_to_send)),
+            await bot.edit_message_media(
+                media=InputMedia(type=files[0].type, media=files[0].data["file"], caption=str(entities),
+                                 caption_entities=build_entities_form_msg(message_to_send)),
                 chat_id=target.chat_id,
                 message_id=message_target.message_id,
             )
         else:
-            return await bot.edit_message_text(
+            await bot.edit_message_text(
                 chat_id=target.chat_id,
                 message_id=message_target.message_id,
                 text=str(entities),
