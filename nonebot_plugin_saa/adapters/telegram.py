@@ -1,7 +1,7 @@
-from io import BytesIO
-from typing import cast
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import cast
 
 import anyio
 from nonebot.adapters import Event
@@ -36,9 +36,11 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.telegram, Message)
 
+
     @register_telegram(Text)
     def _text(t: Text) -> MessageSegment:
         return Entity.text(t.data["text"])
+
 
     @register_telegram(Image)
     async def _image(i: Image) -> MessageSegment:
@@ -49,6 +51,7 @@ try:
             image = image.getvalue()
         return File.photo(image)
 
+
     @register_telegram(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         user_id = m.data["user_id"]
@@ -58,9 +61,11 @@ try:
             else Entity.text_link("用户 ", f"tg://user?id={user_id}")
         )
 
+
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment("reply", cast(dict, r.data))
+
 
     @register_target_extractor(PrivateMessageEvent)
     @register_target_extractor(GroupMessageEvent)
@@ -68,6 +73,7 @@ try:
     def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
         assert isinstance(event, MessageEvent)
         return TargetTelegramCommon(chat_id=event.chat.id)
+
 
     @register_target_extractor(ForumTopicMessageEvent)
     def _extract_forum_msg_event(event: Event) -> TargetTelegramForum:
@@ -77,11 +83,12 @@ try:
             message_thread_id=event.message_thread_id,
         )
 
+
     def build_mention_from_event(event: MessageEvent) -> MessageSegment:
         # has user
         if isinstance(
-            event,
-            (PrivateMessageEvent, GroupMessageEvent, ForumTopicMessageEvent),
+                event,
+                (PrivateMessageEvent, GroupMessageEvent, ForumTopicMessageEvent),
         ):
             user = event.from_
 
@@ -99,14 +106,15 @@ try:
         # no user
         return Entity.text("")
 
+
     @register_sender(SupportedAdapters.telegram)
     async def send(
-        bot,
-        msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
-        at_sender: bool,
-        reply: bool,
+            bot,
+            msg: MessageFactory[MessageSegmentFactory],
+            target,
+            event,
+            at_sender: bool,
+            reply: bool,
     ):
         assert isinstance(bot, BotTG)
         assert isinstance(target, (TargetTelegramCommon, TargetTelegramForum))
@@ -135,9 +143,9 @@ try:
                 continue
 
             if (
-                event
-                and isinstance(message_segment_factory, Mention)
-                and message_segment_factory.data["user_id"] == event.get_user_id()
+                    event
+                    and isinstance(message_segment_factory, Mention)
+                    and message_segment_factory.data["user_id"] == event.get_user_id()
             ):
                 message_segment = build_mention_from_event(event)
             else:
@@ -151,18 +159,12 @@ try:
             if isinstance(target, TargetTelegramForum)
             else None
         )
-        sent_msg = await bot.send_to(
+        await bot.send_to(
             chat_id,
             message_to_send,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
         )
-        if sent_msg:
-            sent_data = sent_msg.dict()
-            sent_data["msg_id"] = f"{sent_msg.message_id}.{sent_msg.chat.id}"
-            return sent_data
-        else:
-            return None
 
 except ImportError:
     pass
