@@ -6,6 +6,7 @@ from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
+    Receipt,
     MessageFactory,
     PlatformTarget,
     QQGuildDMSManager,
@@ -22,6 +23,7 @@ from ..utils import (
 )
 
 try:
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
     from nonebot.adapters.qqguild import (
         Bot,
         Message,
@@ -87,6 +89,22 @@ try:
         assert dms.guild_id
         return dms.guild_id
 
+    class QQGuildReceipt(Receipt):
+        sent_msg: ApiMessage
+        bot: Bot
+
+        async def revoke(self, hidetip=False):
+            assert self.sent_msg.channel_id
+            assert self.sent_msg.id
+            return await self.bot.delete_message(
+                channel_id=self.sent_msg.channel_id,
+                message_id=self.sent_msg.id,
+                hidetip=hidetip,
+            )
+
+        @property
+        def raw(self):
+            return self.sent_msg
 
     @register_sender(SupportedAdapters.qqguild)
     async def send(
@@ -96,7 +114,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> QQGuildReceipt:
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
 
@@ -129,7 +147,7 @@ try:
 
         if event:  # reply to user
             if isinstance(event, DirectMessageCreateEvent):
-                await bot.post_dms_messages(
+                sent_msg = await bot.post_dms_messages(
                     guild_id=event.guild_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
@@ -141,7 +159,7 @@ try:
                     message_reference=reference,  # type: ignore
                 )
             else:
-                await bot.post_messages(
+                sent_msg = await bot.post_messages(
                     channel_id=event.channel_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
@@ -155,7 +173,7 @@ try:
         else:
             if isinstance(target, TargetQQGuildChannel):
                 assert target.channel_id
-                await bot.post_messages(
+                sent_msg = await bot.post_messages(
                     channel_id=target.channel_id,
                     content=content,
                     embed=embed,  # type: ignore
@@ -167,7 +185,7 @@ try:
                 )
             else:
                 guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                await bot.post_dms_messages(
+                sent_msg = await bot.post_dms_messages(
                     guild_id=guild_id,  # type: ignore
                     content=content,
                     embed=embed,  # type: ignore
@@ -178,6 +196,7 @@ try:
                     message_reference=reference,  # type: ignore
                 )
 
+        return QQGuildReceipt(sent_msg=sent_msg, bot=bot)
 
     @register_list_targets(SupportedAdapters.qqguild)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

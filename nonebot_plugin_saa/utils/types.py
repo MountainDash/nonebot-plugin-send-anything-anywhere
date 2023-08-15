@@ -3,6 +3,7 @@ from abc import ABC
 from copy import deepcopy
 from inspect import signature
 from typing import (
+    Any,
     Dict,
     List,
     Type,
@@ -18,6 +19,7 @@ from typing import (
 )
 from warnings import warn
 
+from pydantic import BaseModel
 from nonebot.adapters import Bot, Event, Message, MessageSegment
 from nonebot.exception import PausedException, FinishedException, RejectedException
 from nonebot.matcher import current_bot, current_event, current_matcher
@@ -288,11 +290,14 @@ class MessageFactory(List[TMSF]):
         target = extract_target(event)
         return await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
-        """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"""
+    async def send_to(
+        self, target: PlatformTarget, bot: Optional[Bot] = None
+    ) -> "Receipt":
+        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
         if bot is None:
             bot = get_bot(target)
         return await self._do_send(bot, target, None, False, False)
+
 
     async def edit(self, message_target: MessageTarget, *, at_sender=False, reply=False):  # noqa: E501
         """编辑消息，仅能用在事件响应器中"""
@@ -350,7 +355,7 @@ class MessageFactory(List[TMSF]):
         event: Optional[Event],
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> "Receipt":
         adapter = extract_adapter_type(bot)
         if not (sender := sender_map.get(adapter)):
             raise RuntimeError(
@@ -498,3 +503,23 @@ def assamble_message_factory(
     full_message_factory += origin_msg_factory
 
     return full_message_factory
+
+
+class Receipt(BaseModel, ABC):
+    async def revoke(self):
+        ...
+
+    async def edit(self, msg: MessageFactory):
+        ...
+
+    @property
+    def raw(self) -> Any:
+        ...
+
+
+class TODOReceipt(Receipt):
+    data: Any
+
+    @property
+    def raw(self):
+        return self.data
