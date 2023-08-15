@@ -14,10 +14,8 @@ class SupportedAdapters(StrEnum):
 
 
 class SupportedEditorAdapters(StrEnum):
-    qqguild = "QQ Guild"
     kaiheila = "Kaiheila"
     telegram = "Telegram"
-    feishu = "Feishu"
     discord = "Discord"
 
 
