@@ -143,11 +143,7 @@ try:
 
         message_to_send = await process_message(bot, msg, at_sender, reply, event)
 
-        sent_msg = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
-        if sent_msg:
-            sent_msg = sent_msg.dict()
-            sent_msg["msg_id"] = str(sent_msg["msg_id"])
-        return sent_msg
+        await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
 
 
     @register_editor(SupportedEditorAdapters.kaiheila)
@@ -188,8 +184,7 @@ try:
             params["target_id"] = target.user_id
             api = "direct-message/update"
 
-        data = await bot.call_api(api, **params)
-        return data
+        await bot.call_api(api, **params)
 
 
     @register_list_targets(SupportedAdapters.kaiheila)

@@ -141,13 +141,7 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(target, TargetDiscordChannel)
         message_to_send = await process_message(bot, msg, at_sender, reply, event)
-        sent_msg = await bot.send_to(message=message_to_send, **target.arg_dict(bot))
-        if sent_msg:
-            sent_data = sent_msg.dict()
-            sent_data["msg_id"] = str(sent_msg.id)
-            return sent_data
-        else:
-            return None
+        await bot.send_to(message=message_to_send, **target.arg_dict(bot))
 
 
     @register_editor(SupportedEditorAdapters.discord)
