@@ -29,6 +29,7 @@ from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect
 from .platform_send_target import TargetTelegramForum as TargetTelegramForum
 from .auto_select_bot import enable_auto_select_bot as enable_auto_select_bot
+from .platform_send_target import TargetDiscordChannel as TargetDiscordChannel
 from .platform_send_target import TargetQQGuildChannel as TargetQQGuildChannel
 from .platform_send_target import TargetTelegramCommon as TargetTelegramCommon
 from .platform_send_target import register_qqguild_dms as register_qqguild_dms

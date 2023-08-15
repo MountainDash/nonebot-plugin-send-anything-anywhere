@@ -1,8 +1,8 @@
-from typing import List
 from functools import partial
+from typing import List
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -38,9 +38,11 @@ try:
 
     MessageFactory.register_adapter_message(adapter, Message)
 
+
     @register_qqguild(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
+
 
     @register_qqguild(Image)
     def _image(i: Image) -> MessageSegment:
@@ -49,13 +51,16 @@ try:
         else:
             return MessageSegment.file_image(i.data["image"])
 
+
     @register_qqguild(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention_user(int(m.data["user_id"]))
 
+
     @register_qqguild(Reply)
     def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.reference(r.data["message_id"])
+
 
     @register_target_extractor(MessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:
@@ -71,6 +76,7 @@ try:
         else:
             raise ValueError(f"{type(event)} not supported")
 
+
     @register_qqguild_dms(adapter)
     async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
         assert isinstance(bot, Bot)
@@ -82,14 +88,15 @@ try:
         assert dms.guild_id
         return dms.guild_id
 
+
     @register_sender(SupportedAdapters.qqguild)
     async def send(
-        bot,
-        msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
-        at_sender: bool,
-        reply: bool,
+            bot,
+            msg: MessageFactory[MessageSegmentFactory],
+            target,
+            event,
+            at_sender: bool,
+            reply: bool,
     ):
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
@@ -171,6 +178,7 @@ try:
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
                 )
+
 
     @register_list_targets(SupportedAdapters.qqguild)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

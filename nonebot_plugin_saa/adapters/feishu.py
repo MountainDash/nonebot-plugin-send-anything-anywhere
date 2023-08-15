@@ -1,13 +1,12 @@
-from io import BytesIO
-from typing import cast
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import cast
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
-from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 from ..utils import (
     MessageFactory,
     SupportedAdapters,
@@ -18,6 +17,7 @@ from ..utils import (
     assamble_message_factory,
     register_target_extractor,
 )
+from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 
 try:
     import httpx
@@ -36,9 +36,11 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.feishu, Message)
 
+
     @register_feishu(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
+
 
     @register_feishu(Image)
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
@@ -63,32 +65,37 @@ try:
         file_key = result["image_key"]
         return MessageSegment.image(file_key)
 
+
     @register_feishu(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
 
+
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:
         return MessageSegment("reply", cast(dict, r.data))
+
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetFeishuPrivate:
         assert isinstance(event, PrivateMessageEvent)
         return TargetFeishuPrivate(open_id=event.get_user_id())
 
+
     @register_target_extractor(GroupMessageEvent)
     def _extract_channel_msg_event(event: Event) -> TargetFeishuGroup:
         assert isinstance(event, GroupMessageEvent)
         return TargetFeishuGroup(chat_id=event.event.message.chat_id)
 
+
     @register_sender(SupportedAdapters.feishu)
     async def send(
-        bot,
-        msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
-        at_sender: bool,
-        reply: bool,
+            bot,
+            msg: MessageFactory[MessageSegmentFactory],
+            target,
+            event,
+            at_sender: bool,
+            reply: bool,
     ):
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetFeishuPrivate, TargetFeishuGroup))
@@ -142,7 +149,9 @@ try:
                 "method": "POST",
                 "body": {"content": content, "msg_type": msg_type},
             }
-            await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
+            await bot.call_api(
+                f"im/v1/messages/{reply_to_message_id}/reply", **params
+            )
 
     @register_get_bot_id(adapter)
     def _get_id(bot: BaseBot):

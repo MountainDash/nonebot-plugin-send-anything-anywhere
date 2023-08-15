@@ -18,6 +18,7 @@ from .utils import TargetFeishuGroup as TargetFeishuGroup
 from .utils import TargetFeishuPrivate as TargetFeishuPrivate
 from .utils import TargetQQGuildDirect as TargetQQGuildDirect
 from .utils import TargetTelegramForum as TargetTelegramForum
+from .utils import TargetDiscordChannel as TargetDiscordChannel
 from .utils import TargetQQGuildChannel as TargetQQGuildChannel
 from .utils import TargetTelegramCommon as TargetTelegramCommon
 from .utils import MessageSegmentFactory as MessageSegmentFactory

@@ -1,10 +1,10 @@
-from io import BytesIO
-from typing import List
-from pathlib import Path
 from functools import partial
+from io import BytesIO
+from pathlib import Path
+from typing import List
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -57,9 +57,11 @@ try:
 
     MessageFactory.register_adapter_message(adapter, Message)
 
+
     @register_onebot_v12(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
+
 
     @register_onebot_v12(Image)
     async def _image(i: Image, bot: BaseBot) -> MessageSegment:
@@ -84,13 +86,16 @@ try:
         file_id = resp["file_id"]
         return MessageSegment.image(file_id)
 
+
     @register_onebot_v12(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention(m.data["user_id"])
 
+
     @register_onebot_v12(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         return MessageSegment.reply(r.data["message_id"])
+
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
@@ -107,6 +112,7 @@ try:
             platform=event.self.platform, detail_type="private", user_id=event.user_id
         )
 
+
     @register_target_extractor(GroupMessageEvent)
     def _extract_group_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, GroupMessageEvent)
@@ -115,6 +121,7 @@ try:
         return TargetOB12Unknow(
             platform=event.self.platform, detail_type="group", group_id=event.group_id
         )
+
 
     @register_target_extractor(ChannelMessageEvent)
     def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
@@ -128,6 +135,7 @@ try:
             guild_id=event.guild_id,
         )
 
+
     @register_target_extractor(FriendIncreaseEvent)
     @register_target_extractor(FriendDecreaseEvent)
     @register_target_extractor(PrivateMessageDeleteEvent)
@@ -140,6 +148,7 @@ try:
         return TargetOB12Unknow(
             platform=event.self.platform, detail_type="private", user_id=event.user_id
         )
+
 
     @register_target_extractor(GroupMemberIncreaseEvent)
     @register_target_extractor(GroupMemberDecreaseEvent)
@@ -158,6 +167,7 @@ try:
         return TargetOB12Unknow(
             platform=event.self.platform, detail_type="group", group_id=event.group_id
         )
+
 
     @register_target_extractor(ChannelMemberIncreaseEvent)
     @register_target_extractor(ChannelMemberDecreaseEvent)
@@ -184,6 +194,7 @@ try:
             guild_id=event.guild_id,
         )
 
+
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _to_qq_group(target: PlatformTarget):
         assert isinstance(target, TargetQQGroup)
@@ -191,6 +202,7 @@ try:
             "detail_type": "group",
             "group_id": str(target.group_id),
         }
+
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _to_qq_private(target: PlatformTarget):
@@ -200,6 +212,7 @@ try:
             "user_id": str(target.user_id),
         }
 
+
     @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_channel)
     def _to_qq_guild_channel(target: PlatformTarget):
         assert isinstance(target, TargetQQGuildChannel)
@@ -208,6 +221,7 @@ try:
             "channel_id": str(target.channel_id),
         }
 
+
     @register_convert_to_arg(adapter, SupportedPlatform.qq_guild_direct)
     def _to_qq_guild_direct(target: PlatformTarget):
         assert isinstance(target, TargetQQGuildDirect)
@@ -215,6 +229,7 @@ try:
             "detail_type": "private",
             "guild_id": str(QQGuildDMSManager.get_guild_id(target)),
         }
+
 
     @register_qqguild_dms(adapter)
     async def _qqguild_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
@@ -225,19 +240,21 @@ try:
         )
         return resp["guild_id"]
 
+
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
         assert isinstance(target, TargetOB12Unknow)
         return target.dict(exclude={"platform", "platform_type"})
 
+
     @register_sender(SupportedAdapters.onebot_v12)
     async def send(
-        bot,
-        msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
-        at_sender: bool,
-        reply: bool,
+            bot,
+            msg: MessageFactory[MessageSegmentFactory],
+            target,
+            event,
+            at_sender: bool,
+            reply: bool,
     ):
         assert isinstance(bot, Bot)
         assert isinstance(
@@ -274,7 +291,10 @@ try:
                 **params,
             )
         else:
-            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            await bot.send_message(
+                message=msg_to_send, **target.arg_dict(bot)
+            )
+
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

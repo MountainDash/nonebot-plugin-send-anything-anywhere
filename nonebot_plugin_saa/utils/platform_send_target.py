@@ -209,6 +209,19 @@ class TargetFeishuGroup(PlatformTarget):
     chat_id: str
 
 
+class TargetDiscordChannel(PlatformTarget):
+    """Discord频道,包括群聊和私聊
+
+    参数
+        channel_id: 频道 ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.discord_channel
+    ] = SupportedPlatform.discord_channel
+    channel_id: int
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
@@ -222,8 +235,8 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
+    TargetDiscordChannel,
 ]
-
 
 ConvertToArg = Callable[[PlatformTarget], Dict[str, Any]]
 convert_to_arg_map: Dict[Tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
