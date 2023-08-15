@@ -10,6 +10,7 @@ from .utils import get_target as get_target
 from .utils import TargetQQGroup as TargetQQGroup
 from .utils import MessageFactory as MessageFactory
 from .utils import PlatformTarget as PlatformTarget
+from .utils import MessageTarget as MessageTarget
 from .utils import extract_target as extract_target
 from .utils import TargetQQPrivate as TargetQQPrivate
 from .utils import TargetOB12Unknow as TargetOB12Unknow
@@ -25,7 +26,6 @@ from .utils import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .utils import TargetKaiheilaPrivate as TargetKaiheilaPrivate
 from .utils import enable_auto_select_bot as enable_auto_select_bot
 from .utils import AggregatedMessageFactory as AggregatedMessageFactory
-
 __plugin_meta__ = PluginMetadata(
     name="峯驰物流",
     description=("一个帮助处理不同 adapter 消息的适配和发送的插件 "),

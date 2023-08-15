@@ -15,14 +15,14 @@ from typing import (
     cast,
 )
 
-from pydantic import BaseModel
 from nonebot.adapters import Bot, Event
+from pydantic import BaseModel
 
+from .const import SupportedAdapters, SupportedPlatform, SupportedEditorAdapters
 from .helpers import extract_adapter_type
-from .const import SupportedAdapters, SupportedPlatform
 
 if TYPE_CHECKING:
-    from .types import MessageFactory
+    pass
 
 
 class PlatformTarget(BaseModel, ABC):
@@ -58,6 +58,10 @@ class PlatformTarget(BaseModel, ABC):
             assert raw_obj.get("platform_type")
         platform_type = SupportedPlatform(raw_obj["platform_type"])
         return cls._deseriazer_map[platform_type].parse_obj(raw_obj)
+
+
+class MessageTarget(BaseModel):
+    message_id: Union[str, int]
 
 
 class TargetQQGroup(PlatformTarget):
@@ -272,13 +276,27 @@ Sender = Callable[
     Awaitable[None],
 ]
 
+Editor = Callable[
+    [Bot, "MessageFactory", "PlatformTarget", "MessageTarget", Optional[Event], bool, bool],
+    Awaitable[None],
+]
+
 sender_map: Dict[SupportedAdapters, Sender] = {}
+editor_map: Dict[SupportedEditorAdapters, Editor] = {}
 
 
 def register_sender(adapter: SupportedAdapters):
     def wrapper(sender: Sender):
         sender_map[adapter] = sender
         return sender
+
+    return wrapper
+
+
+def register_editor(adapter: SupportedEditorAdapters):
+    def wrapper(editor: Editor):
+        editor_map[adapter] = editor
+        return editor
 
     return wrapper
 
