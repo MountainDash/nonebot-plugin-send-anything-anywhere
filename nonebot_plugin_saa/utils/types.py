@@ -1,9 +1,7 @@
 import asyncio
 from abc import ABC
 from copy import deepcopy
-from warnings import warn
 from inspect import signature
-from typing_extensions import Self
 from typing import (
     Dict,
     List,
@@ -18,16 +16,18 @@ from typing import (
     Awaitable,
     cast,
 )
+from warnings import warn
 
 from nonebot.adapters import Bot, Event, Message, MessageSegment
-from nonebot.matcher import current_bot, current_event, current_matcher
 from nonebot.exception import PausedException, FinishedException, RejectedException
+from nonebot.matcher import current_bot, current_event, current_matcher
+from typing_extensions import Self
 
 from .auto_select_bot import get_bot
 from .const import SupportedAdapters
-from .helpers import extract_adapter_type
 from .exceptions import FallbackToDefault, AdapterNotInstalled
-from .platform_send_target import PlatformTarget, sender_map, extract_target
+from .helpers import extract_adapter_type, extract_editor_adapter_type
+from .platform_send_target import PlatformTarget, sender_map, extract_target, MessageTarget, editor_map
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
@@ -278,7 +278,7 @@ class MessageFactory(List[TMSF]):
         return deepcopy(self)
 
     async def send(self, *, at_sender=False, reply=False):
-        "回复消息，仅能用在事件响应器中"
+        """回复消息，仅能用在事件响应器中"""
         try:
             event = current_event.get()
             bot = current_bot.get()
@@ -286,13 +286,31 @@ class MessageFactory(List[TMSF]):
             raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
         target = extract_target(event)
-        await self._do_send(bot, target, event, at_sender, reply)
+        return await self._do_send(bot, target, event, at_sender, reply)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
-        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
+        """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"""
         if bot is None:
             bot = get_bot(target)
-        await self._do_send(bot, target, None, False, False)
+        return await self._do_send(bot, target, None, False, False)
+
+    async def edit(self, message_target: MessageTarget, *, at_sender=False, reply=False):  # noqa: E501
+        """编辑消息，仅能用在事件响应器中"""
+        try:
+            event = current_event.get()
+            bot = current_bot.get()
+        except LookupError as e:
+            raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
+
+        target = extract_target(event)
+        return await self._do_edit(bot, target, message_target, event, at_sender, reply)
+
+    async def edit_to(self, message_target: MessageTarget, target: PlatformTarget,
+                      bot: Optional[Bot] = None):
+        """主动编辑消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"""
+        if bot is None:
+            bot = get_bot(target)
+        return await self._do_edit(bot, target, message_target, None, False, False)
 
     async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
         """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
@@ -338,7 +356,23 @@ class MessageFactory(List[TMSF]):
             raise RuntimeError(
                 f"send method for {adapter} not registered",
             )  # pragma: no cover
-        await sender(bot, self, target, event, at_sender, reply)
+        return await sender(bot, self, target, event, at_sender, reply)
+
+    async def _do_edit(
+        self,
+        bot: Bot,
+        target: PlatformTarget,
+        message_target: MessageTarget,
+        event: Optional[Event],
+        at_sender: bool,
+        reply: bool,
+    ):
+        adapter = extract_editor_adapter_type(bot)
+        if not (editor := editor_map.get(adapter)):
+            raise RuntimeError(
+                f"edit method for {adapter} not registered",
+            )  # pragma: no cover
+        return await editor(bot, self, target, message_target, event, at_sender, reply)
 
 
 AggregatedSender = Callable[

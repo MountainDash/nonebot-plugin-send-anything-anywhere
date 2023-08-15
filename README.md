@@ -38,10 +38,10 @@
 ```python
 @matcher.handle()
 async def handle(event: MessageEvent):
-    # 直接调用 MessageFactory.send() 在 handler 中回复消息
-    await MessageFactory("你好").send(reply=True, at_sender=True)
-    await MessageFactory("需要回复的内容").send()
-    await matcher.finish()
+  # 直接调用 MessageFactory.send() 在 handler 中回复消息
+  await MessageFactory("你好").send(reply=True, at_sender=True)
+  await MessageFactory("需要回复的内容").send()
+  await matcher.finish()
 ```
 
 主动发送的情况：
@@ -59,13 +59,15 @@ await MessageFactory("早上好").send_to(target)
 ```python
 from nonebot_plugin_saa import extract_target, get_target
 
+
 @matcher.handle()
 async def handle(event: MessageEvent):
-    target = extract_target(event)
+  target = extract_target(event)
+
 
 @matcher.handle()
 async def handle(target: PlatformTarget = Depends(get_target)):
-    ...
+  ...
 ```
 
 发送目标的序列化与反序列化:
@@ -85,30 +87,36 @@ assert deserialized_target == target
 
 ### 支持的 adapter
 
-| OneBot v11 | OneBot v12 | QQ Guild | Kaiheila | Telegram | Feishu |
-| :--------: | :--------: | :------: | :------: | :------: | :----: |
-|     ✅     |     ✅     |    ✅    |    ✅    |    ✅    |   ✅   |
+| OneBot v11 | OneBot v12 | QQ Guild | Kaiheila | Telegram | Feishu | Discord |
+|:----------:|:----------:|:--------:|:--------:|:--------:|:------:|:-------:|
+|     ✅      |     ✅      |    ✅     |    ✅     |    ✅     |   ✅    |    ✅    |
 
 ### 支持的消息类型
 
-|      | OneBot v11 | OneBot v12 | QQ Guild | 开黑啦 | Telegram | Feishu |
-| :--: | :--------: | :--------: | :------: | :----: | :------: | :----: |
-| 文字 |     ✅     |     ✅     |    ✅    |   ✅   |    ✅    |   ✅   |
-| 图片 |     ✅     |     ✅     |    ✅    |   ✅   |    ✅    |   ✅   |
-|  at  |     ✅     |     ✅     |    ✅    |   ✅   |    ✅    |   ✅   |
-| 回复 |     ✅     |     ✅     |    ✅    |   ✅   |    ✅    |   ✅   |
+|    | OneBot v11 | OneBot v12 | QQ Guild | 开黑啦 | Telegram | Feishu | Discord |
+|:--:|:----------:|:----------:|:--------:|:---:|:--------:|:------:|:-------:|
+| 文字 |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
+| 图片 |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
+| at |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
+| 回复 |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
+| 编辑 |            |            |          |  ✅  |    ✅     |        |    ✅    |
+
+注意:
+
+1. telegram的编辑信息只能由纯Text信息编辑到纯Text信息,由Text和Image混合信息编辑到Text和Image混合信息
 
 ### 支持的发送目标
 
-|                        | OneBot v11 | OneBot v12 | QQ Guild | Kaiheila | Telegram | Feishu |
-| :--------------------: | :--------: | :--------: | :------: | :------: | :------: | :----: |
-|         QQ 群          |     ✅     |     ✅     |          |          |          |        |
-|        QQ 私聊         |     ✅     |     ✅     |          |          |          |        |
-|   QQ 频道子频道消息    |            |     ✅     |    ✅    |          |          |        |
-|      QQ 频道私聊       |            |     ✅     |    ✅    |          |          |        |
-|    开黑啦私聊/频道     |            |            |          |    ✅    |          |        |
-| Telegram 普通对话/频道 |            |            |          |          |    ✅    |        |
-|     飞书私聊/群聊      |            |            |          |          |          |   ✅   |
+|                  | OneBot v11 | OneBot v12 | QQ Guild | Kaiheila | Telegram | Feishu | Discord |
+|:----------------:|:----------:|:----------:|:--------:|:--------:|:--------:|:------:|:-------:|
+|       QQ 群       |     ✅      |     ✅      |          |          |          |        |         |
+|      QQ 私聊       |     ✅      |     ✅      |          |          |          |        |         |
+|    QQ 频道子频道消息    |            |     ✅      |    ✅     |          |          |        |         |
+|     QQ 频道私聊      |            |     ✅      |    ✅     |          |          |        |         |
+|     开黑啦私聊/频道     |            |            |          |    ✅     |          |        |         |
+| Telegram 普通对话/频道 |            |            |          |          |    ✅     |        |         |
+|     飞书私聊/群聊      |            |            |          |          |          |   ✅    |         |
+|   Discord频道/私聊   |            |            |          |          |          |        |    ✅    |
 
 注：对于使用 Onebot v12，但是没有专门适配的发送目标，使用了 TargetOB12Unknow 来保证其可以正常使用
 
@@ -128,17 +136,22 @@ from nonebot.adapters.onebot.v12.bot import Bot as V12Bot
 pic_matcher = nonebot.on_command('发送图片')
 
 pic_matcher.handle()
+
+
 async def _handle_v11(event: V11MessageEvent):
-    pic_content = ...
-    msg = V11MessageSegment.image(pic_content) + V11MessageSegment.text("这是你要的图片")
-    await pic_matcher.finish(msg)
+  pic_content = ...
+  msg = V11MessageSegment.image(pic_content) + V11MessageSegment.text("这是你要的图片")
+  await pic_matcher.finish(msg)
+
 
 pic_matcher.handle()
+
+
 async def _handle_v12(bot: V12Bot, event: V12MessageEvent):
-    pic_content = ...
-    pic_file = await bot.upload_file(type='data', name='image', data=pic_content)
-    msg = V12MessageSegment.image(pic_file['file_id']) + V12MessageSegment.text("这是你要的图片")
-    await pic_matcher.finish(msg)
+  pic_content = ...
+  pic_file = await bot.upload_file(type='data', name='image', data=pic_content)
+  msg = V12MessageSegment.image(pic_file['file_id']) + V12MessageSegment.text("这是你要的图片")
+  await pic_matcher.finish(msg)
 ```
 
 现在只需要:
@@ -152,14 +165,16 @@ from nonebot_plugin_saa import Image, Text, MessageFactory
 pic_matcher = nonebot.on_command('发送图片')
 
 pic_matcher.handle()
+
+
 async def _handle_v12(bot: Bot, event: Union[V12MessageEvent, V11MessageEvent]):
-    pic_content = ...
-    msg_builder = MessageFactory([
-        Image(pic_content), Text("这是你要的图片")
-    ])
-    # or msg_builder = Image(pic_content) + Text("这是你要的图片")
-    await msg_builder.send()
-    await pic_matcher.finish()
+  pic_content = ...
+  msg_builder = MessageFactory([
+    Image(pic_content), Text("这是你要的图片")
+  ])
+  # or msg_builder = Image(pic_content) + Text("这是你要的图片")
+  await msg_builder.send()
+  await pic_matcher.finish()
 ```
 
 ## 类似项目

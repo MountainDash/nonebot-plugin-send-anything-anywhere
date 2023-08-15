@@ -122,7 +122,7 @@ try:
 
         if event:  # reply to user
             if isinstance(event, DirectMessageCreateEvent):
-                await bot.post_dms_messages(
+                sent_msg = await bot.post_dms_messages(
                     guild_id=event.guild_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
@@ -134,7 +134,7 @@ try:
                     message_reference=reference,  # type: ignore
                 )
             else:
-                await bot.post_messages(
+                sent_msg = await bot.post_messages(
                     channel_id=event.channel_id,  # type: ignore
                     msg_id=event.id,
                     content=content,
@@ -148,7 +148,7 @@ try:
         else:
             if isinstance(target, TargetQQGuildChannel):
                 assert target.channel_id
-                await bot.post_messages(
+                sent_msg = await bot.post_messages(
                     channel_id=target.channel_id,
                     content=content,
                     embed=embed,  # type: ignore
@@ -160,7 +160,7 @@ try:
                 )
             else:
                 guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                await bot.post_dms_messages(
+                sent_msg = await bot.post_dms_messages(
                     guild_id=guild_id,  # type: ignore
                     content=content,
                     embed=embed,  # type: ignore
@@ -170,6 +170,12 @@ try:
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
                 )
+        if sent_msg:
+            sent_data = sent_msg.dict()
+            sent_data["msg_id"] = str(sent_msg.id)
+            return sent_data
+        else:
+            return None
 
     @register_list_targets(SupportedAdapters.qqguild)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

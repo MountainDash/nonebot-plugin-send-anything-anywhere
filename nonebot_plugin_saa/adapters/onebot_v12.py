@@ -267,13 +267,23 @@ try:
             if event:
                 # 传递 event_id，用来支持频道的被动消息
                 params["event_id"] = event.id
-            await bot.send_message(
+            sent_msg = await bot.send_message(
                 message=msg_to_send,
                 **target.arg_dict(bot),
                 **params,
             )
         else:
-            await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
+            sent_msg = await bot.send_message(
+                message=msg_to_send, **target.arg_dict(bot)
+            )
+        if sent_msg is not None:
+            return {
+                "msg_id": str(sent_msg["message_id"]),
+                "time": sent_msg["time"],
+                "message_id": sent_msg["message_id"],
+            }
+        else:
+            return sent_msg
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:

@@ -1,4 +1,5 @@
 from . import feishu as feishu
+from . import discord as discord
 from . import qqguild as qqguild
 from . import kaiheila as kaiheila
 from . import telegram as telegram
