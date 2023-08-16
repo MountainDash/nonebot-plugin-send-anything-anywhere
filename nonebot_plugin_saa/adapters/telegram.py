@@ -8,6 +8,7 @@ from nonebot import logger
 from nonebot.adapters import Bot, Event
 from nonebot.adapters.telegram.model import MessageEntity, InputMedia
 
+
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
     MessageFactory,
@@ -303,6 +304,11 @@ try:
         return TelegramReceipt(bot_id=get_bot_id(bot), sent_msg=sent_msg, message_id=sent_msg.message_id,
                                chat_id=chat_id, **params)
 
+
+    @register_get_bot_id(adapter)
+    def _get_id(bot: Bot):
+        assert isinstance(bot, BotTG)
+        return bot.self_id
 
     @register_get_bot_id(adapter)
     def _get_id(bot: Bot):

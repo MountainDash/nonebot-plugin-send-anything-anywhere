@@ -173,6 +173,11 @@ try:
         assert isinstance(bot, Bot)
         return bot.self_id
 
+    @register_get_bot_id(adapter)
+    def _get_id(bot: BaseBot):
+        assert isinstance(bot, Bot)
+        return bot.self_id
+
 except ImportError:
     pass
 except Exception as e:

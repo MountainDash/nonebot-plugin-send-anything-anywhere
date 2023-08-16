@@ -1,6 +1,7 @@
 from functools import partial
 from typing import List, Union, Optional
 
+
 from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
 
@@ -97,6 +98,7 @@ try:
         message_id: Union[str, int]
         adapter_name = adapter
 
+
         async def revoke(self, hidetip=False):
             assert self.sent_msg.channel_id
             assert self.sent_msg.id
@@ -109,6 +111,7 @@ try:
         @property
         def raw(self):
             return self.sent_msg
+
 
 
     @register_sender(SupportedAdapters.qqguild)
@@ -200,8 +203,9 @@ try:
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
                 )
-
+                
         return QQGuildReceipt(bot_id=get_bot_id(bot), sent_msg=sent_msg, message_id=sent_msg.id)
+
 
 
     @register_list_targets(SupportedAdapters.qqguild)
@@ -223,6 +227,7 @@ try:
                 )
 
         return targets
+
 
 
     @register_get_bot_id(adapter)

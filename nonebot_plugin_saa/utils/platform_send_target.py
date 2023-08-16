@@ -22,7 +22,9 @@ from .const import SupportedAdapters, SupportedPlatform
 from .helpers import extract_adapter_type
 
 if TYPE_CHECKING:
-    pass
+    from .receipt import Receipt
+    from .types import MessageFactory
+
 
 
 class PlatformTarget(BaseModel, ABC):

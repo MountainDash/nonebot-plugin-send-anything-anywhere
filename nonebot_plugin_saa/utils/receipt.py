@@ -10,6 +10,7 @@ from .const import SupportedAdapters
 from .exceptions import AdapterNotSupported
 
 
+
 class Receipt(BaseModel, ABC):
     model_config = ConfigDict(frozen=True, orm_mode=True)
 
@@ -34,6 +35,7 @@ class Receipt(BaseModel, ABC):
 
     message_id: Union[str, int]
     sent_msg: Optional[Any]
+
     adapter_name: SupportedAdapters
     bot_id: str
 
@@ -60,6 +62,7 @@ class Receipt(BaseModel, ABC):
     @property
     def edit_able(cls):
         return getattr(Receipt, 'edit') != getattr(cls, 'edit')
+
 
     @property
     def raw(self) -> Any:

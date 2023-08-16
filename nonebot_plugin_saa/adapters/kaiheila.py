@@ -1,6 +1,7 @@
 from functools import partial
 from typing import Any, Dict, List, Literal, TypedDict, cast, Union, Optional
 
+
 from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
 
@@ -115,6 +116,7 @@ try:
 
 
     # https://developer.kookapp.cn/doc/http/message#%E5%8F%91%E9%80%81%E9%A2%91%E9%81%93%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF
+
 
 
     class RawResp(TypedDict):
@@ -261,6 +263,7 @@ try:
             targets.append(target)
 
         return targets
+
 
 
     @register_get_bot_id(adapter)

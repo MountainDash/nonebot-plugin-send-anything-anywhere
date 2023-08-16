@@ -23,6 +23,7 @@ from nonebot.exception import PausedException, FinishedException, RejectedExcept
 from nonebot.matcher import current_bot, current_event, current_matcher
 from typing_extensions import Self
 
+from .receipt import Receipt
 from .auto_select_bot import get_bot
 from .const import SupportedAdapters
 from .exceptions import FallbackToDefault, AdapterNotInstalled
@@ -280,6 +281,7 @@ class MessageFactory(List[TMSF]):
 
     async def send(self, *, at_sender=False, reply=False) -> "Receipt":
         """回复消息，仅能用在事件响应器中"""
+
         try:
             event = current_event.get()
             bot = current_bot.get()
@@ -293,6 +295,7 @@ class MessageFactory(List[TMSF]):
         self, target: PlatformTarget, bot: Optional[Bot] = None
     ) -> "Receipt":
         """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"""
+        
         if bot is None:
             bot = get_bot(target)
         return await self._do_send(bot, target, None, False, False)

@@ -253,12 +253,14 @@ try:
         message_id: str
         adapter_name = adapter
 
+
         async def revoke(self):
             return await self._get_bot().delete_message(message_id=self.message_id)
 
         @property
         def raw(self):
             return self.message_id
+
 
 
     @register_sender(SupportedAdapters.onebot_v12)
@@ -378,6 +380,7 @@ try:
             pass
 
         return targets
+
 
 
     @register_get_bot_id(adapter)

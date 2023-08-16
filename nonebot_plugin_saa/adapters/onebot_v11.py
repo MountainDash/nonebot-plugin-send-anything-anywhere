@@ -1,6 +1,7 @@
 from functools import partial
 from typing import Any, Dict, List, Union, Optional, cast
 
+
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
@@ -164,6 +165,7 @@ try:
         message_id: int
         adapter_name = adapter
 
+
         async def revoke(self):
             return await cast(BotOB11, self._get_bot()).delete_msg(
                 message_id=self.message_id
@@ -204,6 +206,7 @@ try:
         res_dict = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
         message_id = cast(int, res_dict["message_id"])
         return OB11Receipt(bot_id=get_bot_id(bot), message_id=message_id)
+
 
 
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
@@ -263,6 +266,7 @@ try:
             targets.append(target)
 
         return targets
+
 
 
     @register_get_bot_id(adapter)
