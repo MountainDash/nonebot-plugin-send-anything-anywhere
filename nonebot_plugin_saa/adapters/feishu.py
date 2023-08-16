@@ -91,12 +91,34 @@ try:
     class FeishuReceipt(Receipt):
         sent_msg: Optional[dict]
         message_id: Union[str, int]
+        mention_user_id: Optional[Union[str, int]]
         adapter_name = adapter
 
         async def revoke(self):
             return await self._get_bot().call_api(f"im/v1/messages/{self.message_id}", **{
                 "method": "DELETE",
             })
+
+        async def edit(self, msg, at_sender=False, reply=False):
+            bot = self._get_bot()
+            if at_sender:
+                msg = msg + Mention(user_id=self.mention_user_id)
+
+            message_to_send = Message()
+            for message_segment_factory in msg:
+                message_segment = await message_segment_factory.build(bot)
+                message_to_send += message_segment
+
+            msg_type, content = MessageSerializer(message_to_send).serialize()
+
+            params = {
+                "method": "PUT",
+                "body": {
+                    "content": content,
+                    "msg_type": msg_type,
+                },
+            }
+            await bot.call_api(f"im/v1/messages/{self.message_id}", **params)
 
         @property
         def raw(self) -> Any:
@@ -165,13 +187,15 @@ try:
                 "body": {"content": content, "msg_type": msg_type},
             }
             sent_msg = await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)  # noqa: E501
-        return FeishuReceipt(bot_id=get_bot_id(bot), sent_msg=sent_msg, message_id=sent_msg["message_id"])
+        return FeishuReceipt(bot_id=get_bot_id(bot), sent_msg=sent_msg, message_id=sent_msg["message_id"],
+                             mention_user_id=event.get_user_id())
 
 
     @register_get_bot_id(adapter)
     def _get_id(bot: BaseBot):
         assert isinstance(bot, Bot)
         return bot.self_id
+
 
     @register_get_bot_id(adapter)
     def _get_id(bot: BaseBot):
