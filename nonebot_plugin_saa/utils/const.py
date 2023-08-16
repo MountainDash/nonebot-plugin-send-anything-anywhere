@@ -13,14 +13,6 @@ class SupportedAdapters(StrEnum):
     fake = "fake"  # for nonebug
 
 
-class SupportedEditorAdapters(StrEnum):
-    qqguild = "QQ Guild"
-    kaiheila = "Kaiheila"
-    telegram = "Telegram"
-    feishu = "Feishu"
-    discord = "Discord"
-
-
 class SupportedPlatform(StrEnum):
     qq_group = "QQ Group"
     qq_private = "QQ Private"
@@ -37,4 +29,3 @@ class SupportedPlatform(StrEnum):
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001
-supported_editor_adapter_names = set(SupportedEditorAdapters._member_map_.values())  # noqa: SLF001

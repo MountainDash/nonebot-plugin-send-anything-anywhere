@@ -1,7 +1,7 @@
 from functools import partial
 from io import BytesIO
 from pathlib import Path
-from typing import cast
+from typing import cast, Any, Union, Optional
 
 from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
@@ -12,9 +12,10 @@ from ..utils import (
     SupportedAdapters,
     MessageSegmentFactory,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     assamble_message_factory,
-    register_target_extractor,
+    register_target_extractor, Receipt, get_bot_id,
 )
 from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 
@@ -87,6 +88,21 @@ try:
         return TargetFeishuGroup(chat_id=event.event.message.chat_id)
 
 
+    class FeishuReceipt(Receipt):
+        sent_msg: Optional[dict]
+        message_id: Union[str, int]
+        adapter_name = adapter
+
+        async def revoke(self):
+            return await self._get_bot().call_api(f"im/v1/messages/{self.message_id}", **{
+                "method": "DELETE",
+            })
+
+        @property
+        def raw(self) -> Any:
+            return self.sent_msg
+
+
     @register_sender(SupportedAdapters.feishu)
     async def send(
         bot,
@@ -95,7 +111,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> FeishuReceipt:
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetFeishuPrivate, TargetFeishuGroup))
 
@@ -141,16 +157,21 @@ try:
                     "msg_type": msg_type,
                 },
             }
-            await bot.call_api("im/v1/messages", **params)
+            sent_msg = await bot.call_api("im/v1/messages", **params)
 
         else:
             params = {
                 "method": "POST",
                 "body": {"content": content, "msg_type": msg_type},
             }
-            await bot.call_api(
-                f"im/v1/messages/{reply_to_message_id}/reply", **params
-            )
+            sent_msg = await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)  # noqa: E501
+        return FeishuReceipt(bot_id=get_bot_id(bot), sent_msg=sent_msg, message_id=sent_msg["message_id"])
+
+
+    @register_get_bot_id(adapter)
+    def _get_id(bot: BaseBot):
+        assert isinstance(bot, Bot)
+        return bot.self_id
 
 except ImportError:
     pass

@@ -14,7 +14,9 @@ from ..utils import (
     SupportedPlatform,
     MessageSegmentFactory,
     AggregatedMessageFactory,
+    get_bot_id,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     register_list_targets,
     register_convert_to_arg,
@@ -157,16 +159,20 @@ try:
             "group_id": target.group_id,
         }
 
+
     class OB11Receipt(Receipt):
         message_id: int
-        bot: BotOB11
+        adapter_name = adapter
 
         async def revoke(self):
-            return self.bot.delete_msg(message_id=self.message_id)
+            return await cast(BotOB11, self._get_bot()).delete_msg(
+                message_id=self.message_id
+            )
 
         @property
         def raw(self) -> Any:
             return self.message_id
+
 
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
@@ -197,7 +203,7 @@ try:
         # https://github.com/botuniverse/onebot-11/blob/master/api/public.md#send_msg-%E5%8F%91%E9%80%81%E6%B6%88%E6%81%AF
         res_dict = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
         message_id = cast(int, res_dict["message_id"])
-        return OB11Receipt(message_id=message_id, bot=bot)
+        return OB11Receipt(bot_id=get_bot_id(bot), message_id=message_id)
 
 
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
@@ -257,6 +263,12 @@ try:
             targets.append(target)
 
         return targets
+
+
+    @register_get_bot_id(adapter)
+    def _get_bot_id(bot: Bot):
+        assert isinstance(bot, BotOB11)
+        return bot.self_id
 
 except ImportError:
     pass

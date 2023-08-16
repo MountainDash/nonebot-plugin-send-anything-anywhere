@@ -18,8 +18,7 @@ from typing import (
 from nonebot.adapters import Bot, Event
 from pydantic import BaseModel
 
-from .const import SupportedAdapters, SupportedPlatform, SupportedEditorAdapters
-from .receipt import Receipt
+from .const import SupportedAdapters, SupportedPlatform
 from .helpers import extract_adapter_type
 
 if TYPE_CHECKING:
@@ -57,12 +56,10 @@ class PlatformTarget(BaseModel, ABC):
         else:
             raw_obj = source
             assert raw_obj.get("platform_type")
-        platform_type = SupportedPlatform(raw_obj["platform_type"])
+        platform_type = cast(
+            SupportedPlatform, SupportedPlatform(raw_obj["platform_type"])
+        )
         return cls._deseriazer_map[platform_type].parse_obj(raw_obj)
-
-
-class MessageTarget(BaseModel):
-    message_id: Union[str, int]
 
 
 class TargetQQGroup(PlatformTarget):
@@ -240,7 +237,7 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
-    TargetDiscordChannel,
+    TargetDiscordChannel
 ]
 
 ConvertToArg = Callable[[PlatformTarget], Dict[str, Any]]
@@ -268,7 +265,7 @@ def register_target_extractor(event: Type[Event]):
 
 
 def extract_target(event: Event) -> PlatformTarget:
-    "从事件中提取出发送目标，如果不能提取就抛出错误"
+    """从事件中提取出发送目标，如果不能提取就抛出错误"""
     for event_type in event.__class__.mro():
         if event_type in extractor_map:
             if not issubclass(event_type, Event):
@@ -278,7 +275,7 @@ def extract_target(event: Event) -> PlatformTarget:
 
 
 def get_target(event: Event) -> Optional[PlatformTarget]:
-    "从事件中提取出发送目标，如果不能提取就返回 None"
+    """从事件中提取出发送目标，如果不能提取就返回 None"""
     try:
         return extract_target(event)
     except RuntimeError:
@@ -287,30 +284,16 @@ def get_target(event: Event) -> Optional[PlatformTarget]:
 
 Sender = Callable[
     [Bot, "MessageFactory", "PlatformTarget", Optional[Event], bool, bool],
-    Awaitable[Receipt],
-]
-
-Editor = Callable[
-    [Bot, "MessageFactory", "PlatformTarget", "MessageTarget", Optional[Event], bool, bool],
-    Awaitable[None],
+    Awaitable["Receipt"],
 ]
 
 sender_map: Dict[SupportedAdapters, Sender] = {}
-editor_map: Dict[SupportedEditorAdapters, Editor] = {}
 
 
 def register_sender(adapter: SupportedAdapters):
     def wrapper(sender: Sender):
         sender_map[adapter] = sender
         return sender
-
-    return wrapper
-
-
-def register_editor(adapter: SupportedEditorAdapters):
-    def wrapper(editor: Editor):
-        editor_map[adapter] = editor
-        return editor
 
     return wrapper
 

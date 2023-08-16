@@ -1,12 +1,8 @@
-from .receipt import Receipt as Receipt
-from .types import do_build as do_build
-from .types import BuildFunc as BuildFunc
-from .receipt import TODOReceipt as TODOReceipt
-from .types import MessageFactory as MessageFactory
-from .types import CustomBuildFunc as CustomBuildFunc
-from .types import do_build_custom as do_build_custom
+from .auto_select_bot import enable_auto_select_bot as enable_auto_select_bot
+from .auto_select_bot import get_bot_id as get_bot_id
+from .auto_select_bot import register_get_bot_id as register_get_bot_id
+from .auto_select_bot import register_list_targets as register_list_targets
 from .const import SupportedAdapters as SupportedAdapters
-from .const import SupportedEditorAdapters as SupportedEditorAdapters
 from .const import SupportedPlatform as SupportedPlatform
 from .const import supported_adapter_names as supported_adapter_names
 from .exceptions import AdapterNotInstalled as AdapterNotInstalled
@@ -16,7 +12,6 @@ from .platform_send_target import (
     AllSupportedPlatformTarget as AllSupportedPlatformTarget,
 )
 from .platform_send_target import PlatformTarget as PlatformTarget
-from .platform_send_target import MessageTarget as MessageTarget
 from .platform_send_target import QQGuildDMSManager as QQGuildDMSManager
 from .platform_send_target import TargetDiscordChannel as TargetDiscordChannel
 from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
@@ -33,10 +28,10 @@ from .platform_send_target import TargetTelegramForum as TargetTelegramForum
 from .platform_send_target import extract_target as extract_target
 from .platform_send_target import get_target as get_target
 from .platform_send_target import register_convert_to_arg as register_convert_to_arg
-from .platform_send_target import register_editor as register_editor
 from .platform_send_target import register_qqguild_dms as register_qqguild_dms
 from .platform_send_target import register_sender as register_sender
 from .platform_send_target import register_target_extractor as register_target_extractor
+from .receipt import Receipt as Receipt
 from .types import AggregatedMessageFactory as AggregatedMessageFactory
 from .types import BuildFunc as BuildFunc
 from .types import CustomBuildFunc as CustomBuildFunc

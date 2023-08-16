@@ -13,7 +13,7 @@ from ..utils import (
 
 
 class Custom(MessageSegmentFactory):
-    "用户自定义的 MessageSegment"
+    """用户自定义的 MessageSegment"""
 
     def __init__(
         self,

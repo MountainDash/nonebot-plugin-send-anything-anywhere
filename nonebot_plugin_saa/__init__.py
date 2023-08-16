@@ -9,7 +9,6 @@ from .types import Text as Text
 from .utils import AggregatedMessageFactory as AggregatedMessageFactory
 from .utils import MessageFactory as MessageFactory
 from .utils import MessageSegmentFactory as MessageSegmentFactory
-from .utils import MessageTarget as MessageTarget
 from .utils import PlatformTarget as PlatformTarget
 from .utils import SupportedAdapters as SupportedAdapters
 from .utils import TargetDiscordChannel as TargetDiscordChannel

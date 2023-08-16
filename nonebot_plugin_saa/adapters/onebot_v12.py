@@ -20,7 +20,9 @@ from ..utils import (
     TargetQQGuildDirect,
     TargetQQGuildChannel,
     MessageSegmentFactory,
+    get_bot_id,
     register_sender,
+    register_get_bot_id,
     register_ms_adapter,
     register_qqguild_dms,
     register_list_targets,
@@ -246,16 +248,18 @@ try:
         assert isinstance(target, TargetOB12Unknow)
         return target.dict(exclude={"platform", "platform_type"})
 
+
     class OB12Receipt(Receipt):
         message_id: str
-        bot: Bot
+        adapter_name = adapter
 
         async def revoke(self):
-            return self.bot.delete_message(message_id=self.message_id)
+            return await self._get_bot().delete_message(message_id=self.message_id)
 
         @property
         def raw(self):
             return self.message_id
+
 
     @register_sender(SupportedAdapters.onebot_v12)
     async def send(
@@ -303,7 +307,8 @@ try:
         else:
             resp = await bot.send_message(message=msg_to_send, **target.arg_dict(bot))
         message_id = resp["message_id"]
-        return OB12Receipt(message_id=message_id, bot=bot)
+        return OB12Receipt(bot_id=get_bot_id(bot), message_id=message_id)
+
 
     @register_list_targets(SupportedAdapters.onebot_v12)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
@@ -373,6 +378,12 @@ try:
             pass
 
         return targets
+
+
+    @register_get_bot_id(adapter)
+    def _get_bot_id(bot: BaseBot):
+        assert isinstance(bot, Bot)
+        return f"{bot.platform}-{bot.self_id}"
 
 except ImportError:
     pass
