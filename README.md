@@ -39,9 +39,8 @@
 @matcher.handle()
 async def handle(event: MessageEvent):
   # 直接调用 MessageFactory.send() 在 handler 中回复消息
-  await MessageFactory("你好").send(reply=True, at_sender=True)
-  await MessageFactory("需要回复的内容").send()
-  await matcher.finish()
+  receipt = await MessageFactory("你好").send(reply=True, at_sender=True)
+  receipt = await MessageFactory("需要回复的内容").finish()
 ```
 
 主动发送的情况：
@@ -51,7 +50,7 @@ from nonebot_plugin_saa import TargetQQGroup
 
 # 发送目标为 QQ 号 10000, 以私聊形式发送
 target = TargetQQGroup(group_id=2233)
-await MessageFactory("早上好").send_to(target)
+receipt = await MessageFactory("早上好").send_to(target)
 ```
 
 从消息事件中提取发送目标:
@@ -81,6 +80,39 @@ deserialized_target = PlatformTarget.deserialize(serialized_target)
 assert deserialized_target == target
 ```
 
+返回数据的使用和序列化与反序列化
+
+```python
+from nonebot_plugin_saa import (
+  MessageFactory,
+  Text,
+  Image,
+)
+
+receipt = await MessageFactory([Text("2333"), Image(img1, name="1.png")]).send()
+# 原始的返回数据(并不是所有适配器均有这个值,可能为None)
+print(receipt.sent_msg)
+# 原始的返回数据(不可能为None,如果无sent_msg则直接返回message_id)
+print(receipt.raw)
+# 发出去的消息的id(在相应平台具有唯一性)
+print(receipt.message_id)
+
+# 如果可以编辑,编辑这个信息
+if receipt.edit_able:
+  await receipt.edit(
+    [Text("3222"), Image(img2, "2.png")]
+  )
+
+# 撤回这条消息
+await receipt.revoke()
+
+# 序列化
+data = receipt.json()
+# 反序列化
+receipt_ = Receipt.deserialize(data)
+
+```
+
 ## 支持情况
 
 ✅:支持 ✖️:支持不了 🚧:等待适配
@@ -99,11 +131,6 @@ assert deserialized_target == target
 | 图片 |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
 | at |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
 | 回复 |     ✅      |     ✅      |    ✅     |  ✅  |    ✅     |   ✅    |    ✅    |
-| 编辑 |            |            |          |  ✅  |    ✅     |        |    ✅    |
-
-注意:
-
-1. telegram的编辑信息只能由纯Text信息编辑到纯Text信息,由Text和Image混合信息编辑到Text和Image混合信息
 
 ### 支持的发送目标
 
@@ -119,6 +146,15 @@ assert deserialized_target == target
 |   Discord频道/私聊   |            |            |          |          |          |        |    ✅    |
 
 注：对于使用 Onebot v12，但是没有专门适配的发送目标，使用了 TargetOB12Unknow 来保证其可以正常使用
+
+### 支持的返回数据操作
+
+|    | OneBot v11 | OneBot v12 | QQ Guild | Kaiheila | Telegram | Feishu | Discord |
+|:--:|:----------:|:----------:|:--------:|:--------:|:--------:|:------:|:-------:|
+| 撤回 |     ✅      |     ✅      |    ✅     |    ✅     |    ✅     |   ✅    |    ✅    |
+| 编辑 |     ✖️     |     ✖️     |    ✖️    |    ✅     |    ✅     |   ✖️   |    ✅    |
+
+注: 对于telegram的编辑消息,受限于Tg的消息形式,纯文本仅能编辑为纯文本,文本和图片混合仅能编辑为文本和图片混合,并且编辑后图片的数量能减不能增
 
 ## 问题与例子
 
