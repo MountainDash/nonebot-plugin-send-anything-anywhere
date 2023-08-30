@@ -23,8 +23,6 @@ from .types import assamble_message_factory as assamble_message_factory
 from .platform_send_target import QQGuildDMSManager as QQGuildDMSManager
 from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
 from .auto_select_bot import register_list_targets as register_list_targets
-from .auto_select_bot import register_get_bot_id as register_get_bot_id
-from .auto_select_bot import get_bot_id as get_bot_id
 from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect
 from .platform_send_target import TargetTelegramForum as TargetTelegramForum
