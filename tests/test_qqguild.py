@@ -60,6 +60,7 @@ async def test_mention_user(app: App):
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.qqguild import Bot, Message
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -91,7 +92,7 @@ async def test_send(app: App):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=ApiMessage(id="1234871", channel_id=event.channel_id),
         )
 
         event = mock_qqguild_message_event(Message("322"), direct=True)
@@ -109,12 +110,61 @@ async def test_send(app: App):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=ApiMessage(id="1234871", channel_id=event.channel_id),
+        )
+
+
+async def test_send_revoke(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.qqguild import Bot, Message
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def handle():
+        receipt = await MessageFactory(Text("123")).send()
+        await receipt.revoke()
+
+    async with app.test_matcher(matcher) as ctx:
+        qqguild_adapter = get_driver()._adapters[SupportedAdapters.qqguild]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qqguild_adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+        event = mock_qqguild_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": event.channel_id,
+                "msg_id": event.id,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=ApiMessage(id="1234871", channel_id=event.channel_id),
+        )
+        ctx.should_call_api(
+            "delete_message",
+            data={
+                "channel_id": event.channel_id,
+                "message_id": "1234871",
+                "hidetip": False,
+            },
         )
 
 
 async def test_send_active(app: App):
     from nonebot import get_driver
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
 
     from nonebot_plugin_saa import (
         MessageFactory,
@@ -142,7 +192,7 @@ async def test_send_active(app: App):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=ApiMessage(id="1234871", channel_id=2233),
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
@@ -168,7 +218,7 @@ async def test_send_active(app: App):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=ApiMessage(id="1234871", channel_id=12479234),
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -185,7 +235,7 @@ async def test_send_active(app: App):
                 "markdown": None,
                 "message_reference": None,
             },
-            result=None,
+            result=ApiMessage(id="1234871", channel_id=12355131),
         )
         await MessageFactory("1234").send_to(target, bot)
 

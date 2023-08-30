@@ -173,7 +173,7 @@ async def test_send(app: App):
         ctx.should_call_api(
             "direct-message/create",
             data={"type": 1, "content": "123", "target_id": "3344"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -184,8 +184,39 @@ async def test_send(app: App):
         ctx.should_call_api(
             "message/create",
             data={"type": 1, "content": "123", "target_id": "1111"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
+
+
+async def test_send_revoke(app: App):
+    from nonebot.adapters.kaiheila import Bot
+    from nonebot import get_driver, on_message
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process():
+        receipt = await MessageFactory(Text("123")).send(reply=True, at_sender=True)
+        await receipt.revoke()
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kaiheila_kwargs())
+        msg_event = mock_kaiheila_message_event()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "direct-message/create",
+            data={
+                "type": 9,
+                "content": "(met)3344(met)123",
+                "quote": "abcdef",
+                "target_id": "3344",
+            },
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
+        )
+        ctx.should_call_api("message_delete", {"msg_id": "adfadf"})
 
 
 async def test_send_with_reply(app: App):
@@ -213,7 +244,7 @@ async def test_send_with_reply(app: App):
                 "quote": "abcdef",
                 "target_id": "3344",
             },
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -229,7 +260,7 @@ async def test_send_with_reply(app: App):
                 "quote": "abcdef",
                 "target_id": "1111",
             },
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
 
 
@@ -250,7 +281,7 @@ async def test_send_active(app: App):
         ctx.should_call_api(
             "direct-message/create",
             data={"type": 1, "content": "123", "target_id": "3344"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
         await MessageFactory("123").send_to(send_target_private, bot)
 
@@ -258,7 +289,7 @@ async def test_send_active(app: App):
         ctx.should_call_api(
             "message/create",
             data={"type": 1, "content": "123", "target_id": "1111"},
-            result=None,
+            result={"msg_id": "adfadf", "msg_timestamp": 98190, "nonce": "12adjf"},
         )
         await MessageFactory("123").send_to(send_target_group, bot)
 

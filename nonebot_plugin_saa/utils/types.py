@@ -23,6 +23,7 @@ from nonebot.adapters import Bot, Event, Message, MessageSegment
 from nonebot.matcher import current_bot, current_event, current_matcher
 from nonebot.exception import PausedException, FinishedException, RejectedException
 
+from .receipt import Receipt
 from .auto_select_bot import get_bot
 from .const import SupportedAdapters
 from .helpers import extract_adapter_type
@@ -277,7 +278,7 @@ class MessageFactory(List[TMSF]):
     def copy(self: TMF) -> TMF:
         return deepcopy(self)
 
-    async def send(self, *, at_sender=False, reply=False):
+    async def send(self, *, at_sender=False, reply=False) -> "Receipt":
         "回复消息，仅能用在事件响应器中"
         try:
             event = current_event.get()
@@ -286,13 +287,15 @@ class MessageFactory(List[TMSF]):
             raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
         target = extract_target(event)
-        await self._do_send(bot, target, event, at_sender, reply)
+        return await self._do_send(bot, target, event, at_sender, reply)
 
-    async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
+    async def send_to(
+        self, target: PlatformTarget, bot: Optional[Bot] = None
+    ) -> "Receipt":
         "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
         if bot is None:
             bot = get_bot(target)
-        await self._do_send(bot, target, None, False, False)
+        return await self._do_send(bot, target, None, False, False)
 
     async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
         """与 `matcher.finish()` 作用相同，仅能用在事件响应器中"""
@@ -332,13 +335,13 @@ class MessageFactory(List[TMSF]):
         event: Optional[Event],
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> "Receipt":
         adapter = extract_adapter_type(bot)
         if not (sender := sender_map.get(adapter)):
             raise RuntimeError(
                 f"send method for {adapter} not registered",
             )  # pragma: no cover
-        await sender(bot, self, target, event, at_sender, reply)
+        return await sender(bot, self, target, event, at_sender, reply)
 
 
 AggregatedSender = Callable[

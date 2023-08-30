@@ -100,6 +100,39 @@ async def test_reply(app: App):
     await assert_onebot_v12(app, Reply("123"), MessageSegment.reply("123"))
 
 
+async def test_send_revoke(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.onebot.v12 import Bot, Message
+
+    from nonebot_plugin_saa import Text, MessageFactory
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def handle():
+        receipt = await MessageFactory(Text("123")).send()
+        await receipt.revoke()
+
+    async with app.test_matcher(matcher) as ctx:
+        ob12_adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
+        bot = ctx.create_bot(base=Bot, adapter=ob12_adapter, **ob12_kwargs())
+        message = Message("321")
+        message_event = mock_obv12_message_event(message)
+
+        ctx.receive_event(bot, message_event)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "message": Message("123"),
+                "detail_type": "private",
+                "user_id": message_event.user_id,
+            },
+            result={"message_id": "12355223"},
+        )
+
+        ctx.should_call_api("delete_message", {"message_id": "12355223"})
+
+
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v12 import Bot, Message
@@ -126,7 +159,7 @@ async def test_send(app: App):
                 "detail_type": "private",
                 "user_id": message_event.user_id,
             },
-            result=None,
+            result={"message_id": 12355223},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -152,7 +185,7 @@ async def test_send(app: App):
                 "guild_id": "3333",
                 "event_id": "1111",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
 
         message_event = mock_obv12_message_event(message, detail_type="qqguild_channel")
@@ -165,7 +198,7 @@ async def test_send(app: App):
                 "channel_id": "6677",
                 "event_id": "1111",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
 
 
@@ -192,7 +225,7 @@ async def test_send_active(app: App):
                 "detail_type": "group",
                 "group_id": "2233",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -204,7 +237,7 @@ async def test_send_active(app: App):
                 "detail_type": "private",
                 "user_id": "1122",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -221,7 +254,7 @@ async def test_send_active(app: App):
                 "user_id": None,
                 "group_id": None,
             },
-            result=None,
+            result={"message_id": 12355223},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -242,7 +275,7 @@ async def test_send_active(app: App):
                 "guild_id": "3333",
                 "detail_type": "private",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -254,7 +287,7 @@ async def test_send_active(app: App):
                 "detail_type": "channel",
                 "channel_id": "4444",
             },
-            result=None,
+            result={"message_id": 12355223},
         )
         await MessageFactory("123").send_to(target, bot)
 
