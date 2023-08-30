@@ -56,6 +56,7 @@ try:
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
 
+    # TODO: Red 协议的回复需要三个参数，但目前只有 message_id
     # @register_red(Reply)
     # async def _reply(r: Reply) -> MessageSegment:
     #     return MessageSegment.reply(r.data["message_id"])
@@ -115,6 +116,8 @@ try:
             message_to_send += message_segment
         await bot.send_message(message=message_to_send, **target.arg_dict(bot))
 
+    # TODO: Chronocat 暂时不支持合并消息
+    # https://github.com/chrononeko/bugtracker/issues/5
     # @AggregatedMessageFactory.register_aggregated_sender(adapter)
     # async def aggregate_send(
     #     bot: Bot,
