@@ -13,7 +13,6 @@ from ..utils import (
     SupportedPlatform,
     MessageSegmentFactory,
     register_sender,
-    register_get_bot_id,
     register_ms_adapter,
     register_list_targets,
     register_convert_to_arg,
@@ -151,11 +150,6 @@ try:
             targets.append(target)
 
         return targets
-
-    @register_get_bot_id(adapter)
-    def _get_id(bot: BaseBot):
-        assert isinstance(bot, Bot)
-        return bot.self_id
 
 except ImportError:
     pass

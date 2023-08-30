@@ -7,8 +7,6 @@ from nonebot import get_driver, get_adapter
 from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
-from nonebot_plugin_saa.utils.const import SupportedAdapters
-
 
 async def test_disable(app: App):
     from nonebot_plugin_saa import TargetQQGuildChannel
@@ -33,7 +31,7 @@ async def test_disable(app: App):
 async def test_enable(app: App, mocker: MockerFixture):
     from nonebot.adapters.qqguild.api import Guild, Channel
 
-    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, get_bot_by_id, get_bot_id
+    from nonebot_plugin_saa.utils.auto_select_bot import get_bot
     from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
 
     # 结束后会自动恢复到原来的状态
@@ -57,8 +55,6 @@ async def test_enable(app: App, mocker: MockerFixture):
 
         target = TargetQQGuildChannel(channel_id=2233)
         assert bot is get_bot(target)
-
-        assert get_bot_by_id(SupportedAdapters.qqguild, get_bot_id(bot)) is bot
 
     # 清理
     driver = get_driver()

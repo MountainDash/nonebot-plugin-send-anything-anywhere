@@ -26,7 +26,6 @@ from ..utils import (
     register_convert_to_arg,
     assamble_message_factory,
     register_target_extractor,
-    register_get_bot_id,
 )
 
 try:
@@ -344,11 +343,6 @@ try:
             pass
 
         return targets
-
-    @register_get_bot_id(adapter)
-    def _get_bot_id(bot: BaseBot):
-        assert isinstance(bot, Bot)
-        return f"{bot.platform}-{bot.self_id}"
 
 except ImportError:
     pass
