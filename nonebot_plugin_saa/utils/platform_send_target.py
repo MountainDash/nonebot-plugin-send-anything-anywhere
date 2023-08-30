@@ -22,6 +22,7 @@ from .helpers import extract_adapter_type
 from .const import SupportedAdapters, SupportedPlatform
 
 if TYPE_CHECKING:
+    from .receipt import Receipt
     from .types import MessageFactory
 
 
@@ -56,7 +57,9 @@ class PlatformTarget(BaseModel, ABC):
         else:
             raw_obj = source
             assert raw_obj.get("platform_type")
-        platform_type = SupportedPlatform(raw_obj["platform_type"])
+        platform_type = cast(
+            SupportedPlatform, SupportedPlatform(raw_obj["platform_type"])
+        )
         return cls._deseriazer_map[platform_type].parse_obj(raw_obj)
 
 
@@ -269,7 +272,7 @@ def get_target(event: Event) -> Optional[PlatformTarget]:
 
 Sender = Callable[
     [Bot, "MessageFactory", "PlatformTarget", Optional[Event], bool, bool],
-    Awaitable[None],
+    Awaitable["Receipt"],
 ]
 
 sender_map: Dict[SupportedAdapters, Sender] = {}

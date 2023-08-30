@@ -31,7 +31,7 @@ async def test_send(app: App):
                 "user_id": "2233",
                 "detail_type": "private",
             },
-            result=None,
+            result={"message_id": 12451},
         )
         ctx.should_call_api(
             "send_message",
@@ -40,7 +40,7 @@ async def test_send(app: App):
                 "user_id": "2233",
                 "detail_type": "private",
             },
-            result=None,
+            result={"message_id": 1235112},
         )
 
 
@@ -70,7 +70,7 @@ async def test_send_active(app: App):
                 "guild_id": None,
                 "detail_type": "private",
             },
-            result=None,
+            result={"message_id": 12451},
         )
         ctx.should_call_api(
             "send_message",
@@ -82,7 +82,7 @@ async def test_send_active(app: App):
                 "guild_id": None,
                 "detail_type": "private",
             },
-            result=None,
+            result={"message_id": 12451},
         )
         target = TargetOB12Unknow(
             platform="banana", detail_type="private", user_id="2233"

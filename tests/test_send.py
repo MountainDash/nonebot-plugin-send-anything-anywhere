@@ -49,6 +49,6 @@ async def test_send_message(app: App):
                         "detail_type": "private",
                         "user_id": event.user_id,
                     },
-                    result=None,
+                    result={"message_id": 12451},
                 )
                 assertion(ctx)

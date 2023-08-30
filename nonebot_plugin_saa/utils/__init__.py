@@ -1,3 +1,4 @@
+from .receipt import Receipt as Receipt
 from .types import do_build as do_build
 from .types import BuildFunc as BuildFunc
 from .types import MessageFactory as MessageFactory
