@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 增添 message_receipt [@felinae98](https://github.com/felinae98) ([#71](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/71))
+
 ## v0.3.0
 
 ### 破坏性更新
