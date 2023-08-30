@@ -31,7 +31,11 @@ ipdb = "^0.13.9"
 pip = "^23.0"
 pytest-cov = "^4.0.0"
 nonebug = "^0.3.1"
-nonebot2 = { extras = ["fastapi", "httpx", "websockets"], version = "^2.0.0rc4" }
+nonebot2 = { extras = [
+  "fastapi",
+  "httpx",
+  "websockets",
+], version = "^2.0.0rc4" }
 ruff = "^0.0.253"
 pytest-mock = "^3.10.0"
 respx = "^0.20.2"
@@ -72,3 +76,11 @@ asyncio_mode = "auto"
 [tool.pyright]
 pythonVersion = "3.8"
 pythonPlatform = "All"
+
+[tool.coverage.report]
+exclude_also = [
+  "raise NotImplementedError",
+  "if TYPE_CHECKING:",
+  "except ImportError:",
+  "except Exception as e:"
+]
