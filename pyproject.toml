@@ -31,9 +31,10 @@ ipdb = "^0.13.9"
 pip = "^23.0"
 pytest-cov = "^4.0.0"
 nonebug = "^0.3.1"
-nonebot2 = { extras = ["fastapi"], version = "^2.0.0rc4" }
+nonebot2 = { extras = ["fastapi", "httpx", "websockets"], version = "^2.0.0rc4" }
 ruff = "^0.0.253"
 pytest-mock = "^3.10.0"
+respx = "^0.20.2"
 
 [tool.poetry.group.adapters]
 optional = true

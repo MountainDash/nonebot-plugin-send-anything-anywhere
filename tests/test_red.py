@@ -1,6 +1,8 @@
 from functools import partial
 
+import httpx
 from nonebug import App
+from respx import MockRouter
 from nonebot import get_adapter
 from pytest_mock import MockerFixture
 from nonebot.adapters.red import Bot, Adapter
@@ -22,12 +24,23 @@ async def test_text(app: App):
     await assert_red(app, Text("123"), MessageSegment.text("123"))
 
 
-async def test_image(app: App):
+async def test_image(app: App, respx_mock: MockRouter):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Image
 
     await assert_red(app, Image(b"123"), MessageSegment.image(b"123"))
+
+    test = respx_mock.get("https://gchat.qpic.cn/test").mock(
+        return_value=httpx.Response(204, content=b"321")
+    )
+
+    await assert_red(
+        app,
+        Image("https://gchat.qpic.cn/test"),
+        MessageSegment.image(b"321"),
+    )
+    assert test.called
 
 
 async def test_mention(app: App):
