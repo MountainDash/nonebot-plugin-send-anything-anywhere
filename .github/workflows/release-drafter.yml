@@ -9,6 +9,9 @@ on:
 
 jobs:
   update-release-drafter:
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     concurrency:
       group: pull-request-changelog
