@@ -1,7 +1,7 @@
 from io import BytesIO
-from typing import cast
 from pathlib import Path
 from functools import partial
+from typing import Any, Dict, Literal, cast
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -9,6 +9,7 @@ from nonebot.adapters import Bot as BaseBot
 from ..types import Text, Image, Reply, Mention
 from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
 from ..utils import (
+    Receipt,
     MessageFactory,
     SupportedAdapters,
     MessageSegmentFactory,
@@ -33,7 +34,7 @@ try:
     adapter = SupportedAdapters.feishu
     register_feishu = partial(register_ms_adapter, adapter)
 
-    MessageFactory.register_adapter_message(SupportedAdapters.feishu, Message)
+    MessageFactory.register_adapter_message(adapter, Message)
 
     @register_feishu(Text)
     def _text(t: Text) -> MessageSegment:
@@ -80,7 +81,21 @@ try:
         assert isinstance(event, GroupMessageEvent)
         return TargetFeishuGroup(chat_id=event.event.message.chat_id)
 
-    @register_sender(SupportedAdapters.feishu)
+    class FeishuReceipt(Receipt):
+        message_id: str
+        adapter_name: Literal[adapter] = adapter
+        data: Dict[str, Any]
+
+        async def revoke(self):
+            bot = cast(Bot, self._get_bot())
+            params = {"method": "DELETE"}
+            return await bot.call_api(f"im/v1/messages/{self.message_id}", **params)
+
+        @property
+        def raw(self) -> Any:
+            return self.data
+
+    @register_sender(adapter)
     async def send(
         bot,
         msg: MessageFactory[MessageSegmentFactory],
@@ -88,7 +103,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> FeishuReceipt:
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetFeishuPrivate, TargetFeishuGroup))
 
@@ -134,14 +149,18 @@ try:
                     "msg_type": msg_type,
                 },
             }
-            await bot.call_api("im/v1/messages", **params)
+            resp = await bot.call_api("im/v1/messages", **params)
 
         else:
             params = {
                 "method": "POST",
                 "body": {"content": content, "msg_type": msg_type},
             }
-            await bot.call_api(f"im/v1/messages/{reply_to_message_id}/reply", **params)
+            resp = await bot.call_api(
+                f"im/v1/messages/{reply_to_message_id}/reply", **params
+            )
+        message_id = resp["message_id"]
+        return FeishuReceipt(bot_id=bot.self_id, message_id=message_id, data=resp)
 
 except ImportError:
     pass
