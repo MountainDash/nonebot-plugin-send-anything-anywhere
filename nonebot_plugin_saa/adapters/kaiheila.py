@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Literal, TypedDict, cast
+from typing import Any, Dict, List, Literal, cast
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -23,8 +23,13 @@ from ..utils import (
 
 try:
     from nonebot.adapters.kaiheila import Bot
-    from nonebot.adapters.kaiheila.api import Guild, Channel, UserChat
     from nonebot.adapters.kaiheila.message import Message, MessageSegment
+    from nonebot.adapters.kaiheila.api import (
+        Guild,
+        Channel,
+        UserChat,
+        MessageCreateReturn,
+    )
     from nonebot.adapters.kaiheila.event import (
         MessageEvent,
         ChannelMessageEvent,
@@ -97,23 +102,17 @@ try:
             "channel_id": target.channel_id,
         }
 
-    # https://developer.kookapp.cn/doc/http/message#%E5%8F%91%E9%80%81%E9%A2%91%E9%81%93%E8%81%8A%E5%A4%A9%E6%B6%88%E6%81%AF
-    class RawResp(TypedDict):
-        msg_id: str
-        msg_timestamp: int
-        nonce: str
-
     class KaiheilaReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
-        data: RawResp
+        data: MessageCreateReturn
 
         async def revoke(self):
             return await cast(Bot, self._get_bot()).message_delete(
-                msg_id=self.data["msg_id"]
+                msg_id=self.data.msg_id
             )
 
         @property
-        def raw(self) -> RawResp:
+        def raw(self) -> MessageCreateReturn:
             return self.data
 
     @register_sender(SupportedAdapters.kaiheila)
@@ -146,7 +145,7 @@ try:
             message_to_send += message_segment
 
         resp = await bot.send_msg(message=message_to_send, **target.arg_dict(bot))
-        return KaiheilaReceipt(bot_id=bot.self_id, data=cast(RawResp, resp))
+        return KaiheilaReceipt(bot_id=bot.self_id, data=resp)
 
     @register_list_targets(SupportedAdapters.kaiheila)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
