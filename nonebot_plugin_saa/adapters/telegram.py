@@ -1,3 +1,4 @@
+import asyncio
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -6,10 +7,9 @@ from typing import List, Union, Literal, cast
 import anyio
 from nonebot.adapters import Event
 
-from nonebot_plugin_saa.utils.receipt import Receipt
-
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
+    Receipt,
     MessageFactory,
     SupportedAdapters,
     TargetTelegramForum,
@@ -104,17 +104,21 @@ try:
 
     class TelegramReceipt(Receipt):
         chat_id: Union[int, str]
-        message_id: int
+        messages: List[MessageModel]
         adapter_name: Literal[adapter] = adapter
 
         async def revoke(self):
-            return await cast(BotTG, self._get_bot()).delete_message(
-                chat_id=self.chat_id, message_id=self.message_id
+            bot = cast(BotTG, self._get_bot())
+            return await asyncio.gather(
+                *(
+                    bot.delete_message(chat_id=self.chat_id, message_id=x.message_id)
+                    for x in self.messages
+                )
             )
 
         @property
         def raw(self):
-            return self.message_id
+            return self.messages
 
     @register_sender(SupportedAdapters.telegram)
     async def send(
@@ -177,13 +181,10 @@ try:
                 reply_to_message_id=reply_to_message_id,
             ),
         )
-
-        if isinstance(message_sent, list):
-            message_sent = message_sent[0]
         return TelegramReceipt(
             bot_id=bot.self_id,
             chat_id=chat_id,
-            message_id=message_sent.message_id,
+            messages=message_sent if isinstance(message_sent, list) else [message_sent],
         )
 
 except ImportError:
