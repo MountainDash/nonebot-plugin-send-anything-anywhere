@@ -54,14 +54,14 @@ tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
 
 [[package]]
 name = "asttokens"
-version = "2.3.0"
+version = "2.4.0"
 description = "Annotate AST trees with source code positions"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "asttokens-2.3.0-py2.py3-none-any.whl", hash = "sha256:bef1a51bc256d349e9f94e7e40e44b705ed1162f55294220dd561d24583d9877"},
-    {file = "asttokens-2.3.0.tar.gz", hash = "sha256:2552a88626aaa7f0f299f871479fc755bd4e7c11e89078965e928fb7bb9a6afe"},
+    {file = "asttokens-2.4.0-py2.py3-none-any.whl", hash = "sha256:cf8fc9e61a86461aa9fb161a14a0841a03c405fa829ac6b202670b3495d2ce69"},
+    {file = "asttokens-2.4.0.tar.gz", hash = "sha256:2e0171b991b2c959acc6c49318049236844a5da1d65ba2672c4880c1c894834e"},
 ]
 
 [package.dependencies]
@@ -789,14 +789,14 @@ pycryptodome = ">=3.10.1,<4.0.0"
 
 [[package]]
 name = "nonebot-adapter-kaiheila"
-version = "0.2.10"
+version = "0.2.11"
 description = "kaiheila adapter for nonebot2"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot_adapter_kaiheila-0.2.10-py3-none-any.whl", hash = "sha256:abe3dd8d4b5d50276dd4b1624a6f3356650f3420e20cc79443c1384f97f42a53"},
-    {file = "nonebot_adapter_kaiheila-0.2.10.tar.gz", hash = "sha256:4ab0876cf7b3dda1d9fd1fd728e30b7eeefbe4a732bfe70f136171b41d44dc08"},
+    {file = "nonebot_adapter_kaiheila-0.2.11-py3-none-any.whl", hash = "sha256:7255d84983b9b547afe79b30e47b2a03564dfd4668f3035d9ff21309d003593e"},
+    {file = "nonebot_adapter_kaiheila-0.2.11.tar.gz", hash = "sha256:47482b4c697a8cf36b71da73387e750e684d4c551e78a9f048895ce89609e5a5"},
 ]
 
 [package.dependencies]
@@ -1784,4 +1784,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "5d3a7dba04097a3488039b1db0cacd54efd9e0a97aa0d7cc346bef70663ee777"
+content-hash = "22e40bc56635ae03e9bc572d2897c05ab6e34e09436d43f67cb4b04101ec2c72"
