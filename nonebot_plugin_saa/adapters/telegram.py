@@ -1,10 +1,11 @@
 from io import BytesIO
-from typing import cast
+from typing import List, Literal, Union, cast
 from pathlib import Path
 from functools import partial
 
 import anyio
 from nonebot.adapters import Event
+from nonebot_plugin_saa.utils.receipt import Receipt
 
 from ..types import Text, Image, Reply, Mention
 from ..utils import (
@@ -30,6 +31,7 @@ try:
         PrivateMessageEvent,
         ForumTopicMessageEvent,
     )
+    from nonebot.adapters.telegram.model import Message as MessageModel
 
     adapter = SupportedAdapters.telegram
     register_telegram = partial(register_ms_adapter, adapter)
@@ -99,6 +101,20 @@ try:
         # no user
         return Entity.text("")
 
+    class TelegramReceipt(Receipt):
+        chat_id: Union[int, str]
+        message_id: int
+        adapter_name: Literal[adapter] = adapter
+
+        async def revoke(self):
+            return await cast(BotTG, self._get_bot()).delete_message(
+                chat_id=self.chat_id, message_id=self.message_id
+            )
+
+        @property
+        def raw(self):
+            return self.message_id
+
     @register_sender(SupportedAdapters.telegram)
     async def send(
         bot,
@@ -107,7 +123,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> TelegramReceipt:
         assert isinstance(bot, BotTG)
         assert isinstance(target, (TargetTelegramCommon, TargetTelegramForum))
 
@@ -151,11 +167,22 @@ try:
             if isinstance(target, TargetTelegramForum)
             else None
         )
-        await bot.send_to(
-            chat_id,
-            message_to_send,
-            message_thread_id=message_thread_id,
-            reply_to_message_id=reply_to_message_id,
+        message_sent = cast(
+            Union[MessageModel, List[MessageModel]],
+            await bot.send_to(
+                chat_id,
+                message_to_send,
+                message_thread_id=message_thread_id,
+                reply_to_message_id=reply_to_message_id,
+            ),
+        )
+
+        if isinstance(message_sent, list):
+            message_sent = message_sent[0]
+        return TelegramReceipt(
+            bot_id=bot.self_id,
+            chat_id=chat_id,
+            message_id=message_sent.message_id,
         )
 
 except ImportError:
