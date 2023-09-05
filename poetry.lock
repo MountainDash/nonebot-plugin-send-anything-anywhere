@@ -789,14 +789,14 @@ pycryptodome = ">=3.10.1,<4.0.0"
 
 [[package]]
 name = "nonebot-adapter-kaiheila"
-version = "0.2.11"
+version = "0.2.12"
 description = "kaiheila adapter for nonebot2"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot_adapter_kaiheila-0.2.11-py3-none-any.whl", hash = "sha256:7255d84983b9b547afe79b30e47b2a03564dfd4668f3035d9ff21309d003593e"},
-    {file = "nonebot_adapter_kaiheila-0.2.11.tar.gz", hash = "sha256:47482b4c697a8cf36b71da73387e750e684d4c551e78a9f048895ce89609e5a5"},
+    {file = "nonebot_adapter_kaiheila-0.2.12-py3-none-any.whl", hash = "sha256:3ddc7e47b7213807d652428b95663e03991d1d89e79f434fbcf8b73a95a7a5ee"},
+    {file = "nonebot_adapter_kaiheila-0.2.12.tar.gz", hash = "sha256:102e00642e693f859b3263f53dc41675e4c8ec6c123e253fdddecf3b3f2ec61f"},
 ]
 
 [package.dependencies]
@@ -1784,4 +1784,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "22e40bc56635ae03e9bc572d2897c05ab6e34e09436d43f67cb4b04101ec2c72"
+content-hash = "a46fd1af71f57ec35cda4fb4dd1f8587c53db86baaec3334dd6e88ff67ec5378"
