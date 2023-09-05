@@ -241,3 +241,105 @@ async def test_send_active(app: App):
             FAKE_MESSAGE_RETURN,
         )
         await MessageFactory("1919810").send_to(target_forum, bot)
+
+
+async def test_receipt(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.telegram import Bot
+    from nonebot.adapters.telegram.model import InputMedia
+
+    from nonebot_plugin_saa import (
+        Image,
+        MessageFactory,
+        SupportedAdapters,
+        TargetTelegramCommon,
+    )
+
+    async with app.test_api() as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, config=BOT_CONFIG)
+        target_common = TargetTelegramCommon(chat_id=1145141919810)
+
+        ctx.should_call_api(
+            "send_message",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "text": "114514",
+                "entities": None,
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": None,
+                "allow_sending_without_reply": None,
+                "parse_mode": None,
+                "disable_web_page_preview": None,
+                "reply_markup": None,
+            },
+            FAKE_MESSAGE_RETURN,
+        )
+        receipt = await MessageFactory("114514").send_to(target_common, bot)
+
+        ctx.should_call_api(
+            "delete_message",
+            {"chat_id": 1145141919810, "message_id": 1145141919810},
+            result=True,
+        )
+        await receipt.revoke()
+
+        ctx.should_call_api(
+            "send_media_group",
+            {
+                "chat_id": 1145141919810,
+                "message_thread_id": None,
+                "media": [
+                    InputMedia(
+                        type="photo",
+                        media="114514",
+                        caption=None,
+                        parse_mode=None,
+                        caption_entities=None,
+                    ),
+                    InputMedia(
+                        type="photo",
+                        media="1919810",
+                        caption=None,
+                        parse_mode=None,
+                        caption_entities=None,
+                    ),
+                ],
+                "disable_notification": None,
+                "protect_content": None,
+                "reply_to_message_id": None,
+                "allow_sending_without_reply": None,
+            },
+            [
+                {
+                    "message_id": 1145141919811,
+                    "date": round(time.time() * 1000),
+                    "chat": {"id": 1145141919810, "type": "private"},
+                },
+                {
+                    "message_id": 1145141919812,
+                    "date": round(time.time() * 1000),
+                    "chat": {"id": 1145141919810, "type": "private"},
+                },
+            ],
+        )
+        receipt = await MessageFactory(
+            [
+                Image("114514"),
+                Image("1919810"),
+            ]
+        ).send_to(target_common, bot)
+
+        ctx.should_call_api(
+            "delete_message",
+            {"chat_id": 1145141919810, "message_id": 1145141919811},
+            result=True,
+        )
+        ctx.should_call_api(
+            "delete_message",
+            {"chat_id": 1145141919810, "message_id": 1145141919812},
+            result=True,
+        )
+        await receipt.revoke()
