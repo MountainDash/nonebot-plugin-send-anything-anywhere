@@ -1,10 +1,11 @@
 from io import BytesIO
-from typing import List, Literal, Union, cast
 from pathlib import Path
 from functools import partial
+from typing import List, Union, Literal, cast
 
 import anyio
 from nonebot.adapters import Event
+
 from nonebot_plugin_saa.utils.receipt import Receipt
 
 from ..types import Text, Image, Reply, Mention
@@ -24,6 +25,7 @@ try:
     from nonebot.adapters.telegram import Bot as BotTG
     from nonebot.adapters.telegram.message import File, Entity
     from nonebot.adapters.telegram import Message, MessageSegment
+    from nonebot.adapters.telegram.model import Message as MessageModel
     from nonebot.adapters.telegram.event import (
         MessageEvent,
         ChannelPostEvent,
@@ -31,7 +33,6 @@ try:
         PrivateMessageEvent,
         ForumTopicMessageEvent,
     )
-    from nonebot.adapters.telegram.model import Message as MessageModel
 
     adapter = SupportedAdapters.telegram
     register_telegram = partial(register_ms_adapter, adapter)
