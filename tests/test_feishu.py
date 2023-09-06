@@ -231,11 +231,11 @@ async def test_send(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {},
+            {"message_id": "114514"},
         )
 
 
-async def test_send_with_reply(app: App):
+async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.feishu import (
         Bot,
@@ -251,7 +251,54 @@ async def test_send_with_reply(app: App):
 
     @matcher.handle()
     async def _(event: MessageEvent):
-        await MessageFactory([Text("1919810")]).send(reply=True, at_sender=True)
+        receipt = await MessageFactory([Text("1919810")]).send()
+        await receipt.revoke()
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
+
+        msg_event = mock_feishu_message_event(Message("114514"))
+        msg_type, content = MessageSerializer(
+            Message([MessageSegment.text("1919810")])
+        ).serialize()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "im/v1/messages",
+            {
+                "method": "POST",
+                "query": {"receive_id_type": "open_id"},
+                "body": {
+                    "receive_id": "open_id",
+                    "content": content,
+                    "msg_type": msg_type,
+                },
+            },
+            {"message_id": "114514"},
+        )
+        ctx.should_call_api("im/v1/messages/114514", {"method": "DELETE"}, {})
+
+
+async def test_send_with_reply_and_revoke(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.feishu import (
+        Bot,
+        Message,
+        MessageEvent,
+        MessageSegment,
+        MessageSerializer,
+    )
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _(event: MessageEvent):
+        receipt = await MessageFactory([Text("1919810")]).send(
+            reply=True, at_sender=True
+        )
+        await receipt.revoke()
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
@@ -265,8 +312,9 @@ async def test_send_with_reply(app: App):
         ctx.should_call_api(
             "im/v1/messages/message_id/reply",
             {"method": "POST", "body": {"content": content, "msg_type": msg_type}},
-            {},
+            {"message_id": "114514"},
         )
+        ctx.should_call_api("im/v1/messages/114514", {"method": "DELETE"}, {})
 
 
 async def test_send_active(app: App):
@@ -300,7 +348,7 @@ async def test_send_active(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {},
+            {"message_id": "114514"},
         )
         await MessageFactory("114514").send_to(target_private, bot)
 
@@ -316,6 +364,6 @@ async def test_send_active(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {},
+            {"message_id": "114514"},
         )
         await MessageFactory("114514").send_to(target_group, bot)
