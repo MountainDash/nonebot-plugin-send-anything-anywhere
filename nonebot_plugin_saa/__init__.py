@@ -6,6 +6,7 @@ from .types import Reply as Reply
 from . import adapters as adapters
 from .types import Custom as Custom
 from .types import Mention as Mention
+from .utils import SaaTarget as SaaTarget
 from .utils import get_target as get_target
 from .utils import TargetQQGroup as TargetQQGroup
 from .utils import MessageFactory as MessageFactory

@@ -1,5 +1,6 @@
 import json
 from abc import ABC
+from typing_extensions import Annotated
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -16,6 +17,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
+from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
 
 from .helpers import extract_adapter_type
@@ -285,6 +287,8 @@ def register_sender(adapter: SupportedAdapters):
 
     return wrapper
 
+
+SaaTarget = Annotated[PlatformTarget, Depends(get_target)]
 
 QQGuild_DMS = Callable[[TargetQQGuildDirect, Bot], Awaitable[int]]
 qqguild_dms_map: Dict[SupportedAdapters, QQGuild_DMS] = {}
