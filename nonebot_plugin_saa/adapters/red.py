@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal
 
 from nonebot import get_driver
 from nonebot.adapters import Bot, Event
@@ -7,6 +7,7 @@ from nonebot.drivers import Request, ForwardMixin
 
 from ..types import Text, Image, Mention
 from ..utils import (
+    Receipt,
     TargetQQGroup,
     MessageFactory,
     PlatformTarget,
@@ -87,6 +88,18 @@ try:
             "target": str(target.group_id),
         }
 
+    class RedReceipt(Receipt):
+        adapter_name: Literal[adapter] = adapter
+
+        async def revoke(self):
+            # TODO: 目前 Red 协议在发送消息后没有返回值，无法撤回
+            # return await cast(BotRed, self._get_bot()).recall_message()
+            raise NotImplementedError
+
+        @property
+        def raw(self) -> Any:
+            return None
+
     @register_sender(SupportedAdapters.red)
     async def send(
         bot,
@@ -95,7 +108,7 @@ try:
         event,
         at_sender: bool,
         reply: bool,
-    ):
+    ) -> RedReceipt:
         assert isinstance(bot, BotRed)
         assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
         if event:
@@ -114,6 +127,8 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
         await bot.send_message(message=message_to_send, **target.arg_dict(bot))
+
+        return RedReceipt(bot_id=bot.self_id)
 
     # TODO: Chronocat 暂时不支持合并消息
     # https://github.com/chrononeko/bugtracker/issues/5
