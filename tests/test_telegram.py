@@ -17,6 +17,33 @@ assert_telegram = partial(
     config=BOT_CONFIG,
 )
 
+SEND_MESSAGE_PARAMS = {
+    "chat_id": 1145141919810,
+    "message_thread_id": None,
+    "text": "",
+    "entities": None,
+    "disable_notification": None,
+    "protect_content": None,
+    "reply_to_message_id": None,
+    "allow_sending_without_reply": None,
+    "parse_mode": None,
+    "disable_web_page_preview": None,
+    "reply_markup": None,
+}
+SEND_MEDIA_GROUP_PARAMS = {
+    "chat_id": 1145141919810,
+    "message_thread_id": None,
+    "media": [],
+    "disable_notification": None,
+    "protect_content": None,
+    "reply_to_message_id": None,
+    "allow_sending_without_reply": None,
+}
+DELETE_MESSAGE_PARAMS = {
+    "chat_id": 1145141919810,
+    "message_id": 1145141919810,
+}
+
 FAKE_MESSAGE_RETURN = {
     "message_id": 1145141919810,
     "date": round(time.time() * 1000),
@@ -89,19 +116,7 @@ async def test_send(app: App):
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "send_message",
-            {
-                "chat_id": 1145141919810,
-                "message_thread_id": None,
-                "text": "homo senpai 114514",
-                "entities": None,
-                "disable_notification": None,
-                "protect_content": None,
-                "reply_to_message_id": None,
-                "allow_sending_without_reply": None,
-                "parse_mode": None,
-                "disable_web_page_preview": None,
-                "reply_markup": None,
-            },
+            {**SEND_MESSAGE_PARAMS, "text": "homo senpai 114514"},
             FAKE_MESSAGE_RETURN,
         )
 
@@ -131,27 +146,10 @@ async def test_send_with_reply(app: App):
         ctx.should_call_api(
             "send_message",
             {
-                "chat_id": 1145141919810,
-                "message_thread_id": None,
+                **SEND_MESSAGE_PARAMS,
                 "text": "@homo_senpai homo senpai 1919810",
-                "entities": [
-                    MessageEntity(
-                        type="mention",
-                        offset=0,
-                        length=13,
-                        url=None,
-                        user=None,
-                        language=None,
-                        custom_emoji_id=None,
-                    )
-                ],
-                "disable_notification": None,
-                "protect_content": None,
+                "entities": [MessageEntity(type="mention", offset=0, length=13)],
                 "reply_to_message_id": 1145141919810,
-                "allow_sending_without_reply": None,
-                "parse_mode": None,
-                "disable_web_page_preview": None,
-                "reply_markup": None,
             },
             FAKE_MESSAGE_RETURN,
         )
@@ -161,8 +159,7 @@ async def test_send_with_reply(app: App):
         ctx.should_call_api(
             "send_message",
             {
-                "chat_id": 1145141919810,
-                "message_thread_id": None,
+                **SEND_MESSAGE_PARAMS,
                 "text": "homo senpai homo senpai 哼哼啊啊啊啊啊",
                 "entities": [
                     MessageEntity(
@@ -170,18 +167,9 @@ async def test_send_with_reply(app: App):
                         offset=0,
                         length=12,
                         url="tg://user?id=1145141919810",
-                        user=None,
-                        language=None,
-                        custom_emoji_id=None,
                     )
                 ],
-                "disable_notification": None,
-                "protect_content": None,
                 "reply_to_message_id": 1145141919810,
-                "allow_sending_without_reply": None,
-                "parse_mode": None,
-                "disable_web_page_preview": None,
-                "reply_markup": None,
             },
             FAKE_MESSAGE_RETURN,
         )
@@ -205,19 +193,7 @@ async def test_send_active(app: App):
         target_common = TargetTelegramCommon(chat_id=1145141919810)
         ctx.should_call_api(
             "send_message",
-            {
-                "chat_id": 1145141919810,
-                "message_thread_id": None,
-                "text": "114514",
-                "entities": None,
-                "disable_notification": None,
-                "protect_content": None,
-                "reply_to_message_id": None,
-                "allow_sending_without_reply": None,
-                "parse_mode": None,
-                "disable_web_page_preview": None,
-                "reply_markup": None,
-            },
+            {**SEND_MESSAGE_PARAMS, "text": "114514"},
             FAKE_MESSAGE_RETURN,
         )
         await MessageFactory("114514").send_to(target_common, bot)
@@ -226,18 +202,72 @@ async def test_send_active(app: App):
         ctx.should_call_api(
             "send_message",
             {
+                **SEND_MESSAGE_PARAMS,
                 "chat_id": 114514,
                 "message_thread_id": 1919810,
                 "text": "1919810",
-                "entities": None,
-                "disable_notification": None,
-                "protect_content": None,
-                "reply_to_message_id": None,
-                "allow_sending_without_reply": None,
-                "parse_mode": None,
-                "disable_web_page_preview": None,
-                "reply_markup": None,
             },
             FAKE_MESSAGE_RETURN,
         )
         await MessageFactory("1919810").send_to(target_forum, bot)
+
+
+async def test_receipt(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.telegram import Bot
+    from nonebot.adapters.telegram.model import InputMedia
+
+    from nonebot_plugin_saa import (
+        Image,
+        MessageFactory,
+        SupportedAdapters,
+        TargetTelegramCommon,
+    )
+
+    async with app.test_api() as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, config=BOT_CONFIG)
+        target_common = TargetTelegramCommon(chat_id=1145141919810)
+
+        ctx.should_call_api(
+            "send_message",
+            {**SEND_MESSAGE_PARAMS, "text": "114514"},
+            FAKE_MESSAGE_RETURN,
+        )
+        receipt = await MessageFactory("114514").send_to(target_common, bot)
+
+        ctx.should_call_api("delete_message", DELETE_MESSAGE_PARAMS, result=True)
+        await receipt.revoke()
+
+        ctx.should_call_api(
+            "send_media_group",
+            {
+                **SEND_MEDIA_GROUP_PARAMS,
+                "media": [
+                    InputMedia(type="photo", media="114514"),
+                    InputMedia(type="photo", media="1919810"),
+                ],
+            },
+            [
+                {**FAKE_MESSAGE_RETURN, "message_id": 1145141919811},
+                {**FAKE_MESSAGE_RETURN, "message_id": 1145141919812},
+            ],
+        )
+        receipt = await MessageFactory(
+            [
+                Image("114514"),
+                Image("1919810"),
+            ]
+        ).send_to(target_common, bot)
+
+        ctx.should_call_api(
+            "delete_message",
+            {**DELETE_MESSAGE_PARAMS, "message_id": 1145141919811},
+            result=True,
+        )
+        ctx.should_call_api(
+            "delete_message",
+            {**DELETE_MESSAGE_PARAMS, "message_id": 1145141919812},
+            result=True,
+        )
+        await receipt.revoke()
