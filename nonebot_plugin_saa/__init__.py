@@ -39,5 +39,6 @@ __plugin_meta__ = PluginMetadata(
         "~qqguild",
         "~telegram",
         "~feishu",
+        "~red",
     },
 )

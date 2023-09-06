@@ -1,6 +1,7 @@
 import pytest
 import nonebot
 from nonebug import NONEBOT_INIT_KWARGS, App
+from nonebot.adapters.red import Adapter as RedAdapter
 from nonebot.adapters.feishu import Adapter as FeishuAdapter
 from nonebot.adapters.qqguild import Adapter as QQGuildAdapter
 from nonebot.adapters.telegram import Adapter as TelegramAdapter
@@ -9,7 +10,7 @@ from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    config.stash[NONEBOT_INIT_KWARGS] = {"driver": "~fastapi+~websockets"}
+    config.stash[NONEBOT_INIT_KWARGS] = {"driver": "~fastapi+~websockets+~httpx"}
 
 
 @pytest.fixture
@@ -33,3 +34,4 @@ def load_adapters(nonebug_init: None):
     driver.register_adapter(QQGuildAdapter)
     driver.register_adapter(TelegramAdapter)
     driver.register_adapter(FeishuAdapter)
+    driver.register_adapter(RedAdapter)
