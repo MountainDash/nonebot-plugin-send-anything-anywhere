@@ -7,7 +7,7 @@
 你只管业务实现，把发送交给我们
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/felinae98/nonebot-plugin-send-anything-anywhere/test.yml)
-![Codecov](https://img.shields.io/codecov/c/github/felinae98/nonebot-plugin-send-anything-anywhere)
+[![codecov](https://codecov.io/gh/MountainDash/nonebot-plugin-send-anything-anywhere/graph/badge.svg?token=7EV2hcYx8d)](https://codecov.io/gh/MountainDash/nonebot-plugin-send-anything-anywhere)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/nonebot-plugin-send-anything-anywhere)
 ![PyPI](https://img.shields.io/pypi/v/nonebot-plugin-send-anything-anywhere)
 ![GitHub](https://img.shields.io/github/license/felinae98/nonebot-plugin-send-anything-anywhere)
