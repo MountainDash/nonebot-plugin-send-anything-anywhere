@@ -4,6 +4,7 @@ from .types import BuildFunc as BuildFunc
 from .types import MessageFactory as MessageFactory
 from .types import CustomBuildFunc as CustomBuildFunc
 from .types import do_build_custom as do_build_custom
+from .platform_send_target import SaaTarget as SaaTarget
 from .const import SupportedAdapters as SupportedAdapters
 from .const import SupportedPlatform as SupportedPlatform
 from .platform_send_target import get_target as get_target
