@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, cast
 
 from nonebot import get_driver
 from nonebot.adapters import Bot, Event
@@ -26,6 +26,7 @@ from ..utils import (
 try:
     from nonebot.adapters.red import Bot as BotRed
     from nonebot.adapters.red import Message, MessageSegment
+    from nonebot.adapters.red.model import Message as MessageModel
     from nonebot.adapters.red.event import (
         MessageEvent,
         GroupMessageEvent,
@@ -90,15 +91,19 @@ try:
 
     class RedReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
+        message: MessageModel
 
         async def revoke(self):
-            # TODO: 目前 Red 协议在发送消息后没有返回值，无法撤回
-            # return await cast(BotRed, self._get_bot()).recall_message()
-            raise NotImplementedError
+            chat_type = "friend" if self.message.chatType == 1 else "group"
+            return await cast(BotRed, self._get_bot()).recall_message(
+                chat_type,
+                self.message.peerUid,
+                self.message.msgId,
+            )
 
         @property
-        def raw(self) -> Any:
-            return None
+        def raw(self) -> MessageModel:
+            return self.message
 
     @register_sender(SupportedAdapters.red)
     async def send(
@@ -126,9 +131,9 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
-        await bot.send_message(message=message_to_send, **target.arg_dict(bot))
+        resp = await bot.send_message(message=message_to_send, **target.arg_dict(bot))
 
-        return RedReceipt(bot_id=bot.self_id)
+        return RedReceipt(bot_id=bot.self_id, message=resp)
 
     # TODO: Chronocat 暂时不支持合并消息
     # https://github.com/chrononeko/bugtracker/issues/5

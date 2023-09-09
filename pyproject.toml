@@ -39,6 +39,7 @@ nonebot2 = { extras = [
 ruff = "^0.0.253"
 pytest-mock = "^3.10.0"
 respx = "^0.20.2"
+nonebot-adapter-red = { git = "https://github.com/nonebot/adapter-red.git" }
 
 [tool.poetry.group.adapters]
 optional = true
@@ -82,5 +83,5 @@ exclude_also = [
   "raise NotImplementedError",
   "if TYPE_CHECKING:",
   "except ImportError:",
-  "except Exception as e:"
+  "except Exception as e:",
 ]
