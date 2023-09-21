@@ -291,6 +291,40 @@ async def test_send_active(app: App):
         await MessageFactory("123").send_to(send_target_group, bot)
 
 
+async def test_send_revoke(app: App):
+    from nonebot.adapters.red import Bot
+    from nonebot import get_driver, on_message
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def handle():
+        receipt = await MessageFactory(Text("123")).send()
+        await receipt.revoke()
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="10", info=bot_info)
+
+        event = mock_red_message_event()
+        ctx.receive_event(bot, event)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "chat_type": 1,
+                "target": "1234",
+                "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
+            },
+            result=mock_red_message_event(),
+        )
+        ctx.should_call_api(
+            "recall_message",
+            data={"chat_type": 1, "target": "4321", "msg_ids": ["7272944767457625851"]},
+        )
+
+
 async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate
     from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
