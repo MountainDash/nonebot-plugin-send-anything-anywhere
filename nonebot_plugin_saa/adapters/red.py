@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Literal, Optional, cast
 
 from nonebot import get_driver
 from nonebot.adapters import Bot, Event
-from nonebot.adapters.red.message import ForwardNode
 from nonebot.drivers import Request, HTTPClientMixin
 
 from nonebot_plugin_saa.utils.types import AggregatedMessageFactory
@@ -30,6 +29,7 @@ from ..utils import (
 try:
     from nonebot.adapters.red import Bot as BotRed
     from nonebot.adapters.red.api.model import ChatType
+    from nonebot.adapters.red.message import ForwardNode
     from nonebot.adapters.red.api.model import Message as MessageModel
     from nonebot.adapters.red import (
         Message,
