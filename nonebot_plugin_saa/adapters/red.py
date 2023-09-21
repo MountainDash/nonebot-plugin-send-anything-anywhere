@@ -1,11 +1,14 @@
 from functools import partial
-from typing import Any, Dict, List, Literal, cast
+from typing import Any, Dict, List, Literal, Optional, cast
 
 from nonebot import get_driver
 from nonebot.adapters import Bot, Event
-from nonebot.drivers import Request, ForwardMixin
+from nonebot.adapters.red.message import ForwardNode
+from nonebot.drivers import Request, HTTPClientMixin
 
-from ..types import Text, Image, Mention
+from nonebot_plugin_saa.utils.types import AggregatedMessageFactory
+
+from ..types import Text, Image, Reply, Mention
 from ..utils import (
     Receipt,
     TargetQQGroup,
@@ -25,10 +28,12 @@ from ..utils import (
 
 try:
     from nonebot.adapters.red import Bot as BotRed
-    from nonebot.adapters.red import Message, MessageSegment
-    from nonebot.adapters.red.model import Message as MessageModel
-    from nonebot.adapters.red.event import (
+    from nonebot.adapters.red.api.model import ChatType
+    from nonebot.adapters.red.api.model import Message as MessageModel
+    from nonebot.adapters.red import (
+        Message,
         MessageEvent,
+        MessageSegment,
         GroupMessageEvent,
         PrivateMessageEvent,
     )
@@ -47,7 +52,7 @@ try:
         image = i.data["image"]
         if isinstance(image, str):
             driver = get_driver()
-            assert isinstance(driver, ForwardMixin), "driver should be ForwardDriver"
+            assert isinstance(driver, HTTPClientMixin), "driver should be ForwardDriver"
             image_data = await driver.request(Request("GET", image))
             assert isinstance(image_data.content, bytes)
             return MessageSegment.image(image_data.content)
@@ -57,10 +62,9 @@ try:
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
 
-    # TODO: Red 协议的回复需要三个参数，但目前只有 message_id
-    # @register_red(Reply)
-    # async def _reply(r: Reply) -> MessageSegment:
-    #     return MessageSegment.reply(r.data["message_id"])
+    @register_red(Reply)
+    async def _reply(r: Reply) -> MessageSegment:
+        return MessageSegment.reply(r.data["message_id"])
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
@@ -77,7 +81,7 @@ try:
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {
-            "chat_type": "friend",
+            "chat_type": ChatType.FRIEND,
             "target": str(target.user_id),
         }
 
@@ -85,7 +89,7 @@ try:
     def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
         return {
-            "chat_type": "group",
+            "chat_type": ChatType.GROUP,
             "target": str(target.group_id),
         }
 
@@ -94,9 +98,8 @@ try:
         message: MessageModel
 
         async def revoke(self):
-            chat_type = "friend" if self.message.chatType == 1 else "group"
             return await cast(BotRed, self._get_bot()).recall_message(
-                chat_type,
+                self.message.chatType,
                 self.message.peerUid,
                 self.message.msgId,
             )
@@ -121,7 +124,7 @@ try:
             full_msg = assamble_message_factory(
                 msg,
                 Mention(event.get_user_id()),
-                None,
+                Reply(event.msgSeq),
                 at_sender,
                 reply,
             )
@@ -135,44 +138,39 @@ try:
 
         return RedReceipt(bot_id=bot.self_id, message=resp)
 
-    # TODO: Chronocat 暂时不支持合并消息
-    # https://github.com/chrononeko/bugtracker/issues/5
-    # @AggregatedMessageFactory.register_aggregated_sender(adapter)
-    # async def aggregate_send(
-    #     bot: Bot,
-    #     message_factories: List[MessageFactory],
-    #     target: PlatformTarget,
-    #     event: Optional[Event],
-    # ):
-    #     assert isinstance(bot, BotRed)
-    #     login_info = await bot.get_login_info()
+    @AggregatedMessageFactory.register_aggregated_sender(adapter)
+    async def aggregate_send(
+        bot: Bot,
+        message_factories: List[MessageFactory],
+        target: PlatformTarget,
+        event: Optional[Event],
+    ):
+        assert isinstance(bot, BotRed)
 
-    #     msg_list: List[Message] = []
-    #     for msg_fac in message_factories:
-    #         msg = await msg_fac.build(bot)
-    #         assert isinstance(msg, Message)
-    #         msg_list.append(msg)
-    #     aggregated_message_segment = Message(
-    #         [
-    #             MessageSegment.node_custom(
-    #                 user_id=login_info["user_id"],
-    #                 nickname=login_info["nickname"],
-    #                 content=msg,
-    #             )
-    #             for msg in msg_list
-    #         ]
-    #     )
-
-    #     if isinstance(target, TargetQQGroup):
-    #         await bot.send_group_forward_msg(
-    #             group_id=target.group_id, messages=aggregated_message_segment
-    #         )
-    #     elif isinstance(target, TargetQQPrivate):
-    #         await bot.send_private_forward_msg(
-    #             user_id=target.user_id, messages=aggregated_message_segment
-    #         )
-    #     else:  # pragma: no cover
-    #         raise RuntimeError(f"{target.__class__.__name__} not supported")
+        msg_list: List[Message] = []
+        for msg_fac in message_factories:
+            msg = await msg_fac.build(bot)
+            assert isinstance(msg, Message)
+            msg_list.append(msg)
+        nodes = [
+            ForwardNode(
+                uin=bot.self_id,
+                name=bot.self_id,
+                group=bot.self_id,
+                message=msg,
+            )
+            for msg in msg_list
+        ]
+        if isinstance(target, TargetQQGroup):
+            await bot.send_fake_forward(
+                nodes=nodes, chat_type=ChatType.GROUP, target=target.group_id
+            )
+        elif isinstance(target, TargetQQPrivate):
+            await bot.send_fake_forward(
+                nodes=nodes, chat_type=ChatType.FRIEND, target=target.user_id
+            )
+        else:  # pragma: no cover
+            raise RuntimeError(f"{target.__class__.__name__} not supported")
 
     @register_list_targets(SupportedAdapters.red)
     async def list_targets(bot: Bot) -> List[PlatformTarget]:
