@@ -1,5 +1,5 @@
-from datetime import datetime
 from functools import partial
+from datetime import datetime, timezone
 
 import httpx
 from nonebug import App
@@ -98,7 +98,9 @@ async def test_send_aggreted_red(app: App, mocker: MockerFixture):
 
     mocked_ranint = mocker.patch("random.randint", return_value=1)
     mocked_datetime = mocker.patch("nonebot_plugin_saa.adapters.red.datetime")
-    mocked_datetime.now.return_value = datetime(2021, 1, 1, 0, 0, 0)
+    mocked_datetime.now.return_value = datetime(
+        2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc
+    )
 
     matcher = on_message()
 
@@ -128,7 +130,7 @@ async def test_send_aggreted_red(app: App, mocker: MockerFixture):
                             "field1": 82,
                             "field4": 1,
                             "field5": 1,
-                            "field6": 1609430400,
+                            "field6": 1609459200,
                             "field7": 1,
                             "field8": 0,
                             "field9": 0,
@@ -145,7 +147,7 @@ async def test_send_aggreted_red(app: App, mocker: MockerFixture):
                             "field1": 82,
                             "field4": 1,
                             "field5": 2,
-                            "field6": 1609430400,
+                            "field6": 1609459200,
                             "field7": 1,
                             "field8": 0,
                             "field9": 0,
@@ -181,7 +183,7 @@ async def test_send_aggreted_red(app: App, mocker: MockerFixture):
                             "field1": 82,
                             "field4": 1,
                             "field5": 1,
-                            "field6": 1609430400,
+                            "field6": 1609459200,
                             "field7": 1,
                             "field8": 0,
                             "field9": 0,
@@ -198,7 +200,7 @@ async def test_send_aggreted_red(app: App, mocker: MockerFixture):
                             "field1": 82,
                             "field4": 1,
                             "field5": 2,
-                            "field6": 1609430400,
+                            "field6": 1609459200,
                             "field7": 1,
                             "field8": 0,
                             "field9": 0,
