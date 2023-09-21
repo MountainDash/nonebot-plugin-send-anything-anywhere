@@ -252,9 +252,10 @@ def mock_telegram_message_event(
 
 
 def mock_red_message_event(group=False):
-    from nonebot.adapters.red.model import RoleInfo
-    from nonebot.adapters.red.event import GroupMessageEvent as RedGroupMessageEvent
-    from nonebot.adapters.red.event import PrivateMessageEvent as RedPrivateMessageEvent
+    from nonebot.adapters.red import Message as RedMessage
+    from nonebot.adapters.red.api.model import MsgType, ChatType, RoleInfo
+    from nonebot.adapters.red import GroupMessageEvent as RedGroupMessageEvent
+    from nonebot.adapters.red import PrivateMessageEvent as RedPrivateMessageEvent
 
     if not group:
         return RedPrivateMessageEvent(
@@ -262,8 +263,8 @@ def mock_red_message_event(group=False):
             msgRandom="196942265",
             msgSeq="103",
             cntSeq="0",
-            chatType=1,
-            msgType=2,
+            chatType=ChatType.FRIEND,
+            msgType=MsgType.normal,
             subMsgType=1,
             sendType=0,
             senderUid="4321",
@@ -307,6 +308,8 @@ def mock_red_message_event(group=False):
             clientSeq="27516",
             nameType=0,
             avatarFlag=0,
+            message=RedMessage("321"),
+            original_message=RedMessage("321"),
         )
     else:
         return RedGroupMessageEvent(
@@ -314,8 +317,8 @@ def mock_red_message_event(group=False):
             msgRandom="1526531828",
             msgSeq="831",
             cntSeq="0",
-            chatType=2,
-            msgType=2,
+            chatType=ChatType.GROUP,
+            msgType=MsgType.normal,
             subMsgType=1,
             sendType=0,
             senderUid="4321",
@@ -359,4 +362,6 @@ def mock_red_message_event(group=False):
             clientSeq="0",
             nameType=0,
             avatarFlag=0,
+            message=RedMessage("321"),
+            original_message=RedMessage("321"),
         )
