@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import partial
 
 import httpx
@@ -51,12 +52,12 @@ async def test_mention(app: App):
     await assert_red(app, Mention("123"), MessageSegment.at("123"))
 
 
-# async def test_reply(app: App):
-#     from nonebot.adapters.red import MessageSegment
+async def test_reply(app: App):
+    from nonebot.adapters.red import MessageSegment
 
-#     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa import Reply
 
-#     await assert_red(app, Reply(123), MessageSegment.reply(123))
+    await assert_red(app, Reply("123"), MessageSegment.reply("123"))
 
 
 async def test_send(app: App):
@@ -84,43 +85,174 @@ async def test_send(app: App):
                 "target": "1234",
                 "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
             },
-            result=None,
+            result=msg_event.dict(),
         )
 
 
-# async def test_send_with_reply(app: App):
-#     from nonebot import get_driver, on_message
-#     from nonebot.adapters.red.event import PrivateMessageEvent
-#     from nonebot.adapters.red import Bot, Message, MessageSegment
+async def test_send_aggreted_red(app: App, mocker: MockerFixture):
+    from nonebot.adapters.red import Bot
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.red.event import MessageEvent
 
-#     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa import Text, SupportedAdapters, AggregatedMessageFactory
 
-#     matcher = on_message()
+    mocked_ranint = mocker.patch("random.randint", return_value=1)
+    mocked_datetime = mocker.patch("nonebot_plugin_saa.adapters.red.datetime")
+    mocked_datetime.now.return_value = datetime(2021, 1, 1, 0, 0, 0)
 
-#     @matcher.handle()
-#     async def process(msg: PrivateMessageEvent):
-#         await MessageFactory(Text("123")).send(reply=True, at_sender=True)
+    matcher = on_message()
 
-#     async with app.test_matcher(matcher) as ctx:
-#         adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
-#         bot = ctx.create_bot(base=Bot, adapter=adapter_obj)
-#         msg_event = mock_red_message_event(Message("321"))
-#         ctx.receive_event(bot, msg_event)
-#         ctx.should_call_api(
-#             "send_msg",
-#             data={
-#                 "message": Message(
-#                     [
-#                         MessageSegment.reply(msg_event.message_id),
-#                         MessageSegment.at(msg_event.user_id),
-#                         MessageSegment.text("123"),
-#                     ]
-#                 ),
-#                 "user_id": 2233,
-#                 "message_type": "private",
-#             },
-#             result=None,
-#         )
+    @matcher.handle()
+    async def process(msg: MessageEvent):
+        await AggregatedMessageFactory([Text("123"), Text("456")]).send()
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="10", info=bot_info)
+        msg_event = mock_red_message_event()
+
+        ctx.should_call_api(
+            "send_fake_forward",
+            data={
+                "chat_type": 1,
+                "target": "1234",
+                "source_chat_type": 1,
+                "source_target": "1234",
+                "elements": [
+                    {
+                        "head": {
+                            "field2": "10",
+                            "field8": {"field1": 10, "field4": "10"},
+                        },
+                        "content": {
+                            "field1": 82,
+                            "field4": 1,
+                            "field5": 1,
+                            "field6": 1609430400,
+                            "field7": 1,
+                            "field8": 0,
+                            "field9": 0,
+                            "field15": {"field1": 0, "field2": 0},
+                        },
+                        "body": {"richText": {"elems": [{"text": {"str": "123"}}]}},
+                    },
+                    {
+                        "head": {
+                            "field2": "10",
+                            "field8": {"field1": 10, "field4": "10"},
+                        },
+                        "content": {
+                            "field1": 82,
+                            "field4": 1,
+                            "field5": 2,
+                            "field6": 1609430400,
+                            "field7": 1,
+                            "field8": 0,
+                            "field9": 0,
+                            "field15": {"field1": 0, "field2": 0},
+                        },
+                        "body": {"richText": {"elems": [{"text": {"str": "456"}}]}},
+                    },
+                ],
+            },
+            result=msg_event,
+        )
+        ctx.receive_event(bot, msg_event)
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, self_id="10", info=bot_info)
+        msg_event = mock_red_message_event(group=True)
+
+        ctx.should_call_api(
+            "send_fake_forward",
+            data={
+                "chat_type": 2,
+                "target": "1111",
+                "source_chat_type": 2,
+                "source_target": "1111",
+                "elements": [
+                    {
+                        "head": {
+                            "field2": "10",
+                            "field8": {"field1": 10, "field4": "10"},
+                        },
+                        "content": {
+                            "field1": 82,
+                            "field4": 1,
+                            "field5": 1,
+                            "field6": 1609430400,
+                            "field7": 1,
+                            "field8": 0,
+                            "field9": 0,
+                            "field15": {"field1": 0, "field2": 0},
+                        },
+                        "body": {"richText": {"elems": [{"text": {"str": "123"}}]}},
+                    },
+                    {
+                        "head": {
+                            "field2": "10",
+                            "field8": {"field1": 10, "field4": "10"},
+                        },
+                        "content": {
+                            "field1": 82,
+                            "field4": 1,
+                            "field5": 2,
+                            "field6": 1609430400,
+                            "field7": 1,
+                            "field8": 0,
+                            "field9": 0,
+                            "field15": {"field1": 0, "field2": 0},
+                        },
+                        "body": {"richText": {"elems": [{"text": {"str": "456"}}]}},
+                    },
+                ],
+            },
+            result=msg_event,
+        )
+        ctx.receive_event(bot, msg_event)
+
+    mocked_ranint.assert_called()
+
+
+async def test_send_with_reply(app: App):
+    from nonebot.adapters.red import Bot
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.red.event import PrivateMessageEvent
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process(msg: PrivateMessageEvent):
+        await MessageFactory(Text("123")).send(reply=True, at_sender=True)
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, info=bot_info)
+        msg_event = mock_red_message_event()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "chat_type": 1,
+                "target": "1234",
+                "elements": [
+                    {
+                        "elementType": 7,
+                        "replyElement": {
+                            "sourceMsgIdInRecords": None,
+                            "replayMsgSeq": "103",
+                            "senderUid": None,
+                        },
+                    },
+                    {"elementType": 1, "textElement": {"atType": 2, "atNtUin": "1234"}},
+                    {"elementType": 1, "textElement": {"content": "123"}},
+                ],
+            },
+            result=msg_event.dict(),
+        )
 
 
 async def test_send_active(app: App):
@@ -140,7 +272,7 @@ async def test_send_active(app: App):
                 "target": "1122",
                 "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
             },
-            result=None,
+            result=mock_red_message_event(),
         )
         await MessageFactory("123").send_to(send_target_private, bot)
 
@@ -152,7 +284,7 @@ async def test_send_active(app: App):
                 "target": "1122",
                 "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
             },
-            result=None,
+            result=mock_red_message_event(),
         )
         await MessageFactory("123").send_to(send_target_group, bot)
 

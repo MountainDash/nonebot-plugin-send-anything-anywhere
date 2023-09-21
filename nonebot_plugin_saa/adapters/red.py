@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import partial
 from typing import Any, Dict, List, Literal, Optional, cast
 
@@ -158,6 +159,7 @@ try:
                 name=bot.self_id,
                 group=bot.self_id,
                 message=msg,
+                time=datetime.now(),
             )
             for msg in msg_list
         ]
