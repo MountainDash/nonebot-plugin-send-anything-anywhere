@@ -65,7 +65,7 @@ try:
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        return MessageSegment.reply(r.data["message_id"])
+        return MessageSegment.reply("", message_id=r.data["message_id"])
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
@@ -125,7 +125,7 @@ try:
             full_msg = assamble_message_factory(
                 msg,
                 Mention(event.get_user_id()),
-                Reply(event.msgSeq),
+                Reply(event.msgId),
                 at_sender,
                 reply,
             )
