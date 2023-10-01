@@ -57,7 +57,7 @@ async def test_reply(app: App):
 
     from nonebot_plugin_saa import Reply
 
-    await assert_red(app, Reply("123"), MessageSegment.reply("123"))
+    await assert_red(app, Reply("123"), MessageSegment.reply("", message_id="123"))
 
 
 async def test_send(app: App):
