@@ -244,8 +244,8 @@ async def test_send_with_reply(app: App):
                     {
                         "elementType": 7,
                         "replyElement": {
-                            "sourceMsgIdInRecords": None,
-                            "replayMsgSeq": "103",
+                            "sourceMsgIdInRecords": "7272944767457625851",
+                            "replayMsgSeq": "",
                             "senderUid": None,
                         },
                     },
