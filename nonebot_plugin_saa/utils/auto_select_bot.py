@@ -72,6 +72,7 @@ def get_bot(target: PlatformTarget) -> Bot:
             "请在 插件入口(如 __init__.py ) 或者 发送前 调用:\n"
             "    from nonebot_plugin_saa import enable_auto_select_bot\n"
             "    enable_auto_select_bot()\n"
+            "\n参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot"
         )
 
     # TODO: 通过更方便的方式判断当前 Target 是否支持

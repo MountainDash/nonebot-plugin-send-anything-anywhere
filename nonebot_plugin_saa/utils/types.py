@@ -292,7 +292,17 @@ class MessageFactory(List[TMSF]):
     async def send_to(
         self, target: PlatformTarget, bot: Optional[Bot] = None
     ) -> "Receipt":
-        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
+        """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot
+
+        此功能需要显式开启:
+
+        ```python
+        from nonebot_plugin_saa import enable_auto_select_bot
+        enable_auto_select_bot()
+        ```
+
+        参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot
+        """
         if bot is None:
             bot = get_bot(target)
         return await self._do_send(bot, target, None, False, False)
