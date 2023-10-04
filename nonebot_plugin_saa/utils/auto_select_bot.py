@@ -67,7 +67,12 @@ async def refresh_bots():
 def get_bot(target: PlatformTarget) -> Bot:
     """获取 Bot"""
     if not inited:
-        raise RuntimeError("自动选择 Bot 的功能未启用，请先调用 enable_auto_select_bot 启用此功能")
+        raise RuntimeError(
+            "\n自动选择 Bot 的功能未启用\n"
+            "请在 插件入口(如 __init__.py ) 或者 发送前 调用:\n"
+            "    from nonebot_plugin_saa import enable_auto_select_bot\n"
+            "    enable_auto_select_bot()\n"
+        )
 
     # TODO: 通过更方便的方式判断当前 Target 是否支持
     if isinstance(target, TargetQQGuildDirect):
