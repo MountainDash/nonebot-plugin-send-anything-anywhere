@@ -34,6 +34,7 @@ jobs:
       - name: Publish PyPI and Github
         run: |
           poetry build
+          ls dist/
           gh release upload --clobber ${{ env.TAG_NAME }} dist/*.tar.gz dist/*.whl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
