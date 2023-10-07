@@ -13,6 +13,11 @@ jobs:
       url: https://pypi.org/p/nonebot-plugin-send-anything-anywhere
     permissions:
       id-token: write # IMPORTANT: this permission is mandatory for trusted publishing
+      # write permission is required to create a github release
+      contents: write
+      # write permission is required for autolabeler
+      # otherwise, read permission is required at least
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v3
