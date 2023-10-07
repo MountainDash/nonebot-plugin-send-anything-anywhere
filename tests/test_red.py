@@ -321,7 +321,7 @@ async def test_send_revoke(app: App):
         )
         ctx.should_call_api(
             "recall_message",
-            data={"chat_type": 1, "target": "4321", "msg_ids": ["7272944767457625851"]},
+            data={"chat_type": 1, "target": "1234", "msg_ids": ["7272944767457625851"]},
         )
 
 

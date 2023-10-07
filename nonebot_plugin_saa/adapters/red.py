@@ -76,7 +76,8 @@ try:
     @register_target_extractor(GroupMessageEvent)
     def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, GroupMessageEvent)
-        return TargetQQGroup(group_id=int(event.peerUid))
+        assert event.peerUin, "peerUin should not be None for group message"
+        return TargetQQGroup(group_id=int(event.peerUin))
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
@@ -99,9 +100,10 @@ try:
         message: MessageModel
 
         async def revoke(self):
+            assert self.message.peerUin, "peerUin should not be None"
             return await cast(BotRed, self._get_bot()).recall_message(
                 self.message.chatType,
-                self.message.peerUid,
+                self.message.peerUin,
                 self.message.msgId,
             )
 
