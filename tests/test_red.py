@@ -244,12 +244,20 @@ async def test_send_with_reply(app: App):
                     {
                         "elementType": 7,
                         "replyElement": {
-                            "sourceMsgIdInRecords": None,
+                            "replayMsgId": None,
                             "replayMsgSeq": "103",
-                            "senderUid": None,
+                            "senderUin": None,
+                            "senderUinStr": "None",
                         },
                     },
-                    {"elementType": 1, "textElement": {"atType": 2, "atNtUin": "1234"}},
+                    {
+                        "elementType": 1,
+                        "textElement": {
+                            "atType": 2,
+                            "atNtUin": "1234",
+                            "content": "@1234",
+                        },
+                    },
                     {"elementType": 1, "textElement": {"content": "123"}},
                 ],
             },
