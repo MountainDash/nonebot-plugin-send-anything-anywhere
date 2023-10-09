@@ -10,6 +10,7 @@ class SupportedAdapters(StrEnum):
     red = "RedProtocol"
     dodo = "DoDo"
     qq = "QQ"
+    satori = "Satori"
 
     fake = "fake"  # for nonebug
 
