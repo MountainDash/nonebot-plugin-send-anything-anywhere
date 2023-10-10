@@ -6,26 +6,26 @@ from .types import Reply as Reply
 from . import adapters as adapters
 from .types import Custom as Custom
 from .types import Mention as Mention
-from .utils import SaaTarget as SaaTarget
-from .utils import get_target as get_target
-from .utils import TargetQQGroup as TargetQQGroup
-from .utils import MessageFactory as MessageFactory
-from .utils import PlatformTarget as PlatformTarget
-from .utils import extract_target as extract_target
-from .utils import TargetQQPrivate as TargetQQPrivate
-from .utils import TargetOB12Unknow as TargetOB12Unknow
+from .registries import SaaTarget as SaaTarget
+from .registries import get_target as get_target
+from .registries import TargetQQGroup as TargetQQGroup
+from .registries import PlatformTarget as PlatformTarget
+from .registries import extract_target as extract_target
 from .utils import SupportedAdapters as SupportedAdapters
-from .utils import TargetFeishuGroup as TargetFeishuGroup
-from .utils import TargetFeishuPrivate as TargetFeishuPrivate
-from .utils import TargetQQGuildDirect as TargetQQGuildDirect
-from .utils import TargetTelegramForum as TargetTelegramForum
-from .utils import TargetQQGuildChannel as TargetQQGuildChannel
-from .utils import TargetTelegramCommon as TargetTelegramCommon
-from .utils import MessageSegmentFactory as MessageSegmentFactory
-from .utils import TargetKaiheilaChannel as TargetKaiheilaChannel
-from .utils import TargetKaiheilaPrivate as TargetKaiheilaPrivate
-from .utils import enable_auto_select_bot as enable_auto_select_bot
-from .utils import AggregatedMessageFactory as AggregatedMessageFactory
+from .registries import TargetQQPrivate as TargetQQPrivate
+from .registries import TargetOB12Unknow as TargetOB12Unknow
+from .registries import TargetFeishuGroup as TargetFeishuGroup
+from .abstract_factories import MessageFactory as MessageFactory
+from .registries import TargetFeishuPrivate as TargetFeishuPrivate
+from .registries import TargetQQGuildDirect as TargetQQGuildDirect
+from .registries import TargetTelegramForum as TargetTelegramForum
+from .registries import TargetQQGuildChannel as TargetQQGuildChannel
+from .registries import TargetTelegramCommon as TargetTelegramCommon
+from .registries import TargetKaiheilaChannel as TargetKaiheilaChannel
+from .registries import TargetKaiheilaPrivate as TargetKaiheilaPrivate
+from .auto_select_bot import enable_auto_select_bot as enable_auto_select_bot
+from .abstract_factories import MessageSegmentFactory as MessageSegmentFactory
+from .abstract_factories import AggregatedMessageFactory as AggregatedMessageFactory
 
 __plugin_meta__ = PluginMetadata(
     name="峯驰物流",

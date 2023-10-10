@@ -6,23 +6,23 @@ from nonebot import get_driver
 from nonebot.adapters import Bot, Event
 from nonebot.drivers import Request, HTTPClientMixin
 
-from nonebot_plugin_saa.utils.types import AggregatedMessageFactory
-
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
+from ..auto_select_bot import register_list_targets
+from ..utils import SupportedAdapters, SupportedPlatform
+from ..abstract_factories import (
+    MessageFactory,
+    MessageSegmentFactory,
+    AggregatedMessageFactory,
+    register_ms_adapter,
+    assamble_message_factory,
+)
+from ..registries import (
     Receipt,
     TargetQQGroup,
-    MessageFactory,
     PlatformTarget,
     TargetQQPrivate,
-    SupportedAdapters,
-    SupportedPlatform,
-    MessageSegmentFactory,
     register_sender,
-    register_ms_adapter,
-    register_list_targets,
     register_convert_to_arg,
-    assamble_message_factory,
     register_target_extractor,
 )
 

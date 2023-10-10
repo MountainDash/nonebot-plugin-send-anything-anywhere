@@ -3,7 +3,10 @@ from typing import Type
 import pytest
 from nonebug import App
 
-from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
+from nonebot_plugin_saa.abstract_factories import (
+    SupportedAdapters,
+    MessageSegmentFactory,
+)
 
 from .utils import assert_ms, mock_obv11_message_event
 
@@ -37,7 +40,7 @@ async def test_sync_without_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_saa.utils import register_ms_adapter
+    from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     def _text(t):
@@ -58,7 +61,7 @@ async def test_sync_with_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_saa.utils import register_ms_adapter
+    from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     def _text(t, bot):
@@ -79,7 +82,7 @@ async def test_async_without_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_saa.utils import register_ms_adapter
+    from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     async def _text(t):
@@ -100,7 +103,7 @@ async def test_async_with_bot(
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
-    from nonebot_plugin_saa.utils import register_ms_adapter
+    from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
     async def _text(t, bot):

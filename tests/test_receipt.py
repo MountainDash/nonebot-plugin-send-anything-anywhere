@@ -1,5 +1,6 @@
 async def test_deserialize_receipt():
-    from nonebot_plugin_saa.utils import Receipt, SupportedAdapters
+    from nonebot_plugin_saa.registries import Receipt
+    from nonebot_plugin_saa.utils import SupportedAdapters
 
     data = {
         "bot_id": "123",

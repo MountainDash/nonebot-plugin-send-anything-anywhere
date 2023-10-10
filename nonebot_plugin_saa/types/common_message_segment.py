@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Union, TypedDict
 
-from ..utils import MessageFactory, MessageSegmentFactory
+from ..abstract_factories import MessageFactory, MessageSegmentFactory
 
 
 class TextData(TypedDict):

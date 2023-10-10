@@ -1,6 +1,6 @@
 from nonebug import App
 
-from nonebot_plugin_saa.utils.types import MessageFactory
+from nonebot_plugin_saa.abstract_factories import MessageFactory
 
 from .utils import ob12_kwargs, mock_obv12_message_event
 

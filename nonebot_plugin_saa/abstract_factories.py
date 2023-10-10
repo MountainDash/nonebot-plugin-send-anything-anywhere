@@ -23,12 +23,14 @@ from nonebot.adapters import Bot, Event, Message, MessageSegment
 from nonebot.matcher import current_bot, current_event, current_matcher
 from nonebot.exception import PausedException, FinishedException, RejectedException
 
-from .receipt import Receipt
 from .auto_select_bot import get_bot
-from .const import SupportedAdapters
-from .helpers import extract_adapter_type
-from .exceptions import FallbackToDefault, AdapterNotInstalled
-from .platform_send_target import PlatformTarget, sender_map, extract_target
+from .registries import Receipt, PlatformTarget, sender_map, extract_target
+from .utils import (
+    FallbackToDefault,
+    SupportedAdapters,
+    AdapterNotInstalled,
+    extract_adapter_type,
+)
 
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
@@ -160,7 +162,17 @@ class MessageSegmentFactory(ABC):
         return await MessageFactory(self).send(at_sender=at_sender, reply=reply)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
-        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
+        """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot
+
+        此功能需要显式开启:
+
+        ```python
+        from nonebot_plugin_saa import enable_auto_select_bot
+        enable_auto_select_bot()
+        ```
+
+        参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot
+        """
         return await MessageFactory(self).send_to(target, bot)
 
     async def finish(self, *, at_sender=False, reply=False, **kwargs) -> NoReturn:
@@ -418,7 +430,17 @@ class AggregatedMessageFactory:
         await self._do_send(bot, target, event)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
-        "主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot（此功能需要显式开启）"
+        """主动发送消息，将消息发送到 target，如果不传入 bot 将自动选择 bot
+
+        此功能需要显式开启:
+
+        ```python
+        from nonebot_plugin_saa import enable_auto_select_bot
+        enable_auto_select_bot()
+        ```
+
+        参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot
+        """
         if bot is None:
             bot = get_bot(target)
         await self._do_send(bot, target, None)

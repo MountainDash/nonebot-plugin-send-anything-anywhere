@@ -7,17 +7,19 @@ from typing import List, Union, Literal, cast
 import anyio
 from nonebot.adapters import Event
 
+from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
-    Receipt,
+from ..abstract_factories import (
     MessageFactory,
-    SupportedAdapters,
-    TargetTelegramForum,
-    TargetTelegramCommon,
     MessageSegmentFactory,
-    register_sender,
     register_ms_adapter,
     assamble_message_factory,
+)
+from ..registries import (
+    Receipt,
+    TargetTelegramForum,
+    TargetTelegramCommon,
+    register_sender,
     register_target_extractor,
 )
 

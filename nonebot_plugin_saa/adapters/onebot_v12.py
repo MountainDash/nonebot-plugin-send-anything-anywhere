@@ -7,25 +7,26 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
+from ..auto_select_bot import register_list_targets
+from ..utils import SupportedAdapters, SupportedPlatform
+from ..abstract_factories import (
+    MessageFactory,
+    MessageSegmentFactory,
+    register_ms_adapter,
+    assamble_message_factory,
+)
+from ..registries import (
     Receipt,
     TargetQQGroup,
-    MessageFactory,
     PlatformTarget,
     TargetQQPrivate,
     TargetOB12Unknow,
     QQGuildDMSManager,
-    SupportedAdapters,
-    SupportedPlatform,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
-    MessageSegmentFactory,
     register_sender,
-    register_ms_adapter,
     register_qqguild_dms,
-    register_list_targets,
     register_convert_to_arg,
-    assamble_message_factory,
     register_target_extractor,
 )
 

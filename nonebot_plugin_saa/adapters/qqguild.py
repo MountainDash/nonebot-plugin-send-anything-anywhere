@@ -4,21 +4,23 @@ from typing import List, Literal
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
+from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
-    Receipt,
+from ..auto_select_bot import register_list_targets
+from ..abstract_factories import (
     MessageFactory,
+    MessageSegmentFactory,
+    register_ms_adapter,
+    assamble_message_factory,
+)
+from ..registries import (
+    Receipt,
     PlatformTarget,
     QQGuildDMSManager,
-    SupportedAdapters,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
-    MessageSegmentFactory,
     register_sender,
-    register_ms_adapter,
     register_qqguild_dms,
-    register_list_targets,
-    assamble_message_factory,
     register_target_extractor,
 )
 

@@ -9,7 +9,7 @@ from nonebot_plugin_saa.utils.const import SupportedAdapters
 
 def test_register_deserializer():
     from nonebot_plugin_saa.utils import SupportedPlatform
-    from nonebot_plugin_saa.utils.platform_send_target import PlatformTarget
+    from nonebot_plugin_saa.registries import PlatformTarget
 
     class MySendTarget(PlatformTarget):
         platform_type: Literal[SupportedPlatform.qq_group] = SupportedPlatform.qq_group
@@ -30,7 +30,7 @@ def test_register_deserializer():
 
 
 def test_deserialize_nested_platform_target():
-    from nonebot_plugin_saa.utils import (
+    from nonebot_plugin_saa.registries import (
         TargetQQGroup,
         TargetQQPrivate,
         AllSupportedPlatformTarget,
@@ -54,7 +54,7 @@ async def test_export_args(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v11 import Bot
 
-    from nonebot_plugin_saa.utils import TargetQQGroup
+    from nonebot_plugin_saa.registries import TargetQQGroup
 
     target = TargetQQGroup(group_id=31415)
     async with app.test_api() as ctx:

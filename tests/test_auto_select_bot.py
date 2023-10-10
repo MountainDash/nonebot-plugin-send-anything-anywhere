@@ -10,7 +10,7 @@ from nonebot.adapters.qqguild.config import BotInfo
 
 async def test_disable(app: App):
     from nonebot_plugin_saa import TargetQQGuildChannel
-    from nonebot_plugin_saa.utils.auto_select_bot import get_bot
+    from nonebot_plugin_saa.auto_select_bot import get_bot
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
@@ -31,11 +31,11 @@ async def test_disable(app: App):
 async def test_enable(app: App, mocker: MockerFixture):
     from nonebot.adapters.qqguild.api import Guild, Channel
 
-    from nonebot_plugin_saa.utils.auto_select_bot import get_bot
+    from nonebot_plugin_saa.auto_select_bot import get_bot
     from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
 
     # 结束后会自动恢复到原来的状态
-    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", False)
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", False)
 
     enable_auto_select_bot()
 
@@ -66,7 +66,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
     from nonebot import get_driver
     from nonebot.adapters.qqguild.api import Guild, Channel, Message
 
-    from nonebot_plugin_saa.utils.auto_select_bot import refresh_bots
+    from nonebot_plugin_saa.auto_select_bot import refresh_bots
     from nonebot_plugin_saa import (
         Text,
         MessageFactory,
@@ -75,7 +75,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
         AggregatedMessageFactory,
     )
 
-    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
