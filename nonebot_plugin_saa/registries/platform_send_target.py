@@ -20,12 +20,11 @@ from pydantic import BaseModel
 from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
 
-from .helpers import extract_adapter_type
-from .const import SupportedAdapters, SupportedPlatform
+from ..utils import SupportedAdapters, SupportedPlatform, extract_adapter_type
 
 if TYPE_CHECKING:
     from .receipt import Receipt
-    from .types import MessageFactory
+    from ..abstract_factories import MessageFactory
 
 
 class PlatformTarget(BaseModel, ABC):

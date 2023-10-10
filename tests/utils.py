@@ -14,7 +14,10 @@ if TYPE_CHECKING:
     from nonebot.adapters.qqguild import Message as QQGuildMessage
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
-    from nonebot_plugin_saa.utils import SupportedAdapters, MessageSegmentFactory
+    from nonebot_plugin_saa.abstract_factories import (
+        SupportedAdapters,
+        MessageSegmentFactory,
+    )
 
 
 async def assert_ms(

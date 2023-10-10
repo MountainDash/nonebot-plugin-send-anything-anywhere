@@ -4,21 +4,22 @@ from typing import Any, Dict, List, Union, Literal, Optional, cast
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
-    Receipt,
-    TargetQQGroup,
+from ..auto_select_bot import register_list_targets
+from ..utils import SupportedAdapters, SupportedPlatform
+from ..abstract_factories import (
     MessageFactory,
-    PlatformTarget,
-    TargetQQPrivate,
-    SupportedAdapters,
-    SupportedPlatform,
     MessageSegmentFactory,
     AggregatedMessageFactory,
-    register_sender,
     register_ms_adapter,
-    register_list_targets,
-    register_convert_to_arg,
     assamble_message_factory,
+)
+from ..registries import (
+    Receipt,
+    TargetQQGroup,
+    PlatformTarget,
+    TargetQQPrivate,
+    register_sender,
+    register_convert_to_arg,
     register_target_extractor,
 )
 

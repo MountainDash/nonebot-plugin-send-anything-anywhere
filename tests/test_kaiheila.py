@@ -278,8 +278,8 @@ async def test_send_with_reply(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
-    from nonebot_plugin_saa import MessageFactory
-    from nonebot_plugin_saa.utils.platform_send_target import (
+    from nonebot_plugin_saa import (
+        MessageFactory,
         TargetKaiheilaChannel,
         TargetKaiheilaPrivate,
     )
@@ -310,9 +310,9 @@ async def test_send_active(app: App):
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
-    from nonebot_plugin_saa.utils.auto_select_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa.auto_select_bot import get_bot, refresh_bots
 
-    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.kaiheila)]

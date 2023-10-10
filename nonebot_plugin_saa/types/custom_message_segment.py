@@ -2,10 +2,10 @@ from typing import Dict, Union
 
 from nonebot.adapters import Bot, MessageSegment
 
-from ..utils import (
+from ..utils import AdapterNotSupported
+from ..abstract_factories import (
     CustomBuildFunc,
     SupportedAdapters,
-    AdapterNotSupported,
     MessageSegmentFactory,
     do_build_custom,
     extract_adapter_type,

@@ -15,10 +15,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 @pytest.fixture
 def app(app: App):
-    from nonebot_plugin_saa.utils.platform_send_target import (
-        PlatformTarget,
-        QQGuildDMSManager,
-    )
+    from nonebot_plugin_saa.registries import PlatformTarget, QQGuildDMSManager
 
     yield app
 

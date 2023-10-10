@@ -5,19 +5,21 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
-from ..utils.platform_send_target import TargetKaiheilaChannel, TargetKaiheilaPrivate
-from ..utils import (
-    Receipt,
+from ..auto_select_bot import register_list_targets
+from ..utils import SupportedAdapters, SupportedPlatform
+from ..abstract_factories import (
     MessageFactory,
-    PlatformTarget,
-    SupportedAdapters,
-    SupportedPlatform,
     MessageSegmentFactory,
-    register_sender,
     register_ms_adapter,
-    register_list_targets,
-    register_convert_to_arg,
     assamble_message_factory,
+)
+from ..registries import (
+    Receipt,
+    PlatformTarget,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
+    register_sender,
+    register_convert_to_arg,
     register_target_extractor,
 )
 

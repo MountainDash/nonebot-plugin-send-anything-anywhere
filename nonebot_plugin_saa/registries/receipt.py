@@ -6,7 +6,7 @@ from nonebot import get_bot
 from nonebot.adapters import Bot
 from pydantic import BaseModel, ConfigDict
 
-from .const import SupportedAdapters
+from ..utils import SupportedAdapters
 
 
 class Receipt(BaseModel, ABC):

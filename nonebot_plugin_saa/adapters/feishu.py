@@ -6,16 +6,19 @@ from typing import Any, Dict, Literal, cast
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
+from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
-from ..utils.platform_send_target import TargetFeishuGroup, TargetFeishuPrivate
-from ..utils import (
-    Receipt,
+from ..abstract_factories import (
     MessageFactory,
-    SupportedAdapters,
     MessageSegmentFactory,
-    register_sender,
     register_ms_adapter,
     assamble_message_factory,
+)
+from ..registries import (
+    Receipt,
+    TargetFeishuGroup,
+    TargetFeishuPrivate,
+    register_sender,
     register_target_extractor,
 )
 

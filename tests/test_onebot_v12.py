@@ -293,11 +293,7 @@ async def test_send_active(app: App):
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
-    from nonebot_plugin_saa.utils.auto_select_bot import (
-        NoBotFound,
-        get_bot,
-        refresh_bots,
-    )
+    from nonebot_plugin_saa.auto_select_bot import NoBotFound, get_bot, refresh_bots
     from nonebot_plugin_saa import (
         TargetQQGroup,
         TargetQQPrivate,
@@ -305,7 +301,7 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         TargetQQGuildChannel,
     )
 
-    mocker.patch("nonebot_plugin_saa.utils.auto_select_bot.inited", True)
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
