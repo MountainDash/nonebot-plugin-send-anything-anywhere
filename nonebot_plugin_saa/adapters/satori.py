@@ -58,14 +58,15 @@ try:
     @register_target_extractor(PrivateMessageCreatedEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, PrivateMessageCreatedEvent)
-        if event.platform == "qq":
+        if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQPrivate(user_id=int(event.get_user_id()))
         raise NotImplementedError
 
     @register_target_extractor(PublicMessageCreatedEvent)
     def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, PublicMessageCreatedEvent)
-        if event.platform == "qq":
+        # FIXME: 私聊还不能正常工作
+        if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQGroup(group_id=int(event.channel.id))
         raise NotImplementedError
 
@@ -99,7 +100,7 @@ try:
         def raw(self) -> List[SatoriMessage]:
             return self.messages
 
-    @register_sender(SupportedAdapters.red)
+    @register_sender(SupportedAdapters.satori)
     async def send(
         bot,
         msg: MessageFactory[MessageSegmentFactory],
@@ -125,7 +126,16 @@ try:
         for message_segment_factory in full_msg:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
-        resp = await bot.send_message(message=message_to_send, **target.arg_dict(bot))
+
+        if event:
+            resp = await bot.send_message(
+                message=message_to_send, channel_id=event.channel.id
+            )
+        else:
+            # FIXME: 私聊还不能正常工作
+            resp = await bot.send_message(
+                message=message_to_send, **target.arg_dict(bot)
+            )
 
         return SatoriReceipt(bot_id=bot.self_id, messages=resp)
 
@@ -161,8 +171,8 @@ try:
 
         # 获取好友列表
         users = await bot.friend_list()
-        for user in users:
-            if bot.platform == "qq":
+        for user in users.data:
+            if bot.platform in ["qq", "red", "chronocat"]:
                 target = TargetQQPrivate(user_id=int(user.id))
             else:
                 raise NotImplementedError
