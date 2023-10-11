@@ -37,7 +37,7 @@ __plugin_meta__ = PluginMetadata(
         "~onebot.v11",
         "~onebot.v12",
         "~kaiheila",
-        "~qqguild",
+        # "~qqguild",
         "~telegram",
         "~feishu",
         "~red",
