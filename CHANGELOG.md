@@ -1,10 +1,27 @@
 # Change Log
 
+## 最近更新
+
+### Bug 修复
+
+- 移除 metadata 中的 qqguild [@AzideCupric](https://github.com/AzideCupric) ([#92](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/92))
+
 ## v0.3.1
 
 ### 新功能
 
+- Red 适配 Receipt 与合并转发 [@he0119](https://github.com/he0119) ([#85](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/85))
+- 增加 SaaTarget nb 依赖项 [@felinae98](https://github.com/felinae98) ([#83](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/83))
+- 适配 Red [@he0119](https://github.com/he0119) ([#76](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/76))
 - 增添 message_receipt [@felinae98](https://github.com/felinae98) ([#71](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/71))
+
+### Bug 修复
+
+- 修复 Red 适配器撤回私聊报错的问题 [@he0119](https://github.com/he0119) ([#89](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/89))
+
+### 文档
+
+- :memo: 补充 enable_auto_select_bot 的说明 [@AzideCupric](https://github.com/AzideCupric) ([#87](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/87))
 
 ## v0.3.0
 
