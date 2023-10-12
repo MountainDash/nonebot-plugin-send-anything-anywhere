@@ -19,7 +19,7 @@ def app(app: App):
 
     yield app
 
-    PlatformTarget._deseriazer_map.clear()
+    PlatformTarget._deserializer_dict.clear()
     QQGuildDMSManager._cache.clear()
 
 

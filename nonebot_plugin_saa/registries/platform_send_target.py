@@ -1,5 +1,3 @@
-import json
-from abc import ABC
 from typing_extensions import Annotated
 from typing import (
     TYPE_CHECKING,
@@ -13,13 +11,12 @@ from typing import (
     ClassVar,
     Optional,
     Awaitable,
-    cast,
 )
 
-from pydantic import BaseModel
 from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
 
+from .meta import SerializationMeta
 from ..utils import SupportedAdapters, SupportedPlatform, extract_adapter_type
 
 if TYPE_CHECKING:
@@ -27,21 +24,16 @@ if TYPE_CHECKING:
     from ..abstract_factories import MessageFactory
 
 
-class PlatformTarget(BaseModel, ABC):
-    _deseriazer_map: ClassVar[
-        Dict[SupportedPlatform, Type["AllSupportedPlatformTarget"]]
-    ] = {}
+class PlatformTarget(
+    SerializationMeta[Type["AllSupportedPlatformTarget"], SupportedPlatform]
+):
+    _index_key = "platform_type"
+
     platform_type: SupportedPlatform
 
     class Config:
         frozen = True
         orm_mode = True
-
-    def __init_subclass__(cls) -> None:
-        assert isinstance(cls.__fields__["platform_type"].default, SupportedPlatform)
-        cls = cast(Type["AllSupportedPlatformTarget"], cls)
-        cls._deseriazer_map[cls.__fields__["platform_type"].default] = cls
-        return super().__init_subclass__()
 
     def arg_dict(self, bot: Bot):
         adapter_type = extract_adapter_type(bot)
@@ -50,18 +42,6 @@ class PlatformTarget(BaseModel, ABC):
                 f"PlatformTarget {self.platform_type} not support {adapter_type}",
             )
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
-
-    @classmethod
-    def deserialize(cls, source: Any) -> "AllSupportedPlatformTarget":
-        if isinstance(source, str):
-            raw_obj = json.loads(source)
-        else:
-            raw_obj = source
-            assert raw_obj.get("platform_type")
-        platform_type = cast(
-            SupportedPlatform, SupportedPlatform(raw_obj["platform_type"])
-        )
-        return cls._deseriazer_map[platform_type].parse_obj(raw_obj)
 
 
 class TargetQQGroup(PlatformTarget):
