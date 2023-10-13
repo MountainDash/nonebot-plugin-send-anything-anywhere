@@ -4,20 +4,21 @@ from typing import Any, Dict, List, Literal, cast
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
-from ..utils import (
+from ..auto_select_bot import register_list_targets
+from ..utils import SupportedAdapters, SupportedPlatform
+from ..abstract_factories import (
+    MessageFactory,
+    MessageSegmentFactory,
+    register_ms_adapter,
+    assamble_message_factory,
+)
+from ..registries import (
     Receipt,
     TargetQQGroup,
-    MessageFactory,
     PlatformTarget,
     TargetQQPrivate,
-    SupportedAdapters,
-    SupportedPlatform,
-    MessageSegmentFactory,
     register_sender,
-    register_ms_adapter,
-    register_list_targets,
     register_convert_to_arg,
-    assamble_message_factory,
     register_target_extractor,
 )
 
@@ -65,7 +66,6 @@ try:
     @register_target_extractor(PublicMessageCreatedEvent)
     def _extract_group_msg_event(event: Event) -> TargetQQGroup:
         assert isinstance(event, PublicMessageCreatedEvent)
-        # FIXME: 私聊还不能正常工作
         if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQGroup(group_id=int(event.channel.id))
         raise NotImplementedError
@@ -74,7 +74,7 @@ try:
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {
-            "channel_id": str(target.user_id),
+            "channel_id": f"private:{target.user_id}",
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
@@ -128,11 +128,15 @@ try:
             message_to_send += message_segment
 
         if event:
-            resp = await bot.send_message(
-                message=message_to_send, channel_id=event.channel.id
-            )
+            if isinstance(event, PrivateMessageCreatedEvent):
+                resp = await bot.send_message(
+                    message=message_to_send, channel_id=f"private:{event.channel.id}"
+                )
+            else:
+                resp = await bot.send_message(
+                    message=message_to_send, channel_id=event.channel.id
+                )
         else:
-            # FIXME: 私聊还不能正常工作
             resp = await bot.send_message(
                 message=message_to_send, **target.arg_dict(bot)
             )
