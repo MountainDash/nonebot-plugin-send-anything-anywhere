@@ -1,5 +1,16 @@
 from functools import partial
-from typing import Any, Dict, List, Literal, cast
+from typing import (
+    Any,
+    Dict,
+    List,
+    Generic,
+    Literal,
+    TypeVar,
+    Optional,
+    Protocol,
+    Awaitable,
+    cast,
+)
 
 from nonebot.adapters import Bot, Event
 
@@ -24,6 +35,7 @@ from ..registries import (
 
 try:
     from nonebot.adapters.satori import Bot as BotSatori
+    from nonebot.adapters.satori.models import PageResult
     from nonebot.adapters.satori import Message, MessageSegment
     from nonebot.adapters.satori.models import InnerMessage as SatoriMessage
     from nonebot.adapters.satori.event import (
@@ -31,6 +43,8 @@ try:
         PublicMessageCreatedEvent,
         PrivateMessageCreatedEvent,
     )
+
+    T = TypeVar("T")
 
     adapter = SupportedAdapters.satori
     register_satori = partial(register_ms_adapter, adapter)
@@ -161,21 +175,42 @@ try:
     #     else:  # pragma: no cover
     #         raise RuntimeError(f"{target.__class__.__name__} not supported")
 
+    class PagedAPI(Generic[T], Protocol):
+        def __call__(
+            self, *, next_token: Optional[str] = None
+        ) -> Awaitable[PageResult[T]]:
+            ...
+
+    async def _fetch_all(paged_api: PagedAPI[T]) -> List[T]:
+        results = []
+        token = None
+        while True:
+            resp = await paged_api(next_token=token)
+            results.extend(resp.data)
+            if resp.next is None:
+                break
+            token = resp.next
+        return results
+
     @register_list_targets(SupportedAdapters.satori)
     async def list_targets(bot: Bot) -> List[PlatformTarget]:
         assert isinstance(bot, BotSatori)
 
         targets = []
         # 获取群组列表
-        # guilds = await bot.guild_list()
-        # for guild in guilds:
-        #     channels = await bot.channel_list(guild_id=guild.id)
-        #     for channel in channels:
-        #         targets.append()
+        guilds = await _fetch_all(bot.guild_list)
+        for guild in guilds:
+            channels = await _fetch_all(partial(bot.channel_list, guild_id=guild.id))
+            for channel in channels:
+                if bot.platform in ["qq", "red", "chronocat"]:
+                    target = TargetQQGroup(group_id=int(channel.id))
+                else:
+                    raise NotImplementedError
+                targets.append(target)
 
         # 获取好友列表
-        users = await bot.friend_list()
-        for user in users.data:
+        users = await _fetch_all(bot.friend_list)
+        for user in users:
             if bot.platform in ["qq", "red", "chronocat"]:
                 target = TargetQQPrivate(user_id=int(user.id))
             else:
