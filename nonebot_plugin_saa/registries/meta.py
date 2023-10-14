@@ -24,7 +24,7 @@ class SerializationMeta(BaseModel, ABC, Generic[ST, KT]):
         frozen = True
         orm_mode = True
 
-    def __init_subclass__(cls) -> None:
+    def __init_subclass__(cls, *args, **kwargs) -> None:
         if cls._level == Level.MetaBase:
             cls._level = Level.Base
             cls._deserializer_dict = {}
@@ -36,7 +36,7 @@ class SerializationMeta(BaseModel, ABC, Generic[ST, KT]):
         else:
             raise RuntimeError("SerializationMeta init error")
 
-        super().__init_subclass__()
+        super().__init_subclass__(*args, **kwargs)
 
     @classmethod
     def deserialize(cls, source: Any) -> ST:
