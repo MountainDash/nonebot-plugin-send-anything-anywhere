@@ -1,12 +1,10 @@
 import json
 from abc import ABC
 from enum import Enum
-from typing import Any, Dict, Generic, TypeVar, ClassVar
+from typing_extensions import Self
+from typing import Any, Dict, ClassVar
 
 from pydantic import BaseModel
-
-KT = TypeVar("KT")  # index key type
-ST = TypeVar("ST")  # deserialized type
 
 
 class Level(Enum):
@@ -15,7 +13,7 @@ class Level(Enum):
     Normal = 3
 
 
-class SerializationMeta(BaseModel, ABC, Generic[ST, KT]):
+class SerializationMeta(BaseModel, ABC):
     _index_key: ClassVar[str]
     _deserializer_dict: ClassVar[Dict]
     _level: ClassVar[Level] = Level.MetaBase
@@ -39,7 +37,7 @@ class SerializationMeta(BaseModel, ABC, Generic[ST, KT]):
         super().__init_subclass__(*args, **kwargs)
 
     @classmethod
-    def deserialize(cls, source: Any) -> ST:
+    def deserialize(cls, source: Any) -> Self:
         if isinstance(source, str):
             raw_obj = json.loads(source)
         else:

@@ -7,7 +7,7 @@ from .meta import SerializationMeta
 from ..utils import SupportedAdapters
 
 
-class Receipt(SerializationMeta["Receipt", SupportedAdapters]):
+class Receipt(SerializationMeta):
     _index_key = "adapter_name"
 
     adapter_name: SupportedAdapters

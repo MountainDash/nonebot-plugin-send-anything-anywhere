@@ -24,9 +24,7 @@ if TYPE_CHECKING:
     from ..abstract_factories import MessageFactory
 
 
-class PlatformTarget(
-    SerializationMeta[Type["AllSupportedPlatformTarget"], SupportedPlatform]
-):
+class PlatformTarget(SerializationMeta):
     _index_key = "platform_type"
 
     platform_type: SupportedPlatform
