@@ -1,7 +1,6 @@
 """ 提供获取 Bot 的方法 """
 import random
 import asyncio
-from collections import defaultdict
 from typing import Set, Dict, List, Callable, Awaitable
 
 from nonebot import get_bots
@@ -10,7 +9,7 @@ from nonebot.adapters import Bot
 from .registries import PlatformTarget, TargetQQGuildDirect
 from .utils import NoBotFound, SupportedAdapters, extract_adapter_type
 
-BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = defaultdict(set)
+BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
 BOT_CACHE_LOCK = asyncio.Lock()
 
 ListTargetsFunc = Callable[[Bot], Awaitable[List[PlatformTarget]]]
