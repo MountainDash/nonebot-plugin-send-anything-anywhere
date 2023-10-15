@@ -40,8 +40,11 @@ async def test_reply(app: App):
     from nonebot.adapters.onebot.v11 import MessageSegment
 
     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa.adapters.onebot_v11 import OB11MessageId
 
-    await assert_onebot_v11(app, Reply(123), MessageSegment.reply(123))
+    await assert_onebot_v11(
+        app, Reply(OB11MessageId(message_id=123)), MessageSegment.reply(123)
+    )
 
 
 async def test_send(app: App):

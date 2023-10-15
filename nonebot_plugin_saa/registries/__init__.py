@@ -1,4 +1,7 @@
 from .receipt import Receipt as Receipt
+from .message_id import MessageId as MessageId
+from .message_id import SaaMessageId as SaaMessageId
+from .message_id import get_message_id as get_message_id
 from .platform_send_target import SaaTarget as SaaTarget
 from .platform_send_target import get_target as get_target
 from .platform_send_target import sender_map as sender_map
@@ -16,6 +19,7 @@ from .platform_send_target import TargetTelegramForum as TargetTelegramForum
 from .platform_send_target import TargetQQGuildChannel as TargetQQGuildChannel
 from .platform_send_target import TargetTelegramCommon as TargetTelegramCommon
 from .platform_send_target import register_qqguild_dms as register_qqguild_dms
+from .message_id import register_message_id_getter as register_message_id_getter
 from .platform_send_target import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .platform_send_target import TargetKaiheilaPrivate as TargetKaiheilaPrivate
 from .platform_send_target import register_convert_to_arg as register_convert_to_arg

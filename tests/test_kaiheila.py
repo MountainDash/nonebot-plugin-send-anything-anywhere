@@ -150,8 +150,11 @@ async def test_reply(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa.adapters.kaiheila import KaiheilaMessageId
 
-    await assert_kaiheila(app, Reply("123"), MessageSegment.quote("123"))
+    await assert_kaiheila(
+        app, Reply(KaiheilaMessageId(message_id="123")), MessageSegment.quote("123")
+    )
 
 
 async def test_send(app: App):

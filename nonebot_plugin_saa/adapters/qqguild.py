@@ -15,6 +15,7 @@ from ..abstract_factories import (
 )
 from ..registries import (
     Receipt,
+    MessageId,
     PlatformTarget,
     QQGuildDMSManager,
     TargetQQGuildDirect,
@@ -41,6 +42,10 @@ try:
 
     MessageFactory.register_adapter_message(adapter, Message)
 
+    class QQGuildMessageId(MessageId):
+        adapter_name: Literal[adapter] = adapter
+        message_id: str
+
     @register_qqguild(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
@@ -58,7 +63,8 @@ try:
 
     @register_qqguild(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        return MessageSegment.reference(r.data["message_id"])
+        assert isinstance(r.data, QQGuildMessageId)
+        return MessageSegment.reference(r.data.message_id)
 
     @register_target_extractor(MessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:
@@ -120,7 +126,11 @@ try:
             assert event.author
             assert event.id
             full_msg = assamble_message_factory(
-                msg, Mention(str(event.author.id)), Reply(event.id), at_sender, reply
+                msg,
+                Mention(str(event.author.id)),
+                Reply(QQGuildMessageId(message_id=event.id)),
+                at_sender,
+                reply,
             )
 
         # parse Message

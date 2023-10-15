@@ -85,10 +85,11 @@ async def test_reply(app: App):
     from nonebot.adapters.telegram.message import MessageSegment
 
     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa.adapters.telegram import TelegramMessageId
 
     await assert_telegram(
         app,
-        Reply(114514),
+        Reply(TelegramMessageId(message_id=114514)),
         MessageSegment("reply", {"message_id": "114514"}),
     )
 

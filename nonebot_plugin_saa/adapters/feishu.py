@@ -16,10 +16,12 @@ from ..abstract_factories import (
 )
 from ..registries import (
     Receipt,
+    MessageId,
     TargetFeishuGroup,
     TargetFeishuPrivate,
     register_sender,
     register_target_extractor,
+    register_message_id_getter,
 )
 
 try:
@@ -38,6 +40,10 @@ try:
     register_feishu = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(adapter, Message)
+
+    class FeishuMessageId(MessageId):
+        adapter_name: Literal[adapter] = adapter
+        message_id: str
 
     @register_feishu(Text)
     def _text(t: Text) -> MessageSegment:
@@ -72,7 +78,8 @@ try:
 
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        return MessageSegment("reply", cast(dict, r.data))
+        assert isinstance(r.data, FeishuMessageId)
+        return MessageSegment("reply", {"message_id": r.data.message_id})
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetFeishuPrivate:
@@ -98,6 +105,11 @@ try:
         def raw(self) -> Any:
             return self.data
 
+    @register_message_id_getter(MessageEvent)
+    def _(event: Event) -> FeishuMessageId:
+        assert isinstance(event, MessageEvent)
+        return FeishuMessageId(message_id=event.event.message.message_id)
+
     @register_sender(adapter)
     async def send(
         bot,
@@ -119,7 +131,7 @@ try:
                     if isinstance(event, GroupMessageEvent)
                     else None
                 ),
-                Reply(event.event.message.message_id),
+                Reply(FeishuMessageId(message_id=event.event.message.message_id)),
                 at_sender,
                 reply,
             )
@@ -130,7 +142,8 @@ try:
         message_to_send = Message()
         for message_segment_factory in full_msg:
             if isinstance(message_segment_factory, Reply):
-                reply_to_message_id = message_segment_factory.data["message_id"]
+                assert isinstance(message_segment_factory.data, FeishuMessageId)
+                reply_to_message_id = message_segment_factory.data.message_id
                 continue
 
             message_segment = await message_segment_factory.build(bot)
