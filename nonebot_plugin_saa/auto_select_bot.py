@@ -1,7 +1,8 @@
 """ 提供获取 Bot 的方法 """
 import random
+import asyncio
 from collections import defaultdict
-from typing import Dict, List, Callable, Awaitable
+from typing import Set, Dict, List, Callable, Awaitable
 
 from nonebot import get_bots
 from nonebot.adapters import Bot
@@ -9,7 +10,8 @@ from nonebot.adapters import Bot
 from .registries import PlatformTarget, TargetQQGuildDirect
 from .utils import NoBotFound, SupportedAdapters, extract_adapter_type
 
-BOT_CACHE: Dict[PlatformTarget, List[Bot]] = defaultdict(list)
+BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = defaultdict(set)
+BOT_CACHE_LOCK = asyncio.Lock()
 
 ListTargetsFunc = Callable[[Bot], Awaitable[List[PlatformTarget]]]
 
@@ -24,9 +26,14 @@ def _register_hook():
     driver = get_driver()
 
     @driver.on_bot_connect
+    async def _(bot: Bot):
+        async with BOT_CACHE_LOCK:
+            await _refresh_bot(bot)
+
     @driver.on_bot_disconnect
     async def _(bot: Bot):
-        await refresh_bots()
+        async with BOT_CACHE_LOCK:
+            BOT_CACHE.pop(bot, None)
 
 
 def enable_auto_select_bot():
@@ -51,15 +58,20 @@ def register_list_targets(adapter: SupportedAdapters):
     return wrapper
 
 
+async def _refresh_bot(bot: Bot):
+    BOT_CACHE.pop(bot, None)
+    adapter_name = extract_adapter_type(bot)
+    if list_targets := list_targets_map.get(adapter_name):
+        targets = await list_targets(bot)
+        BOT_CACHE[bot] = set(targets)
+
+
 async def refresh_bots():
     """刷新缓存的 Bot 数据"""
-    BOT_CACHE.clear()
-    for bot in list(get_bots().values()):
-        adapter_name = extract_adapter_type(bot)
-        if list_targets := list_targets_map.get(adapter_name):
-            targets = await list_targets(bot)
-            for target in targets:
-                BOT_CACHE[target].append(bot)
+    async with BOT_CACHE_LOCK:
+        BOT_CACHE.clear()
+        for bot in list(get_bots().values()):
+            await _refresh_bot(bot)
 
 
 def get_bot(target: PlatformTarget) -> Bot:
@@ -77,7 +89,10 @@ def get_bot(target: PlatformTarget) -> Bot:
     if isinstance(target, TargetQQGuildDirect):
         raise NotImplementedError("暂不支持私聊")
 
-    bots = BOT_CACHE.get(target)
+    bots = []
+    for bot, targets in BOT_CACHE.items():
+        if target in targets:
+            bots.append(bot)
     if not bots:
         raise NoBotFound()
 
