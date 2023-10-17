@@ -4,6 +4,7 @@
 
 ### 文档
 
+- 更新 adapter 适配指南 [@felinae98](https://github.com/felinae98) ([#98](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/98))
 - 📝 完善自动选择Bot文档 [@AzideCupric](https://github.com/AzideCupric) ([#100](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/100))
 
 ## v0.3.2
