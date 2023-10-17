@@ -1,0 +1,5 @@
+MD013: false
+MD024: # 重复标题
+  siblings_only: true
+MD033: false # 允许 html
+MD041: false
