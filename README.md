@@ -4,7 +4,7 @@
 
 # Nonebot Plugin<br>Send Anything Anywhere
 
-你只管业务实现，把发送交给我们
+你只管业务实现，把发送交给我们 | [文档](https://send-anything-anywhere.felinae98.cn/)
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/felinae98/nonebot-plugin-send-anything-anywhere/test.yml)
 [![codecov](https://codecov.io/gh/MountainDash/nonebot-plugin-send-anything-anywhere/graph/badge.svg?token=7EV2hcYx8d)](https://codecov.io/gh/MountainDash/nonebot-plugin-send-anything-anywhere)
