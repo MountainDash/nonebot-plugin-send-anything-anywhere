@@ -56,8 +56,13 @@ async def test_reply(app: App):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa.adapters.red import RedMessageId
 
-    await assert_red(app, Reply("123"), MessageSegment.reply("123"))
+    await assert_red(
+        app,
+        Reply(RedMessageId(message_seq="123", message_id="12", sender_uin="1")),
+        MessageSegment.reply("123", "12", "1"),
+    )
 
 
 async def test_send(app: App):
@@ -244,10 +249,10 @@ async def test_send_with_reply(app: App):
                     {
                         "elementType": 7,
                         "replyElement": {
-                            "replayMsgId": None,
+                            "replayMsgId": "7272944767457625851",
                             "replayMsgSeq": "103",
-                            "senderUin": None,
-                            "senderUinStr": "None",
+                            "senderUin": "1234",
+                            "senderUinStr": "1234",
                         },
                     },
                     {
