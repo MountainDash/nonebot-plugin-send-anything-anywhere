@@ -33,6 +33,15 @@ def enable_auto_select_bot():
     """启用自动选择 Bot 的功能
 
     启用后，发送主动消息时，可不提供 Target，会自动选择一个 Bot 进行发送
+
+    ```python
+    # __init__.py(插件入口)
+    require("nonebot_plugin_saa")
+    from nonebot_plugin_saa import enable_auto_select_bot
+    enable_auto_select_bot()
+    ```
+
+    参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot
     """
     global inited
 
@@ -67,7 +76,8 @@ def get_bot(target: PlatformTarget) -> Bot:
     if not inited:
         raise RuntimeError(
             "\n自动选择 Bot 的功能未启用\n"
-            "请在 插件入口(如 __init__.py ) 或者 发送前 调用:\n"
+            "请在 插件入口(__init__.py) 调用:\n"
+            "    require('nonebot_plugin_saa')\n"
             "    from nonebot_plugin_saa import enable_auto_select_bot\n"
             "    enable_auto_select_bot()\n"
             "\n参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot"
