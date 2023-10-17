@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 文档
+
+- 📝 完善自动选择Bot文档 [@AzideCupric](https://github.com/AzideCupric) ([#100](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/100))
+
 ## v0.3.2
 
 ### Bug 修复
