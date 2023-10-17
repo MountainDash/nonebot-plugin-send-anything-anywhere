@@ -18,6 +18,7 @@ from ..abstract_factories import (
 )
 from ..registries import (
     Receipt,
+    MessageId,
     TargetQQGroup,
     PlatformTarget,
     TargetQQPrivate,
@@ -44,6 +45,12 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.red, Message)
 
+    class RedMessageId(MessageId):
+        adapter_name: Literal[adapter] = adapter
+        message_seq: str
+        message_id: Optional[str] = None
+        sender_uin: Optional[str] = None
+
     @register_red(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
@@ -65,7 +72,12 @@ try:
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        return MessageSegment.reply(r.data["message_id"])
+        assert isinstance(r.data, RedMessageId)
+        return MessageSegment.reply(
+            message_seq=r.data.message_seq,
+            message_id=r.data.message_id,
+            sender_uin=r.data.sender_uin,
+        )
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
@@ -127,7 +139,13 @@ try:
             full_msg = assamble_message_factory(
                 msg,
                 Mention(event.get_user_id()),
-                Reply(event.msgSeq),
+                Reply(
+                    RedMessageId(
+                        message_seq=event.msgSeq,
+                        message_id=event.msgId,
+                        sender_uin=event.senderUin,
+                    )
+                ),
                 at_sender,
                 reply,
             )
