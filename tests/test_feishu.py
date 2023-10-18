@@ -185,10 +185,11 @@ async def test_reply(app: App):
     from nonebot.adapters.feishu import MessageSegment
 
     from nonebot_plugin_saa import Reply
+    from nonebot_plugin_saa.adapters.feishu import FeishuMessageId
 
     await assert_feishu(
         app,
-        Reply(114514),
+        Reply(FeishuMessageId(message_id="114514")),
         MessageSegment("reply", {"message_id": "114514"}),
     )
 
