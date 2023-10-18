@@ -114,7 +114,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
 
     async with app.test_api() as ctx:
         adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
-        ctx.create_bot(
+        bot = ctx.create_bot(
             base=Bot,
             adapter=adapter_qqguild,
             bot_info=BotInfo(id="3344", token="", secret=""),
@@ -161,3 +161,14 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
         target = TargetQQGuildChannel(channel_id=2)
         with pytest.raises(RuntimeError):
             await MessageFactory("123").send_to(target)
+
+        adapter_qqguild.bot_disconnect(bot)
+
+        await refresh_bots()
+
+        target = TargetQQGuildChannel(channel_id=2233)
+        with pytest.raises(RuntimeError):
+            await AggregatedMessageFactory([Text("123"), Text("456")]).send_to(target)
+
+        # should connect back
+        adapter_qqguild.bot_connect(bot)
