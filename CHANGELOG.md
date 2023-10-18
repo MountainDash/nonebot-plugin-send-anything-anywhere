@@ -6,6 +6,10 @@
 
 - 重构 Reply [@felinae98](https://github.com/felinae98) ([#97](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/97))
 
+### Bug 修复
+
+- :bug: 加锁避免并发出错 [@he0119](https://github.com/he0119) ([#96](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/96))
+
 ### 文档
 
 - 更新 adapter 适配指南 [@felinae98](https://github.com/felinae98) ([#98](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/98))
