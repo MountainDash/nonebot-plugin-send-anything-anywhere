@@ -1,10 +1,11 @@
 """ 提供获取 Bot 的方法 """
+import json
 import random
 import asyncio
 from typing import Set, Dict, List, Callable, Awaitable
 
-from nonebot import get_bots
 from nonebot.adapters import Bot
+from nonebot import logger, get_bots
 
 from .registries import PlatformTarget, TargetQQGuildDirect
 from .utils import NoBotFound, SupportedAdapters, extract_adapter_type
@@ -26,11 +27,13 @@ def _register_hook():
 
     @driver.on_bot_connect
     async def _(bot: Bot):
+        logger.info(f"refresh bot platform target cache {bot}")
         async with BOT_CACHE_LOCK:
             await _refresh_bot(bot)
 
     @driver.on_bot_disconnect
     async def _(bot: Bot):
+        logger.info(f"pop bot {bot}")
         async with BOT_CACHE_LOCK:
             BOT_CACHE.pop(bot, None)
 
@@ -72,6 +75,7 @@ async def _refresh_bot(bot: Bot):
     if list_targets := list_targets_map.get(adapter_name):
         targets = await list_targets(bot)
         BOT_CACHE[bot] = set(targets)
+    _info_current()
 
 
 async def refresh_bots():
@@ -103,6 +107,14 @@ def get_bot(target: PlatformTarget) -> Bot:
         if target in targets:
             bots.append(bot)
     if not bots:
+        _info_current()
         raise NoBotFound()
 
     return random.choice(bots)
+
+
+def _info_current():
+    log_info = {}
+    for bot, platform_target_set in BOT_CACHE.items():
+        log_info[str(bot)] = [target.dict() for target in platform_target_set]
+    logger.trace(f"current bot-platform_target: {json.dumps(log_info)}")
