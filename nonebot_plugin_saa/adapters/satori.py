@@ -21,6 +21,7 @@ from ..utils import SupportedAdapters, SupportedPlatform
 from ..abstract_factories import (
     MessageFactory,
     MessageSegmentFactory,
+    AggregatedMessageFactory,
     register_ms_adapter,
     assamble_message_factory,
 )
@@ -30,6 +31,8 @@ from ..registries import (
     TargetQQGroup,
     PlatformTarget,
     TargetQQPrivate,
+    TargetKaiheilaChannel,
+    TargetKaiheilaPrivate,
     register_sender,
     register_convert_to_arg,
     register_target_extractor,
@@ -84,28 +87,44 @@ try:
         assert isinstance(event, PrivateMessageCreatedEvent)
         if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQPrivate(user_id=int(event.get_user_id()))
+        elif event.platform == "kook":
+            return TargetKaiheilaPrivate(user_id=event.get_user_id())
         raise NotImplementedError
 
     @register_target_extractor(PublicMessageCreatedEvent)
-    def _extract_group_msg_event(event: Event) -> TargetQQGroup:
+    def _extract_group_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, PublicMessageCreatedEvent)
         if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQGroup(group_id=int(event.channel.id))
+        elif event.platform == "kook":
+            return TargetKaiheilaChannel(channel_id=event.channel.id)
         raise NotImplementedError
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
-        assert isinstance(target, TargetQQPrivate)
-        return {
-            "channel_id": f"private:{target.user_id}",
-        }
+        if isinstance(target, TargetQQPrivate):
+            return {
+                "channel_id": f"private:{target.user_id}",
+            }
+        elif isinstance(target, TargetKaiheilaPrivate):
+            return {
+                "channel_id": target.user_id,
+            }
+
+        raise NotImplementedError
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
-        assert isinstance(target, TargetQQGroup)
-        return {
-            "channel_id": str(target.group_id),
-        }
+        if isinstance(target, TargetQQGroup):
+            return {
+                "channel_id": str(target.group_id),
+            }
+        elif isinstance(target, TargetKaiheilaChannel):
+            return {
+                "channel_id": target.channel_id,
+            }
+
+        raise NotImplementedError
 
     class SatoriReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
@@ -133,7 +152,6 @@ try:
         reply: bool,
     ) -> SatoriReceipt:
         assert isinstance(bot, BotSatori)
-        assert isinstance(target, (TargetQQGroup, TargetQQPrivate))
         if event:
             assert isinstance(event, MessageEvent)
             full_msg = assamble_message_factory(
@@ -151,14 +169,9 @@ try:
             message_to_send += message_segment
 
         if event:
-            if isinstance(event, PrivateMessageCreatedEvent):
-                resp = await bot.send_message(
-                    message=message_to_send, channel_id=f"private:{event.channel.id}"
-                )
-            else:
-                resp = await bot.send_message(
-                    message=message_to_send, channel_id=event.channel.id
-                )
+            resp = await bot.send_message(
+                message=message_to_send, channel_id=event.channel.id
+            )
         else:
             resp = await bot.send_message(
                 message=message_to_send, **target.arg_dict(bot)
@@ -166,23 +179,30 @@ try:
 
         return SatoriReceipt(bot_id=bot.self_id, messages=resp)
 
-    # @AggregatedMessageFactory.register_aggregated_sender(adapter)
-    # async def aggregate_send(
-    #     bot: Bot,
-    #     message_factories: List[MessageFactory],
-    #     target: PlatformTarget,
-    #     event: Optional[Event],
-    # ):
-    #     assert isinstance(bot, BotSatori)
+    @AggregatedMessageFactory.register_aggregated_sender(adapter)
+    async def aggregate_send(
+        bot: Bot,
+        message_factories: List[MessageFactory],
+        target: PlatformTarget,
+        event: Optional[Event],
+    ):
+        assert isinstance(bot, BotSatori)
 
-    #     msg_list: List[Message] = []
-    #     for msg_fac in message_factories:
-    #         msg = await msg_fac.build(bot)
-    #         assert isinstance(msg, Message)
-    #         msg_list.append(msg)
+        msg_list: List[Message] = []
+        for msg_fac in message_factories:
+            msg = await msg_fac.build(bot)
+            assert isinstance(msg, Message)
+            msg_list.append(msg)
 
-    #     else:  # pragma: no cover
-    #         raise RuntimeError(f"{target.__class__.__name__} not supported")
+        message_to_send = Message()
+        for msg in msg_list:
+            message_to_send += MessageSegment.message(content=msg)
+
+        if event:
+            assert isinstance(event, MessageEvent)
+            await bot.send_message(message=message_to_send, channel_id=event.channel.id)
+        else:
+            await bot.send_message(message=message_to_send, **target.arg_dict(bot))
 
     class PagedAPI(Generic[T], Protocol):
         def __call__(
