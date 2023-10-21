@@ -127,13 +127,13 @@ from nonebot.adapters.onebot.v12.bot import Bot as V12Bot
 
 pic_matcher = nonebot.on_command('发送图片')
 
-pic_matcher.handle()
+@pic_matcher.handle()
 async def _handle_v11(event: V11MessageEvent):
     pic_content = ...
     msg = V11MessageSegment.image(pic_content) + V11MessageSegment.text("这是你要的图片")
     await pic_matcher.finish(msg)
 
-pic_matcher.handle()
+@pic_matcher.handle()
 async def _handle_v12(bot: V12Bot, event: V12MessageEvent):
     pic_content = ...
     pic_file = await bot.upload_file(type='data', name='image', data=pic_content)
@@ -151,7 +151,7 @@ from nonebot_plugin_saa import Image, Text, MessageFactory
 
 pic_matcher = nonebot.on_command('发送图片')
 
-pic_matcher.handle()
+@pic_matcher.handle()
 async def _handle_v12(bot: Bot, event: Union[V12MessageEvent, V11MessageEvent]):
     pic_content = ...
     msg_builder = MessageFactory([
