@@ -25,6 +25,7 @@ from ..abstract_factories import (
 )
 from ..registries import (
     Receipt,
+    MessageId,
     TargetQQGroup,
     PlatformTarget,
     TargetQQPrivate,
@@ -51,6 +52,11 @@ try:
 
     MessageFactory.register_adapter_message(SupportedAdapters.satori, Message)
 
+    class SatoriMessageId(MessageId):
+        adapter_name: Literal[adapter] = adapter
+
+        message_id: str
+
     @register_satori(Text)
     def _text(t: Text) -> MessageSegment:
         return MessageSegment.text(t.data["text"])
@@ -68,7 +74,8 @@ try:
 
     @register_satori(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        return MessageSegment.quote(r.data["message_id"])
+        assert isinstance(r.data, SatoriMessageId)
+        return MessageSegment.quote(r.data.message_id)
 
     @register_target_extractor(PrivateMessageCreatedEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
@@ -130,7 +137,7 @@ try:
             full_msg = assamble_message_factory(
                 msg,
                 Mention(event.get_user_id()),
-                Reply(event.message.id),
+                Reply(SatoriMessageId(message_id=event.message.id)),
                 at_sender,
                 reply,
             )
