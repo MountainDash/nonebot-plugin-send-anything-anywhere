@@ -49,8 +49,8 @@ async def handle(event: MessageEvent):
 ```python
 from nonebot_plugin_saa import TargetQQGroup
 
-# 发送目标为 QQ 号 10000, 以私聊形式发送
-target = TargetQQGroup(group_id=2233)
+# 发送目标为群号 114514 的群聊
+target = TargetQQGroup(group_id=114514)
 await MessageFactory("早上好").send_to(target)
 ```
 
