@@ -27,6 +27,10 @@ from ..registries import (
 
 try:
     from nonebot.adapters.qqguild.api import Message as ApiMessage
+    from nonebot.adapters.qqguild.exception import (
+        AuditException,
+        QQGuildAdapterException,
+    )
     from nonebot.adapters.qqguild import (
         Bot,
         Message,
@@ -41,6 +45,9 @@ try:
     register_qqguild = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(adapter, Message)
+
+    class QQGuildAuditRejectException(QQGuildAdapterException):
+        ...
 
     class QQGuildMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
@@ -151,56 +158,66 @@ try:
         if reference := (message["reference"] or None):
             reference = reference[-1].data["reference"]
 
-        if event:  # reply to user
-            if isinstance(event, DirectMessageCreateEvent):
-                sent_msg = await bot.post_dms_messages(
-                    guild_id=event.guild_id,  # type: ignore
-                    msg_id=event.id,
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
+        try:
+            if event:  # reply to user
+                if isinstance(event, DirectMessageCreateEvent):
+                    sent_msg = await bot.post_dms_messages(
+                        guild_id=event.guild_id,  # type: ignore
+                        msg_id=event.id,
+                        content=content,
+                        embed=embed,  # type: ignore
+                        ark=ark,  # type: ignore
+                        image=image,  # type: ignore
+                        file_image=file_image,  # type: ignore
+                        markdown=markdown,  # type: ignore
+                        message_reference=reference,  # type: ignore
+                    )
+                else:
+                    sent_msg = await bot.post_messages(
+                        channel_id=event.channel_id,  # type: ignore
+                        msg_id=event.id,
+                        content=content,
+                        embed=embed,  # type: ignore
+                        ark=ark,  # type: ignore
+                        image=image,  # type: ignore
+                        file_image=file_image,  # type: ignore
+                        markdown=markdown,  # type: ignore
+                        message_reference=reference,  # type: ignore
+                    )
             else:
-                sent_msg = await bot.post_messages(
-                    channel_id=event.channel_id,  # type: ignore
-                    msg_id=event.id,
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
-        else:
-            if isinstance(target, TargetQQGuildChannel):
-                assert target.channel_id
-                sent_msg = await bot.post_messages(
-                    channel_id=target.channel_id,
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
-            else:
-                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                sent_msg = await bot.post_dms_messages(
-                    guild_id=guild_id,  # type: ignore
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
+                if isinstance(target, TargetQQGuildChannel):
+                    assert target.channel_id
+                    sent_msg = await bot.post_messages(
+                        channel_id=target.channel_id,
+                        content=content,
+                        embed=embed,  # type: ignore
+                        ark=ark,  # type: ignore
+                        image=image,  # type: ignore
+                        file_image=file_image,  # type: ignore
+                        markdown=markdown,  # type: ignore
+                        message_reference=reference,  # type: ignore
+                    )
+                else:
+                    guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
+                    sent_msg = await bot.post_dms_messages(
+                        guild_id=guild_id,  # type: ignore
+                        content=content,
+                        embed=embed,  # type: ignore
+                        ark=ark,  # type: ignore
+                        image=image,  # type: ignore
+                        file_image=file_image,  # type: ignore
+                        markdown=markdown,  # type: ignore
+                        message_reference=reference,  # type: ignore
+                    )
+        except AuditException as e:
+            audit = await e.get_audit_result()
+            if type(audit) == "MESSAGE_AUDIT_REJECT":
+                raise QQGuildAuditRejectException()
+            sent_msg = ApiMessage(
+                id=audit.message_id,
+                channel_id=audit.channel_id,
+                guild_id=audit.guild_id,
+            )
 
         return QQGuildReceipt(bot_id=bot.self_id, sent_msg=sent_msg)
 
