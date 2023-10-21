@@ -12,6 +12,7 @@ from typing import (
     cast,
 )
 
+from nonebot import logger
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
@@ -38,6 +39,7 @@ try:
     from nonebot.adapters.satori import Bot as BotSatori
     from nonebot.adapters.satori.models import PageResult
     from nonebot.adapters.satori import Message, MessageSegment
+    from nonebot.adapters.satori.exception import ApiNotImplementedException
     from nonebot.adapters.satori.models import InnerMessage as SatoriMessage
     from nonebot.adapters.satori.event import (
         MessageEvent,
@@ -205,24 +207,36 @@ try:
 
         targets = []
         # 获取群组列表
-        guilds = await _fetch_all(bot.guild_list)
-        for guild in guilds:
-            channels = await _fetch_all(partial(bot.channel_list, guild_id=guild.id))
-            for channel in channels:
+        try:
+            guilds = await _fetch_all(bot.guild_list)
+            for guild in guilds:
+                channels = await _fetch_all(
+                    partial(bot.channel_list, guild_id=guild.id)
+                )
+                for channel in channels:
+                    if bot.platform in ["qq", "red", "chronocat"]:
+                        target = TargetQQGroup(group_id=int(channel.id))
+                    else:
+                        raise NotImplementedError
+                    targets.append(target)
+        except ApiNotImplementedException as e:  # pragma: no cover
+            logger.warning(
+                f"Satori({bot.platform}) does not support fetching channel list: {e}"
+            )
+
+        # 获取好友列表
+        try:
+            users = await _fetch_all(bot.friend_list)
+            for user in users:
                 if bot.platform in ["qq", "red", "chronocat"]:
-                    target = TargetQQGroup(group_id=int(channel.id))
+                    target = TargetQQPrivate(user_id=int(user.id))
                 else:
                     raise NotImplementedError
                 targets.append(target)
-
-        # 获取好友列表
-        users = await _fetch_all(bot.friend_list)
-        for user in users:
-            if bot.platform in ["qq", "red", "chronocat"]:
-                target = TargetQQPrivate(user_id=int(user.id))
-            else:
-                raise NotImplementedError
-            targets.append(target)
+        except ApiNotImplementedException as e:  # pragma: no cover
+            logger.warning(
+                f"Satori({bot.platform}) does not support fetching friend list: {e}"
+            )
 
         return targets
 
