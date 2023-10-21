@@ -31,6 +31,9 @@ from ..registries import (
     TargetQQGroup,
     PlatformTarget,
     TargetQQPrivate,
+    TargetFeishuGroup,
+    TargetFeishuPrivate,
+    TargetTelegramCommon,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
     register_sender,
@@ -89,6 +92,10 @@ try:
             return TargetQQPrivate(user_id=int(event.get_user_id()))
         elif event.platform == "kook":
             return TargetKaiheilaPrivate(user_id=event.get_user_id())
+        elif event.platform == "telegram":
+            return TargetTelegramCommon(chat_id=event.get_user_id())
+        elif event.platform == "feishu":
+            return TargetFeishuPrivate(open_id=event.get_user_id())
         raise NotImplementedError
 
     @register_target_extractor(PublicMessageCreatedEvent)
@@ -98,6 +105,9 @@ try:
             return TargetQQGroup(group_id=int(event.channel.id))
         elif event.platform == "kook":
             return TargetKaiheilaChannel(channel_id=event.channel.id)
+        # TODO: support telegram forum
+        elif event.platform == "feishu":
+            return TargetFeishuGroup(chat_id=event.channel.id)
         raise NotImplementedError
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
