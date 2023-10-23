@@ -33,6 +33,7 @@ from ..registries import (
     TargetQQPrivate,
     TargetFeishuGroup,
     TargetFeishuPrivate,
+    TargetSatoriUnknown,
     TargetTelegramCommon,
     TargetKaiheilaChannel,
     TargetKaiheilaPrivate,
@@ -96,7 +97,7 @@ try:
             return TargetTelegramCommon(chat_id=event.get_user_id())
         elif event.platform == "feishu":
             return TargetFeishuPrivate(open_id=event.get_user_id())
-        raise NotImplementedError
+        return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
     @register_target_extractor(PublicMessageCreatedEvent)
     def _extract_group_msg_event(event: Event) -> PlatformTarget:
@@ -108,33 +109,40 @@ try:
         # TODO: support telegram forum
         elif event.platform == "feishu":
             return TargetFeishuGroup(chat_id=event.channel.id)
-        raise NotImplementedError
+        return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
-        if isinstance(target, TargetQQPrivate):
-            return {
-                "channel_id": f"private:{target.user_id}",
-            }
-        elif isinstance(target, TargetKaiheilaPrivate):
-            return {
-                "channel_id": target.user_id,
-            }
-
-        raise NotImplementedError
+    def _gen_qq_private(target: PlatformTarget) -> Dict[str, Any]:
+        assert isinstance(target, TargetQQPrivate)
+        return {"channel_id": f"private:{target.user_id}"}
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
-    def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
-        if isinstance(target, TargetQQGroup):
-            return {
-                "channel_id": str(target.group_id),
-            }
-        elif isinstance(target, TargetKaiheilaChannel):
-            return {
-                "channel_id": target.channel_id,
-            }
+    def _gen_qq_group(target: PlatformTarget) -> Dict[str, Any]:
+        assert isinstance(target, TargetQQGroup)
+        return {"channel_id": str(target.group_id)}
 
-        raise NotImplementedError
+    @register_convert_to_arg(adapter, SupportedPlatform.feishu_private)
+    def _gen_feishu_private(target: PlatformTarget) -> Dict[str, Any]:
+        assert isinstance(target, TargetFeishuPrivate)
+        return {"channel_id": target.open_id}
+
+    @register_convert_to_arg(adapter, SupportedPlatform.feishu_group)
+    def _gen_feishu_group(target: PlatformTarget) -> Dict[str, Any]:
+        assert isinstance(target, TargetFeishuGroup)
+        return {"channel_id": target.chat_id}
+
+    @register_convert_to_arg(adapter, SupportedPlatform.telegram_common)
+    def _gen_telegram_common(target: PlatformTarget) -> Dict[str, Any]:
+        assert isinstance(target, TargetTelegramCommon)
+        return {"channel_id": target.chat_id}
+
+    @register_convert_to_arg(adapter, SupportedPlatform.unknown_satori)
+    def _to_unknow(target: PlatformTarget):
+        assert isinstance(target, TargetSatoriUnknown)
+        # TODO: 如果是私聊，需要先创建私聊会话
+        if target.channel_id is None:
+            raise NotImplementedError
+        return {"channel_id": target.channel_id}
 
     class SatoriReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
@@ -156,8 +164,8 @@ try:
     async def send(
         bot,
         msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
+        target: PlatformTarget,
+        event: Optional[Event],
         at_sender: bool,
         reply: bool,
     ) -> SatoriReceipt:
@@ -247,7 +255,9 @@ try:
                     if bot.platform in ["qq", "red", "chronocat"]:
                         target = TargetQQGroup(group_id=int(channel.id))
                     else:
-                        raise NotImplementedError
+                        target = TargetSatoriUnknown(
+                            platform=bot.platform, channel_id=channel.id
+                        )
                     targets.append(target)
         except ApiNotImplementedException as e:  # pragma: no cover
             logger.warning(
@@ -261,7 +271,7 @@ try:
                 if bot.platform in ["qq", "red", "chronocat"]:
                     target = TargetQQPrivate(user_id=int(user.id))
                 else:
-                    raise NotImplementedError
+                    target = TargetSatoriUnknown(platform=bot.platform, user_id=user.id)
                 targets.append(target)
         except ApiNotImplementedException as e:  # pragma: no cover
             logger.warning(

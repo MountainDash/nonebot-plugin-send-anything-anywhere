@@ -19,6 +19,7 @@ from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
 from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
 from .platform_send_target import TargetQQGroupOpenId as TargetQQGroupOpenId
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect
+from .platform_send_target import TargetSatoriUnknown as TargetSatoriUnknown
 from .platform_send_target import TargetTelegramForum as TargetTelegramForum
 from .platform_send_target import TargetQQGuildChannel as TargetQQGuildChannel
 from .platform_send_target import TargetTelegramCommon as TargetTelegramCommon
