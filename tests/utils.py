@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
     from nonebot.adapters.dodo.models import MessageBody, MessageType
+    from nonebot.adapters.qq import Message as QQMessage
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
     from nonebot_plugin_saa.abstract_factories import (
@@ -242,6 +243,29 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
             author=User(id=3344),
         )
 
+def mock_qq_message_event(message: "QQMessage", direct=False):
+    from nonebot.adapters.qq.models import User
+    from nonebot.adapters.qq.event import EventType
+    from nonebot.adapters.qq import MessageCreateEvent, DirectMessageCreateEvent
+
+    if not direct:
+        return MessageCreateEvent(
+            __type__=EventType.MESSAGE_CREATE,
+            id=str(random.randrange(0, 10000)),
+            guild_id="1122",
+            channel_id="2233",
+            content=message.extract_content(),
+            author=User(id="3344"),
+        )
+    else:
+        return DirectMessageCreateEvent(
+            __type__=EventType.DIRECT_MESSAGE_CREATE,
+            id=str(random.randrange(0, 10000)),
+            guild_id="1122",
+            channel_id="2233",
+            content=message.extract_content(),
+            author=User(id="3344"),
+        )
 
 def ob12_kwargs(platform="qq", impl="walle") -> Dict[str, Any]:
     return {"platform": platform, "impl": impl}
