@@ -30,6 +30,7 @@ def _register_hook():
         logger.info(f"refresh bot platform target cache {bot}")
         async with BOT_CACHE_LOCK:
             await _refresh_bot(bot)
+        print(BOT_CACHE)
 
     @driver.on_bot_disconnect
     async def _(bot: Bot):
@@ -63,6 +64,7 @@ def enable_auto_select_bot():
 
 def register_list_targets(adapter: SupportedAdapters):
     def wrapper(func: ListTargetsFunc):
+        logger.debug(f"register {adapter=} {func=}")
         list_targets_map[adapter] = func
         return func
 
