@@ -6,6 +6,10 @@
 
 - 重构 Reply [@felinae98](https://github.com/felinae98) ([#97](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/97))
 
+### 新功能
+
+- 为 auto select bot 加入更多日志信息 [@felinae98](https://github.com/felinae98) ([#101](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/101))
+
 ### 文档
 
 - 修复文档错误 [@montmorill](https://github.com/montmorill) ([#104](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/104))
