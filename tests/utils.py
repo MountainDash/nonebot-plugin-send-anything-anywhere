@@ -7,13 +7,13 @@ from nonebot import get_driver
 if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
+    from nonebot.adapters.qq import Message as QQMessage
     from nonebot.adapters.telegram import Message as TGMessage
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
     from nonebot.adapters.dodo.models import MessageBody, MessageType
-    from nonebot.adapters.qq import Message as QQMessage
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
     from nonebot_plugin_saa.abstract_factories import (
@@ -243,6 +243,7 @@ def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
             author=User(id=3344),
         )
 
+
 def mock_qq_message_event(message: "QQMessage", direct=False):
     from nonebot.adapters.qq.models import User
     from nonebot.adapters.qq.event import EventType
@@ -266,6 +267,7 @@ def mock_qq_message_event(message: "QQMessage", direct=False):
             content=message.extract_content(),
             author=User(id="3344"),
         )
+
 
 def ob12_kwargs(platform="qq", impl="walle") -> Dict[str, Any]:
     return {"platform": platform, "impl": impl}
