@@ -36,7 +36,6 @@ def _register_hook():
         logger.info(f"refresh bot platform target cache {bot}")
         async with BOT_CACHE_LOCK:
             await _refresh_bot(bot)
-        print(BOT_CACHE)
 
     @driver.on_bot_disconnect
     async def _(bot: Bot):
