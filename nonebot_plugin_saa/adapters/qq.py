@@ -59,7 +59,7 @@ try:
 
     @register_qq(Mention)
     def _mention(m: Mention) -> MessageSegment:
-        return MessageSegment.mention_user(int(m.data["user_id"]))
+        return MessageSegment.mention_user(m.data["user_id"])
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:
