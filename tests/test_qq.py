@@ -82,7 +82,7 @@ async def test_mention_user(app: App):
 
     from nonebot_plugin_saa import Mention
 
-    await assert_qqguild(app, Mention("314159"), MessageSegment.mention_user(314159))
+    await assert_qqguild(app, Mention("314159"), MessageSegment.mention_user("314159"))
 
 
 async def test_send(app: App):
