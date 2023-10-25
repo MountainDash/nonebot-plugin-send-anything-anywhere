@@ -11,7 +11,7 @@ from nonebot.adapters.qq.models import DMS, User, Guild, Channel, Message
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, mock_qq_message_event
+from .utils import assert_ms, mock_qq_guild_message_event
 
 MockGuild = partial(
     Guild,
@@ -104,39 +104,19 @@ async def test_send(app: App):
             adapter=qqguild_adapter,
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
-        event = mock_qq_message_event(Message("321"))
+        event = mock_qq_guild_message_event(Message("321"))
         ctx.receive_event(bot, event)
-        ctx.should_call_api(
-            "post_messages",
-            data={
-                "channel_id": event.channel_id,
-                "msg_id": event.id,
-                "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
-            },
+        ctx.should_call_send(
+            event,
+            Message("123"),
             result=MockMessage(id="1234871", channel_id=event.channel_id),
         )
 
-        event = mock_qq_message_event(Message("322"), direct=True)
+        event = mock_qq_guild_message_event(Message("322"), direct=True)
         ctx.receive_event(bot, event)
-        ctx.should_call_api(
-            "post_dms_messages",
-            data={
-                "guild_id": event.guild_id,
-                "msg_id": event.id,
-                "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
-            },
+        ctx.should_call_send(
+            event,
+            Message("123"),
             result=MockMessage(id="1234871", channel_id=event.channel_id),
         )
 
@@ -161,21 +141,11 @@ async def test_send_revoke(app: App):
             adapter=qqguild_adapter,
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
-        event = mock_qq_message_event(Message("321"))
+        event = mock_qq_guild_message_event(Message("321"))
         ctx.receive_event(bot, event)
-        ctx.should_call_api(
-            "post_messages",
-            data={
-                "channel_id": event.channel_id,
-                "msg_id": event.id,
-                "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
-            },
+        ctx.should_call_send(
+            event,
+            Message("123"),
             result=MockMessage(id="1234871", channel_id=event.channel_id),
         )
         ctx.should_call_api(
@@ -209,13 +179,9 @@ async def test_send_active(app: App):
             "post_messages",
             data={
                 "channel_id": "2233",
+                "msg_id": None,
+                "event_id": None,
                 "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1234871", channel_id="2233"),
         )
@@ -235,13 +201,9 @@ async def test_send_active(app: App):
             "post_dms_messages",
             data={
                 "guild_id": "3333",
+                "msg_id": None,
+                "event_id": None,
                 "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1234871", channel_id="12479234"),
         )
@@ -252,13 +214,9 @@ async def test_send_active(app: App):
             "post_dms_messages",
             data={
                 "guild_id": "3333",
+                "msg_id": None,
+                "event_id": None,
                 "content": "1234",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1234871", channel_id="12355131"),
         )
@@ -290,15 +248,61 @@ async def test_list_targets(app: App, mocker: MockerFixture):
 
 
 def test_extract_target(app: App):
-    from nonebot.adapters.qq import EventType, MessageCreateEvent
+    from nonebot.adapters.qq.models import Author
+    from nonebot.adapters.qq import (
+        EventType,
+        MessageCreateEvent,
+        C2CMessageCreateEvent,
+        DirectMessageCreateEvent,
+        GroupAtMessageCreateEvent,
+    )
 
-    from nonebot_plugin_saa import TargetQQGuildChannel, extract_target
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        TargetQQPrivate,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+        extract_target,
+    )
 
-    group_message_event = MessageCreateEvent(
+    guild_message_event = MessageCreateEvent(
         __type__=EventType.CHANNEL_CREATE,
+        id="1",
         channel_id="6677",
         guild_id="5566",
-        id="1",
         author=User(id="1"),
     )
-    assert extract_target(group_message_event) == TargetQQGuildChannel(channel_id=6677)
+    assert extract_target(guild_message_event) == TargetQQGuildChannel(channel_id=6677)
+
+    direct_message_event = DirectMessageCreateEvent(
+        __type__=EventType.DIRECT_MESSAGE_CREATE,
+        id="1",
+        channel_id="6677",
+        guild_id="5566",
+        author=User(id="1"),
+    )
+
+    assert extract_target(direct_message_event) == TargetQQGuildDirect(
+        recipient_id=1, source_guild_id=5566
+    )
+
+    c2c_message_event = C2CMessageCreateEvent(
+        __type__=EventType.C2C_MESSAGE_CREATE,
+        id="1",
+        author=Author(id="3344"),
+        content="test",
+        timestamp="12345678",
+    )
+
+    assert extract_target(c2c_message_event) == TargetQQPrivate(user_id=3344)
+
+    group_at_message_event = GroupAtMessageCreateEvent(
+        __type__=EventType.GROUP_AT_MESSAGE_CREATE,
+        id="1",
+        author=Author(id="3344"),
+        group_id="1122",
+        content="test",
+        timestamp="12345678",
+    )
+
+    assert extract_target(group_at_message_event) == TargetQQGroup(group_id=1122)
