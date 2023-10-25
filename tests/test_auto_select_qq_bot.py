@@ -122,13 +122,9 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
             "post_messages",
             data={
                 "channel_id": "2233",
+                "msg_id": None,
+                "event_id": None,
                 "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1255124", channel_id="2233"),
         )
@@ -157,13 +153,9 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
             "post_messages",
             data={
                 "channel_id": "2233",
+                "msg_id": None,
+                "event_id": None,
                 "content": "123",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1255124", channel_id="2233"),
         )
@@ -171,13 +163,9 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
             "post_messages",
             data={
                 "channel_id": "2233",
+                "msg_id": None,
+                "event_id": None,
                 "content": "456",
-                "embed": None,
-                "ark": None,
-                "image": None,
-                "file_image": None,
-                "markdown": None,
-                "message_reference": None,
             },
             result=MockMessage(id="1255124", channel_id="2233"),
         )
