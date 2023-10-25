@@ -69,7 +69,6 @@ def enable_auto_select_bot():
 
 def register_list_targets(adapter: SupportedAdapters):
     def wrapper(func: ListTargetsFunc):
-        logger.debug(f"register {adapter=} {func=}")
         list_targets_map[adapter] = func
         return func
 
