@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List, Literal
+from typing import List, Union, Literal, Optional
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -16,7 +16,9 @@ from ..abstract_factories import (
 from ..registries import (
     Receipt,
     MessageId,
+    TargetQQGroup,
     PlatformTarget,
+    TargetQQPrivate,
     QQGuildDMSManager,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
@@ -28,13 +30,21 @@ from ..registries import (
 try:
     from nonebot.adapters.qq.event import GuildMessageEvent
     from nonebot.adapters.qq.models import Message as ApiMessage
+    from nonebot.adapters.qq.models import (
+        PostC2CFilesReturn,
+        PostGroupFilesReturn,
+        PostC2CMessagesReturn,
+        PostGroupMessagesReturn,
+    )
     from nonebot.adapters.qq import (
         Bot,
         Message,
         MessageSegment,
         MessageCreateEvent,
         AtMessageCreateEvent,
+        C2CMessageCreateEvent,
         DirectMessageCreateEvent,
+        GroupAtMessageCreateEvent,
     )
 
     adapter = SupportedAdapters.qq
@@ -42,7 +52,7 @@ try:
 
     MessageFactory.register_adapter_message(adapter, Message)
 
-    class QQGuildMessageId(MessageId):
+    class QQMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
         message_id: str
 
@@ -63,7 +73,7 @@ try:
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, QQGuildMessageId)
+        assert isinstance(r.data, QQMessageId)
         return MessageSegment.reference(r.data.message_id)
 
     @register_target_extractor(GuildMessageEvent)
@@ -80,6 +90,16 @@ try:
         else:
             raise ValueError(f"{type(event)} not supported")
 
+    @register_target_extractor(C2CMessageCreateEvent)
+    def extract_c2c_message_event(event: Event) -> PlatformTarget:
+        assert isinstance(event, C2CMessageCreateEvent)
+        return TargetQQPrivate(user_id=int(event.author.id))
+
+    @register_target_extractor(GroupAtMessageCreateEvent)
+    def extract_group_at_message_event(event: Event) -> PlatformTarget:
+        assert isinstance(event, GroupAtMessageCreateEvent)
+        return TargetQQGroup(group_id=int(event.group_id))
+
     @register_qqguild_dms(adapter)
     async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
         assert isinstance(bot, Bot)
@@ -91,44 +111,59 @@ try:
         assert dms.guild_id
         return int(dms.guild_id)
 
-    class QQGuildReceipt(Receipt):
-        sent_msg: ApiMessage
+    class QQReceipt(Receipt):
+        msg_return: Union[
+            ApiMessage,
+            PostC2CMessagesReturn,
+            PostGroupMessagesReturn,
+            PostC2CFilesReturn,
+            PostGroupFilesReturn,
+        ]
         adapter_name: Literal[adapter] = adapter
 
         async def revoke(self, hidetip=False):
-            assert self.sent_msg.channel_id
-            assert self.sent_msg.id
+            if not isinstance(self.msg_return, ApiMessage):
+                raise NotImplementedError("only guild message can be revoked")
+
+            assert self.msg_return.channel_id
+            assert self.msg_return.id
             return await self._get_bot().delete_message(
-                channel_id=self.sent_msg.channel_id,
-                message_id=self.sent_msg.id,
+                channel_id=self.msg_return.channel_id,
+                message_id=self.msg_return.id,
                 hidetip=hidetip,
             )
 
         @property
         def raw(self):
-            return self.sent_msg
+            return self.msg_return
 
     @register_sender(SupportedAdapters.qq)
     async def send(
         bot,
         msg: MessageFactory[MessageSegmentFactory],
-        target,
-        event,
+        target: PlatformTarget,
+        event: Optional[Event],
         at_sender: bool,
         reply: bool,
-    ) -> QQGuildReceipt:
+    ) -> QQReceipt:
         assert isinstance(bot, Bot)
-        assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
+        assert isinstance(
+            target,
+            (TargetQQGuildChannel, TargetQQGuildDirect, TargetQQGroup, TargetQQPrivate),
+        )
 
         full_msg = msg
         if event:
-            assert isinstance(event, GuildMessageEvent)
+            assert isinstance(
+                event,
+                (GuildMessageEvent, C2CMessageCreateEvent, GroupAtMessageCreateEvent),
+            )
             assert event.author
             assert event.id
             full_msg = assamble_message_factory(
                 msg,
                 Mention(event.author.id),
-                Reply(QQGuildMessageId(message_id=event.id)),
+                Reply(QQMessageId(message_id=event.id)),
                 at_sender,
                 reply,
             )
@@ -136,73 +171,35 @@ try:
         # parse Message
         message = await full_msg._build(bot)
         assert isinstance(message, Message)
-        content = message.extract_content()
-
-        if embed := (message["embed"] or None):
-            embed = embed[-1].data["embed"]
-        if ark := (message["ark"] or None):
-            ark = ark[-1].data["ark"]
-        if image := (message["attachment"] or None):
-            image = image[-1].data["url"]
-        if file_image := (message["file_image"] or None):
-            file_image = file_image[-1].data["content"]
-        if markdown := (message["markdown"] or None):
-            markdown = markdown[-1].data["markdown"]
-        if reference := (message["reference"] or None):
-            reference = reference[-1].data["reference"]
 
         if event:  # reply to user
-            if isinstance(event, DirectMessageCreateEvent):
-                sent_msg = await bot.post_dms_messages(
-                    guild_id=event.guild_id,  # type: ignore
-                    msg_id=event.id,
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
-            else:
-                sent_msg = await bot.post_messages(
-                    channel_id=event.channel_id,  # type: ignore
-                    msg_id=event.id,
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
+            msg_return = await bot.send(event, message)
         else:
-            if isinstance(target, TargetQQGuildChannel):
-                assert target.channel_id
-                sent_msg = await bot.post_messages(
+            if isinstance(target, TargetQQGuildDirect):
+                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
+                msg_return = await bot.send_to_dms(
+                    guild_id=str(guild_id),
+                    message=message,
+                )
+            elif isinstance(target, TargetQQGuildChannel):
+                msg_return = await bot.send_to_channel(
                     channel_id=str(target.channel_id),
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
+                    message=message,
+                )
+            elif isinstance(target, TargetQQPrivate):
+                msg_return = await bot.send_to_c2c(
+                    user_id=str(target.user_id),
+                    message=message,
+                )
+            elif isinstance(target, TargetQQGroup):
+                msg_return = await bot.send_to_group(
+                    group_id=str(target.group_id),
+                    message=message,
                 )
             else:
-                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                sent_msg = await bot.post_dms_messages(
-                    guild_id=str(guild_id),
-                    content=content,
-                    embed=embed,  # type: ignore
-                    ark=ark,  # type: ignore
-                    image=image,  # type: ignore
-                    file_image=file_image,  # type: ignore
-                    markdown=markdown,  # type: ignore
-                    message_reference=reference,  # type: ignore
-                )
+                raise ValueError(f"{type(event)} not supported")
 
-        return QQGuildReceipt(bot_id=bot.self_id, sent_msg=sent_msg)
+        return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
 
     @register_list_targets(SupportedAdapters.qq)
     async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
