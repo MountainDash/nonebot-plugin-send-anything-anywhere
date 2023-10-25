@@ -32,14 +32,15 @@ assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **feishu_kwarg
 
 
 def mock_feishu_message_event(message: Message, group=False):
-    from nonebot.adapters.feishu import (
+    from nonebot.adapters.feishu.models import (
         Sender,
+        GroupEventMessage,
+        PrivateEventMessage,
+    )
+    from nonebot.adapters.feishu import (
         UserId,
         EventHeader,
-        GroupEventMessage,
         GroupMessageEvent,
-        MessageSerializer,
-        PrivateEventMessage,
         PrivateMessageEvent,
         GroupMessageEventDetail,
         PrivateMessageEventDetail,
@@ -64,7 +65,7 @@ def mock_feishu_message_event(message: Message, group=False):
         tenant_key="tenant_key",
         sender_type="user",
     )
-    msg_type, content = MessageSerializer(message).serialize()
+    msg_type, content = message.serialize()
     event_message_dict = {
         "message_id": "message_id",
         "root_id": "root_id",
@@ -174,11 +175,11 @@ async def test_image(app: App, tmp_path: Path):
 
 
 async def test_mention(app: App):
-    from nonebot.adapters.feishu import MessageSegment
+    from nonebot.adapters.feishu.message import At
 
     from nonebot_plugin_saa import Mention
 
-    await assert_feishu(app, Mention("114514"), MessageSegment.at("114514"))
+    await assert_feishu(app, Mention("114514"), At("at", {"user_id": "114514"}))
 
 
 async def test_reply(app: App):
@@ -196,13 +197,7 @@ async def test_reply(app: App):
 
 async def test_send(app: App):
     from nonebot import get_driver, on_message
-    from nonebot.adapters.feishu import (
-        Bot,
-        Message,
-        MessageEvent,
-        MessageSegment,
-        MessageSerializer,
-    )
+    from nonebot.adapters.feishu import Bot, Message, MessageEvent, MessageSegment
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -217,9 +212,7 @@ async def test_send(app: App):
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
         msg_event = mock_feishu_message_event(Message("114514"))
-        msg_type, content = MessageSerializer(
-            Message([MessageSegment.text("1919810")])
-        ).serialize()
+        msg_type, content = Message([MessageSegment.text("1919810")]).serialize()
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "im/v1/messages",
@@ -238,13 +231,7 @@ async def test_send(app: App):
 
 async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
-    from nonebot.adapters.feishu import (
-        Bot,
-        Message,
-        MessageEvent,
-        MessageSegment,
-        MessageSerializer,
-    )
+    from nonebot.adapters.feishu import Bot, Message, MessageEvent, MessageSegment
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -260,9 +247,7 @@ async def test_send_revoke(app: App):
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
         msg_event = mock_feishu_message_event(Message("114514"))
-        msg_type, content = MessageSerializer(
-            Message([MessageSegment.text("1919810")])
-        ).serialize()
+        msg_type, content = Message([MessageSegment.text("1919810")]).serialize()
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "im/v1/messages",
@@ -282,13 +267,8 @@ async def test_send_revoke(app: App):
 
 async def test_send_with_reply_and_revoke(app: App):
     from nonebot import get_driver, on_message
-    from nonebot.adapters.feishu import (
-        Bot,
-        Message,
-        MessageEvent,
-        MessageSegment,
-        MessageSerializer,
-    )
+    from nonebot.adapters.feishu.message import At
+    from nonebot.adapters.feishu import Bot, Message, MessageEvent, MessageSegment
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -306,8 +286,8 @@ async def test_send_with_reply_and_revoke(app: App):
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
         msg_event = mock_feishu_message_event(Message("114514"), group=True)
-        msg_type, content = MessageSerializer(
-            Message([MessageSegment.at("open_id"), MessageSegment.text("1919810")])
+        msg_type, content = Message(
+            [At("at", {"user_id": "open_id"}), MessageSegment.text("1919810")]
         ).serialize()
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
@@ -320,7 +300,7 @@ async def test_send_with_reply_and_revoke(app: App):
 
 async def test_send_active(app: App):
     from nonebot import get_driver
-    from nonebot.adapters.feishu import Bot, Message, MessageSegment, MessageSerializer
+    from nonebot.adapters.feishu import Bot, Message, MessageSegment
 
     from nonebot_plugin_saa import (
         MessageFactory,
@@ -333,9 +313,7 @@ async def test_send_active(app: App):
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
 
-        msg_type, content = MessageSerializer(
-            Message([MessageSegment.text("114514")])
-        ).serialize()
+        msg_type, content = Message([MessageSegment.text("114514")]).serialize()
 
         target_private = TargetFeishuPrivate(open_id="open_id")
         ctx.should_call_api(
