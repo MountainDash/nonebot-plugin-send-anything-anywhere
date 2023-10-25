@@ -26,13 +26,13 @@ from ..registries import (
 
 try:
     import httpx
+    from nonebot.adapters.feishu.message import At
     from nonebot.adapters.feishu import (
         Bot,
         Message,
         MessageEvent,
         MessageSegment,
         GroupMessageEvent,
-        MessageSerializer,
         PrivateMessageEvent,
     )
 
@@ -74,7 +74,7 @@ try:
 
     @register_feishu(Mention)
     def _mention(m: Mention) -> MessageSegment:
-        return MessageSegment.at(m.data["user_id"])
+        return At("at", {"user_id": m.data["user_id"]})
 
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:
@@ -149,7 +149,7 @@ try:
             message_segment = await message_segment_factory.build(bot)
             message_to_send += message_segment
 
-        msg_type, content = MessageSerializer(message_to_send).serialize()
+        msg_type, content = message_to_send.serialize()
 
         if reply_to_message_id is None:
             if isinstance(target, TargetFeishuGroup):
