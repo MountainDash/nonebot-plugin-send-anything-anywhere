@@ -52,6 +52,10 @@ nonebot-adapter-red = "^0.9.0"
 nonebot-adapter-dodo = "^0.2.0"
 nonebot-adapter-qq = "^1.4.1"
 
+
+[tool.poetry.group.alc.dependencies]
+nonebot-plugin-alconna = "^0.30.7"
+
 [tool.black]
 line-length = 88
 target-version = ["py38", "py39", "py310"]
