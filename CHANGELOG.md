@@ -2,6 +2,8 @@
 
 ## 最近更新
 
+- update feishu adapter [@MeetWq](https://github.com/MeetWq) ([#107](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/107))
+
 ### 破坏性变更
 
 - 重构 Reply [@felinae98](https://github.com/felinae98) ([#97](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/97))
@@ -12,6 +14,7 @@
 
 ### 文档
 
+- 修复文档错误  [@Sam5440](https://github.com/Sam5440) ([#110](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/110))
 - 修复文档错误 [@montmorill](https://github.com/montmorill) ([#104](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/104))
 - 更新 adapter 适配指南 [@felinae98](https://github.com/felinae98) ([#98](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/98))
 - 📝 完善自动选择Bot文档 [@AzideCupric](https://github.com/AzideCupric) ([#100](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/100))
