@@ -12,6 +12,8 @@ from .platform_send_target import TargetQQPrivate as TargetQQPrivate
 from .platform_send_target import register_sender as register_sender
 from .platform_send_target import TargetOB12Unknow as TargetOB12Unknow
 from .platform_send_target import QQGuildDMSManager as QQGuildDMSManager
+from .platform_send_target import TargetDoDoChannel as TargetDoDoChannel
+from .platform_send_target import TargetDoDoPrivate as TargetDoDoPrivate
 from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
 from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect

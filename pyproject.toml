@@ -50,6 +50,7 @@ nonebot-adapter-kaiheila = "^0.2.12"
 nonebot-adapter-telegram = "^0.1.0b12"
 nonebot-adapter-feishu = "^2.1.1"
 nonebot-adapter-red = ">=0.4.1"
+nonebot-adapter-dodo = "^0.1.2"
 
 [tool.black]
 line-length = 88
