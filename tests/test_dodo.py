@@ -2,9 +2,11 @@ from datetime import datetime
 from functools import partial
 
 import respx
+import pytest
 from nonebug import App
 from httpx import Response
 from pytest_mock import MockerFixture
+from nonebot.exception import ActionFailed
 from nonebot import get_driver, get_adapter
 from nonebot.adapters.dodo import Bot, Adapter
 from nonebot.adapters.dodo.config import BotConfig
@@ -74,6 +76,17 @@ async def test_image(app: App):
             url="https://im.dodo.com/amiya.png", width=191, height=223
         )
 
+    image_route.mock(return_value=Response(400, content=b"amiya"))
+    with pytest.raises(RuntimeError):
+        await Image("https://example.com/amiya.png").build(bot)
+
+    image_route.mock(return_value=Response(200, content=b"amiya"))
+    upload_route.mock(
+        return_value=Response(400, json={"status": 400, "message": "amiya"})
+    )
+    with pytest.raises(ActionFailed):
+        await Image("https://example.com/amiya.png").build(bot)
+
 
 async def test_mention(app: App):
     from nonebot.adapters.dodo import MessageSegment
@@ -126,10 +139,10 @@ async def test_send(app: App):
         )
 
 
-async def test_send_with_reply_and_revoke(app: App):
+async def test_send_with_reply_and_receipt(app: App):
     from nonebot import on_message
     from nonebot.adapters.dodo import Bot, Message, MessageSegment
-    from nonebot.adapters.dodo.models import MessageType, MessageReturn
+    from nonebot.adapters.dodo.models import MessageType, TextMessage, MessageReturn
 
     from nonebot_plugin_saa import Text, SupportedAdapters
     from nonebot_plugin_saa.adapters.dodo import DodoReceipt
@@ -140,7 +153,10 @@ async def test_send_with_reply_and_revoke(app: App):
     async def _():
         receipt = await Text("amiya").send()
         assert isinstance(receipt, DodoReceipt)
+        await receipt.edit(mesaage_body=TextMessage(content="kal'tist"))
+        await receipt.pin()
         await receipt.revoke(reason="test")
+        assert receipt.raw == "33331"
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[SupportedAdapters.dodo]
@@ -171,6 +187,20 @@ async def test_send_with_reply_and_revoke(app: App):
             result=MessageReturn(message_id="33331"),
         )
         ctx.should_call_api(
+            "set_channel_message_edit",
+            data={
+                "message_id": "33331",
+                "message_body": TextMessage(content="kal'tist"),
+            },
+        )
+        ctx.should_call_api(
+            "set_channel_message_top",
+            data={
+                "message_id": "33331",
+                "is_cancel": False,
+            },
+        )
+        ctx.should_call_api(
             "set_channel_message_withdraw",
             data={
                 "message_id": "33331",
@@ -189,15 +219,18 @@ async def test_send_active(app: App):
         adapter_obj = get_driver()._adapters[SupportedAdapters.dodo]
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **dodo_kwargs)
 
-        send_target_channel = TargetDoDoChannel(channel_id="5555")
+        send_target_channel = TargetDoDoChannel(channel_id="55552")
         send_target_private = TargetDoDoPrivate(
-            dodo_source_id="5555", island_source_id="5555"
+            dodo_source_id="5555", island_source_id="55551"
+        )
+        send_target_channel_private = TargetDoDoChannel(
+            channel_id="55552", dodo_source_id="5555"
         )
 
         ctx.should_call_api(
             "set_channel_message_send",
             data={
-                "channel_id": "5555",
+                "channel_id": "55552",
                 "message_type": MessageType.TEXT,
                 "message_body": TextMessage(content="kal'tist"),
                 "referenced_message_id": None,
@@ -210,13 +243,26 @@ async def test_send_active(app: App):
             "set_personal_message_send",
             data={
                 "dodo_source_id": "5555",
-                "island_source_id": "5555",
+                "island_source_id": "55551",
                 "message_type": MessageType.TEXT,
                 "message_body": TextMessage(content="kal'tist"),
             },
             result=MessageReturn(message_id="33331"),
         )
         await MessageFactory("kal'tist").send_to(send_target_private, bot)
+
+        ctx.should_call_api(
+            "set_channel_message_send",
+            data={
+                "channel_id": "55552",
+                "message_type": MessageType.TEXT,
+                "message_body": TextMessage(content="kal'tist"),
+                "referenced_message_id": None,
+                "dodo_source_id": "5555",
+            },
+            result=MessageReturn(message_id="33331"),
+        )
+        await MessageFactory("kal'tist").send_to(send_target_channel_private, bot)
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
@@ -266,6 +312,40 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         assert get_bot(send_target_channel) is bot
 
         # TODO: test private
+
+
+async def test_get_message_id(app: App):
+    from nonebot.adapters.dodo.event import EventType, ChannelMessageEvent
+    from nonebot.adapters.dodo.models import (
+        Sex,
+        Member,
+        Personal,
+        MessageType,
+        TextMessage,
+    )
+
+    from nonebot_plugin_saa.registries import get_message_id
+    from nonebot_plugin_saa.adapters.dodo import DodoMessageId
+
+    cme = ChannelMessageEvent(
+        event_id="1234",
+        event_type=EventType.MESSAGE,
+        timestamp=datetime(2023, 11, 11),
+        dodo_source_id="1111",
+        island_source_id="2222",
+        personal=Personal(
+            nick_name="amiya",
+            avatar_url="https://example.com/amiya.png",
+            sex=Sex(1),
+        ),
+        message_id="33331",
+        message_type=MessageType(1),
+        message_body=TextMessage(content="aa"),
+        member=Member(nick_name="kal'tist", join_time=datetime(2020, 2, 2)),
+        channel_id="5555",
+    )
+
+    assert get_message_id(cme) == DodoMessageId(message_id="33331")
 
 
 async def test_extract_target(app: App):
@@ -337,6 +417,23 @@ async def test_extract_target(app: App):
     assert extract_target(pme) == TargetDoDoPrivate(
         island_source_id="5555", dodo_source_id="1111"
     )
+
+    pme2 = PersonalMessageEvent(
+        event_id="1234",
+        event_type=EventType.PERSONAL_MESSAGE,
+        timestamp=datetime(2023, 11, 11),
+        dodo_source_id="1111",
+        personal=Personal(
+            nick_name="amiya",
+            avatar_url="https://example.com/amiya.png",
+            sex=Sex(1),
+        ),
+        message_id="33332",
+        message_type=MessageType(1),
+        message_body=TextMessage(content="aa"),
+    )
+    with pytest.raises(ValueError):
+        extract_target(pme2)
 
     gse = GiftSendEvent(
         event_id="1234",

@@ -148,9 +148,12 @@ with suppress(ImportError):
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_channel)
     def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
         assert isinstance(target, TargetDoDoChannel)
-        return {
+        args = {
             "channel_id": target.channel_id,
         }
+        if target.dodo_source_id:
+            args["dodo_source_id"] = target.dodo_source_id
+        return args
 
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_private)
     def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
