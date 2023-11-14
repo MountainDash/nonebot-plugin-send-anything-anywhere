@@ -73,7 +73,6 @@ with suppress(ImportError):
         file = image.data["image"]
         if isinstance(file, str):
             # 要求必须是官方链接，因此需要下载一遍
-            logger.debug(f"Downloading image: {file}")
             req = Request("GET", file, timeout=10)
             resp = await bot.adapter.request(req)
             if resp.status_code != 200:
@@ -81,14 +80,9 @@ with suppress(ImportError):
                     f"Failed to download image: {resp.status_code}, url: {file}"
                 )
             file = resp.content
-            logger.trace(f"Downloaded image: {file}")
-            logger.debug(
-                f"Downloaded image type: {type(file)}, size: {len(file or '')}"
-            )
             if not isinstance(file, bytes):
                 raise TypeError(f"Unsupported type of file: {type(file)}, need bytes")
 
-        logger.debug("Uploading image...")
         upload_result = await bot.set_resouce_picture_upload(
             file=file, file_name=image.data["name"] + ".png"  # 上传是文件名必须携带有效后缀
         )
