@@ -34,8 +34,17 @@ with suppress(ImportError):
     from nonebot.adapters.dodo.message import Message, MessageSegment
     from nonebot.adapters.dodo.event import (
         MessageEvent,
+        GiftSendEvent,
+        ChannelArticleEvent,
         ChannelMessageEvent,
+        MessageReactionEvent,
         PersonalMessageEvent,
+        CardMessageFormSubmitEvent,
+        CardMessageListSubmitEvent,
+        ChannelArticleCommentEvent,
+        CardMessageButtonClickEvent,
+        ChannelVoiceMemberJoinEvent,
+        ChannelVoiceMemberLeaveEvent,
     )
 
     adapter = SupportedAdapters.dodo
@@ -100,6 +109,32 @@ with suppress(ImportError):
         assert isinstance(event, ChannelMessageEvent)
         return TargetDoDoChannel(channel_id=event.channel_id)
 
+    @register_target_extractor(GiftSendEvent)
+    @register_target_extractor(ChannelArticleEvent)
+    @register_target_extractor(MessageReactionEvent)
+    @register_target_extractor(CardMessageFormSubmitEvent)
+    @register_target_extractor(CardMessageListSubmitEvent)
+    @register_target_extractor(ChannelArticleCommentEvent)
+    @register_target_extractor(CardMessageButtonClickEvent)
+    @register_target_extractor(ChannelVoiceMemberJoinEvent)
+    @register_target_extractor(ChannelVoiceMemberLeaveEvent)
+    def _extract_notice_event(event: Event) -> TargetDoDoChannel:
+        assert isinstance(
+            event,
+            (
+                GiftSendEvent,
+                ChannelArticleEvent,
+                MessageReactionEvent,
+                CardMessageFormSubmitEvent,
+                CardMessageListSubmitEvent,
+                ChannelArticleCommentEvent,
+                CardMessageButtonClickEvent,
+                ChannelVoiceMemberJoinEvent,
+                ChannelVoiceMemberLeaveEvent,
+            ),
+        )
+        return TargetDoDoChannel(channel_id=event.channel_id)
+
     @register_target_extractor(PersonalMessageEvent)
     def _extract_personal_msg_event(event: Event) -> TargetDoDoPrivate:
         assert isinstance(event, PersonalMessageEvent)
@@ -128,11 +163,10 @@ with suppress(ImportError):
     class DodoReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
         message_id: str
-        reason: Optional[str] = None
 
-        async def revoke(self):
+        async def revoke(self, reason: Optional[str] = None):
             return await cast(BotDodo, self._get_bot()).set_channel_message_withdraw(
-                message_id=self.message_id, reason=self.reason
+                message_id=self.message_id, reason=reason
             )
 
         async def edit(self, mesaage_body: MessageBody):
@@ -189,7 +223,6 @@ with suppress(ImportError):
                     message=message_to_send, **target.arg_dict(bot)
                 )
         else:
-            logger.debug(f"Sending to personal: {target.arg_dict(bot)}")
             resp = await bot.send_to_personal(
                 message=message_to_send, **target.arg_dict(bot)
             )

@@ -14,6 +14,8 @@ from .registries import extract_target as extract_target
 from .utils import SupportedAdapters as SupportedAdapters
 from .registries import TargetQQPrivate as TargetQQPrivate
 from .registries import TargetOB12Unknow as TargetOB12Unknow
+from .registries import TargetDoDoChannel as TargetDoDoChannel
+from .registries import TargetDoDoPrivate as TargetDoDoPrivate
 from .registries import TargetFeishuGroup as TargetFeishuGroup
 from .abstract_factories import MessageFactory as MessageFactory
 from .registries import TargetFeishuPrivate as TargetFeishuPrivate
