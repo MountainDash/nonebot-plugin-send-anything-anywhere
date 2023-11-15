@@ -8,7 +8,12 @@ import nonebot
 from nonebot.adapters import Bot
 from nonebot import logger, get_bots
 
-from .utils import NoBotFound, SupportedAdapters, extract_adapter_type
+from .utils import (
+    NoBotFound,
+    SupportedAdapters,
+    extract_adapter_type,
+    AdapterNotSupported,
+)
 from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
 
 BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
@@ -72,7 +77,12 @@ def register_list_targets(adapter: SupportedAdapters):
 
 async def _refresh_bot(bot: Bot):
     BOT_CACHE.pop(bot, None)
-    adapter_name = extract_adapter_type(bot)
+    try:
+        adapter_name = extract_adapter_type(bot)
+    except AdapterNotSupported as e:
+        logger.warning(f"{bot} adapter [{e.args[0]}] not supported, ignore")
+        return
+
     if list_targets := list_targets_map.get(adapter_name):
         try:
             targets = await list_targets(bot)
