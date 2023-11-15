@@ -243,14 +243,22 @@ try:
         assert isinstance(bot, BotOB11)
 
         targets = []
-        groups = await bot.get_group_list()
+        try:
+            groups = await bot.get_group_list()
+        except Exception:
+            groups = []
+
         for group in groups:
             group_id = group["group_id"]
             target = TargetQQGroup(group_id=group_id)
             targets.append(target)
 
         # 获取好友列表
-        users = await bot.get_friend_list()
+        try:
+            users = await bot.get_friend_list()
+        except Exception:
+            users = []
+
         for user in users:
             user_id = user["user_id"]
             target = TargetQQPrivate(user_id=user_id)
