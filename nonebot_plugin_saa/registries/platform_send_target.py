@@ -13,6 +13,7 @@ from typing import (
     Awaitable,
 )
 
+from pydantic import BaseModel
 from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
 
@@ -40,6 +41,10 @@ class PlatformTarget(SerializationMeta):
                 f"PlatformTarget {self.platform_type} not support {adapter_type}",
             )
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
+
+
+class BotSpecifier(BaseModel):
+    bot_id: str
 
 
 class TargetQQGroup(PlatformTarget):
