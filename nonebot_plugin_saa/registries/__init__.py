@@ -5,6 +5,7 @@ from .message_id import get_message_id as get_message_id
 from .platform_send_target import SaaTarget as SaaTarget
 from .platform_send_target import get_target as get_target
 from .platform_send_target import sender_map as sender_map
+from .platform_send_target import BotSpecifier as BotSpecifier
 from .platform_send_target import TargetQQGroup as TargetQQGroup
 from .platform_send_target import PlatformTarget as PlatformTarget
 from .platform_send_target import extract_target as extract_target
