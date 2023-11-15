@@ -206,3 +206,34 @@ async def test_list_target_failed(app: App, mocker: MockerFixture):
     driver = get_driver()
     driver._bot_connection_hook.clear()
     driver._bot_disconnection_hook.clear()
+
+
+async def test_unsupported_adapter(app: App, mocker: MockerFixture):
+    from nonebot_plugin_saa.utils import extract_adapter_type
+    from nonebot_plugin_saa.auto_select_bot import (
+        BOT_CACHE,
+        AdapterNotSupported,
+        refresh_bots,
+    )
+
+    # 结束后会自动恢复到原来的状态
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", False)
+
+    async with app.test_api() as ctx:
+        adapter = ctx.create_adapter()
+        adapter.__setattr__("get_name", lambda: "unsupported")
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        with pytest.raises(AdapterNotSupported):
+            extract_adapter_type(bot)
+        await refresh_bots()
+        assert bot not in BOT_CACHE
+
+    # 清理
+    driver = get_driver()
+    driver._bot_connection_hook.clear()
+    driver._bot_disconnection_hook.clear()
