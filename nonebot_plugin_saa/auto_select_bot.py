@@ -74,8 +74,11 @@ async def _refresh_bot(bot: Bot):
     BOT_CACHE.pop(bot, None)
     adapter_name = extract_adapter_type(bot)
     if list_targets := list_targets_map.get(adapter_name):
-        targets = await list_targets(bot)
-        BOT_CACHE[bot] = set(targets)
+        try:
+            targets = await list_targets(bot)
+            BOT_CACHE[bot] = set(targets)
+        except Exception:
+            logger.exception(f"{bot} get list targets failed")
     _info_current()
 
 

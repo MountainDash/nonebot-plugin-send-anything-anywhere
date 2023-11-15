@@ -172,3 +172,37 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
 
         # should connect back
         adapter_qqguild.bot_connect(bot)
+
+
+async def test_list_target_failed(app: App, mocker: MockerFixture):
+    from nonebot_plugin_saa import enable_auto_select_bot
+    from nonebot_plugin_saa.auto_select_bot import BOT_CACHE, refresh_bots
+
+    def raise_exception(bot: Bot):
+        raise Exception(bot)
+
+    # 结束后会自动恢复到原来的状态
+    mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", False)
+
+    enable_auto_select_bot()
+
+    async with app.test_api() as ctx:
+        adapter = get_adapter(Adapter)
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        mocker.patch(
+            "nonebot_plugin_saa.auto_select_bot.list_targets_map",
+            {Adapter.get_name(): lambda _bot: raise_exception(_bot)},
+        )
+
+        await refresh_bots()
+        assert bot not in BOT_CACHE
+
+    # 清理
+    driver = get_driver()
+    driver._bot_connection_hook.clear()
+    driver._bot_disconnection_hook.clear()
