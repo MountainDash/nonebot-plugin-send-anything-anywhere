@@ -1,3 +1,4 @@
+from . import qq as qq
 from . import red as red
 from . import feishu as feishu
 from . import qqguild as qqguild
