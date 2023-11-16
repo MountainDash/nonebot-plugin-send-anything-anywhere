@@ -10,6 +10,7 @@
 
 ### 新功能
 
+- 支持选择特定 Bot 的 PlatformTarget [@felinae98](https://github.com/felinae98) ([#116](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/116))
 - 为 auto select bot 加入更多日志信息 [@felinae98](https://github.com/felinae98) ([#101](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/101))
 
 ### 文档
