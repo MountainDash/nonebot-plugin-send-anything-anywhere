@@ -8,13 +8,13 @@ import nonebot
 from nonebot.adapters import Bot
 from nonebot import logger, get_bots
 
+from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
 from .utils import (
     NoBotFound,
     SupportedAdapters,
-    extract_adapter_type,
     AdapterNotSupported,
+    extract_adapter_type,
 )
-from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
 
 BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
 BOT_CACHE_LOCK = asyncio.Lock()
