@@ -1,5 +1,7 @@
 from functools import partial
 from typing import List, Union, Literal, Optional
+from pydantic import BaseModel
+from datetime import datetime
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -30,6 +32,10 @@ from ..registries import (
 try:
     from nonebot.adapters.qq.event import GuildMessageEvent
     from nonebot.adapters.qq.models import Message as ApiMessage
+    from nonebot.adapters.qq.exception import (
+        AuditException,
+        QQAdapterException,
+    )
     from nonebot.adapters.qq.models import (
         PostC2CFilesReturn,
         PostGroupFilesReturn,
@@ -51,6 +57,13 @@ try:
     register_qq = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(adapter, Message)
+
+    class QQGuildAuditRejectException(QQAdapterException):
+        ...
+
+    class BasePostMessagesReturn(BaseModel):
+        id: Optional[str] = None
+        timestamp: Optional[datetime] = None
 
     class QQMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
@@ -176,32 +189,48 @@ try:
         message = await full_msg._build(bot)
         assert isinstance(message, Message)
 
-        if event:  # reply to user
-            msg_return = await bot.send(event, message)
-        else:
-            if isinstance(target, TargetQQGuildDirect):
-                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                msg_return = await bot.send_to_dms(
-                    guild_id=str(guild_id),
-                    message=message,
-                )
-            elif isinstance(target, TargetQQGuildChannel):
-                msg_return = await bot.send_to_channel(
-                    channel_id=str(target.channel_id),
-                    message=message,
-                )
-            elif isinstance(target, TargetQQPrivate):
-                msg_return = await bot.send_to_c2c(
-                    user_id=target.user_id,
-                    message=message,
-                )
-            elif isinstance(target, TargetQQGroup):
-                msg_return = await bot.send_to_group(
-                    group_id=target.group_id,
-                    message=message,
+        try:
+            if event:  # reply to user
+                msg_return = await bot.send(event, message)
+            else:
+                if isinstance(target, TargetQQGuildDirect):
+                    guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
+                    msg_return = await bot.send_to_dms(
+                        guild_id=str(guild_id),
+                        message=message,
+                    )
+                elif isinstance(target, TargetQQGuildChannel):
+                    msg_return = await bot.send_to_channel(
+                        channel_id=str(target.channel_id),
+                        message=message,
+                    )
+                elif isinstance(target, TargetQQPrivate):
+                    msg_return = await bot.send_to_c2c(
+                        user_id=target.user_id,
+                        message=message,
+                    )
+                elif isinstance(target, TargetQQGroup):
+                    msg_return = await bot.send_to_group(
+                        group_id=target.group_id,
+                        message=message,
+                    )
+                else:
+                    raise ValueError(f"{type(event)} not supported")
+        except AuditException as e:
+            audit = await e.get_audit_result()
+            if type(audit) == "MESSAGE_AUDIT_REJECT":
+                raise QQGuildAuditRejectException()
+            if isinstance(event, GuildMessageEvent):
+                msg_return = ApiMessage(
+                    id=audit.message_id,
+                    channel_id=audit.channel_id,
+                    guild_id=audit.guild_id,
                 )
             else:
-                raise ValueError(f"{type(event)} not supported")
+                msg_return = BasePostMessagesReturn(
+                    id=audit.message_id,
+                    timestamp=audit.audit_time
+                )
 
         return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
 
