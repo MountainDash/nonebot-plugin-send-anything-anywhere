@@ -199,14 +199,20 @@ try:
         assert isinstance(bot, BotRed)
 
         targets = []
-        groups = await bot.get_groups()
+        try:
+            groups = await bot.get_groups()
+        except Exception:
+            groups = []
         for group in groups:
             group_id = int(group.groupCode)
             target = TargetQQGroup(group_id=group_id)
             targets.append(target)
 
         # 获取好友列表
-        users = await bot.get_friends()
+        try:
+            users = await bot.get_friends()
+        except Exception:
+            users = []
         for user in users:
             user_id = int(user.uin)
             target = TargetQQPrivate(user_id=user_id)
