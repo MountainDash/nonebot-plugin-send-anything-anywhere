@@ -196,6 +196,36 @@ class TargetFeishuGroup(PlatformTarget):
     chat_id: str
 
 
+class TargetDoDoChannel(PlatformTarget):
+    """DoDo Channel
+
+    参数
+        channel_id: 频道ID
+        dodo_source_id: 用户 ID(可选)
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.dodo_channel
+    ] = SupportedPlatform.dodo_channel
+    channel_id: str
+    dodo_source_id: Optional[str] = None
+
+
+class TargetDoDoPrivate(PlatformTarget):
+    """DoDo Private
+
+    参数
+        dodo_source_id: 用户 ID
+        island_source_id: 群 ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.dodo_private
+    ] = SupportedPlatform.dodo_private
+    island_source_id: str
+    dodo_source_id: str
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,

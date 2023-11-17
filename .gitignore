@@ -473,3 +473,4 @@ $RECYCLE.BIN/
 .vscode
 pdm.lock
 bot.py
+.env*
