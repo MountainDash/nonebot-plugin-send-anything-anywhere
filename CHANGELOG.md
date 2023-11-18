@@ -2,8 +2,6 @@
 
 ## 最近更新
 
-- update feishu adapter [@MeetWq](https://github.com/MeetWq) ([#107](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/107))
-
 ### 破坏性变更
 
 - 重构 Reply [@felinae98](https://github.com/felinae98) ([#97](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/97))
