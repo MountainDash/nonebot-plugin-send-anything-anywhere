@@ -69,6 +69,32 @@ class TargetQQPrivate(PlatformTarget):
     user_id: int
 
 
+class TargetQQGroupOpenId(PlatformTarget, BotSpecifier):
+    """QQ群（open_id）
+
+    参数
+        group_openid: 群 open_id
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_group_openid
+    ] = SupportedPlatform.qq_group_openid
+    group_openid: str
+
+
+class TargetQQPrivateOpenId(PlatformTarget, BotSpecifier):
+    """QQ私聊（open_id）
+
+    参数
+        user_openid: 用户 open_id
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_private_openid
+    ] = SupportedPlatform.qq_private_openid
+    user_openid: str
+
+
 class TargetQQGuildChannel(PlatformTarget):
     """QQ频道子频道
 
