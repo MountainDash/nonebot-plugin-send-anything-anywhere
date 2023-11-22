@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 引入 QQ群 和 QQ私聊 的 openid target [@felinae98](https://github.com/felinae98) ([#119](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/119))
+
 ## v0.4.0
 
 ### 破坏性变更
