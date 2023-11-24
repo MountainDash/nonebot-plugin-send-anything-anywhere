@@ -9,10 +9,12 @@ from .types import Mention as Mention
 from .registries import SaaTarget as SaaTarget
 from .registries import get_target as get_target
 from .registries import TargetQQGroup as TargetQQGroup
+from .registries import TargetQQGroupOpenId as TargetQQGroupOpenId
 from .registries import PlatformTarget as PlatformTarget
 from .registries import extract_target as extract_target
 from .utils import SupportedAdapters as SupportedAdapters
 from .registries import TargetQQPrivate as TargetQQPrivate
+from .registries import TargetQQPrivateOpenId as TargetQQPrivateOpenId
 from .registries import TargetOB12Unknow as TargetOB12Unknow
 from .registries import TargetDoDoChannel as TargetDoDoChannel
 from .registries import TargetDoDoPrivate as TargetDoDoPrivate
