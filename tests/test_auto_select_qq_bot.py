@@ -39,8 +39,8 @@ MockMessage = partial(
 
 
 async def test_disable(app: App):
-    from nonebot_plugin_saa import TargetQQGuildChannelOpen
     from nonebot_plugin_saa.auto_select_bot import get_bot
+    from nonebot_plugin_saa import TargetQQGuildChannelOpen
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)

@@ -265,14 +265,13 @@ async def test_extract_target(app: App):
     )
 
     from nonebot_plugin_saa import (
+        SupportedAdapters,
         TargetQQGroupOpen,
         TargetQQPrivateOpen,
         TargetQQGuildDirectOpen,
         TargetQQGuildChannelOpen,
         extract_target,
     )
-
-    from nonebot_plugin_saa import SupportedAdapters
 
     async with app.test_api() as ctx:
         qq_adapter = get_driver()._adapters[SupportedAdapters.qq]

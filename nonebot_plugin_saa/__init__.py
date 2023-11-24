@@ -14,12 +14,12 @@ from .registries import extract_target as extract_target
 from .utils import SupportedAdapters as SupportedAdapters
 from .registries import TargetQQPrivate as TargetQQPrivate
 from .registries import TargetOB12Unknow as TargetOB12Unknow
-from .registries import TargetQQGroupOpen as TargetQQGroupOpen
 from .registries import TargetFeishuGroup as TargetFeishuGroup
+from .registries import TargetQQGroupOpen as TargetQQGroupOpen
 from .abstract_factories import MessageFactory as MessageFactory
 from .registries import TargetFeishuPrivate as TargetFeishuPrivate
-from .registries import TargetQQPrivateOpen as TargetQQPrivateOpen
 from .registries import TargetQQGuildDirect as TargetQQGuildDirect
+from .registries import TargetQQPrivateOpen as TargetQQPrivateOpen
 from .registries import TargetTelegramForum as TargetTelegramForum
 from .registries import TargetQQGuildChannel as TargetQQGuildChannel
 from .registries import TargetTelegramCommon as TargetTelegramCommon
