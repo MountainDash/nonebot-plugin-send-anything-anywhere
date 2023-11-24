@@ -102,6 +102,7 @@ async def test_send(app: App):
         bot = ctx.create_bot(
             base=Bot,
             adapter=qqguild_adapter,
+            self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
         event = mock_qq_guild_message_event(Message("321"))
@@ -139,6 +140,7 @@ async def test_send_revoke(app: App):
         bot = ctx.create_bot(
             base=Bot,
             adapter=qqguild_adapter,
+            self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
         event = mock_qq_guild_message_event(Message("321"))
@@ -163,8 +165,8 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
-        TargetQQGuildDirect,
-        TargetQQGuildChannel,
+        TargetQQGuildDirectOpen,
+        TargetQQGuildChannelOpen,
     )
 
     async with app.test_api() as ctx:
@@ -172,6 +174,7 @@ async def test_send_active(app: App):
         bot = ctx.create_bot(
             base=Bot,
             adapter=adapter_qqguild,
+            self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
 
@@ -185,10 +188,12 @@ async def test_send_active(app: App):
             },
             result=MockMessage(id="1234871", channel_id="2233"),
         )
-        target = TargetQQGuildChannel(channel_id=2233)
+        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
         await MessageFactory("123").send_to(target, bot)
 
-        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
+        target = TargetQQGuildDirectOpen(
+            bot_id="3344", recipient_id="1111", source_guild_id="2222"
+        )
         ctx.should_call_api(
             "post_dms",
             data={
@@ -224,7 +229,7 @@ async def test_send_active(app: App):
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
-    from nonebot_plugin_saa import TargetQQGuildChannel
+    from nonebot_plugin_saa import TargetQQGuildChannelOpen
     from nonebot_plugin_saa.auto_select_bot import get_bot, refresh_bots
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
@@ -234,6 +239,7 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         bot = ctx.create_bot(
             base=Bot,
             adapter=adapter,
+            self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
 
@@ -243,12 +249,13 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         )
         await refresh_bots()
 
-        target = TargetQQGuildChannel(channel_id=2233)
+        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
         assert bot is get_bot(target)
 
 
-def test_extract_target(app: App):
-    from nonebot.adapters.qq.models import Author
+async def test_extract_target(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.qq.models import FriendAuthor, GroupMemberAuthor
     from nonebot.adapters.qq import (
         EventType,
         MessageCreateEvent,
@@ -258,51 +265,69 @@ def test_extract_target(app: App):
     )
 
     from nonebot_plugin_saa import (
-        TargetQQGroup,
-        TargetQQPrivate,
-        TargetQQGuildDirect,
-        TargetQQGuildChannel,
+        TargetQQGroupOpen,
+        TargetQQPrivateOpen,
+        TargetQQGuildDirectOpen,
+        TargetQQGuildChannelOpen,
         extract_target,
     )
 
-    guild_message_event = MessageCreateEvent(
-        __type__=EventType.CHANNEL_CREATE,
-        id="1",
-        channel_id="6677",
-        guild_id="5566",
-        author=User(id="1"),
-    )
-    assert extract_target(guild_message_event) == TargetQQGuildChannel(channel_id=6677)
+    from nonebot_plugin_saa import SupportedAdapters
 
-    direct_message_event = DirectMessageCreateEvent(
-        __type__=EventType.DIRECT_MESSAGE_CREATE,
-        id="1",
-        channel_id="6677",
-        guild_id="5566",
-        author=User(id="1"),
-    )
+    async with app.test_api() as ctx:
+        qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qq_adapter,
+            self_id="3344",
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
 
-    assert extract_target(direct_message_event) == TargetQQGuildDirect(
-        recipient_id=1, source_guild_id=5566
-    )
+        guild_message_event = MessageCreateEvent(
+            __type__=EventType.CHANNEL_CREATE,
+            id="1",
+            channel_id="6677",
+            guild_id="5566",
+            author=User(id="1"),
+        )
 
-    c2c_message_event = C2CMessageCreateEvent(
-        __type__=EventType.C2C_MESSAGE_CREATE,
-        id="1",
-        author=Author(id="3344"),
-        content="test",
-        timestamp="12345678",
-    )
+        assert extract_target(guild_message_event, bot) == TargetQQGuildChannelOpen(
+            bot_id="3344", channel_id="6677"
+        )
 
-    assert extract_target(c2c_message_event) == TargetQQPrivate(user_id=3344)
+        direct_message_event = DirectMessageCreateEvent(
+            __type__=EventType.DIRECT_MESSAGE_CREATE,
+            id="1",
+            channel_id="6677",
+            guild_id="5566",
+            author=User(id="1"),
+        )
 
-    group_at_message_event = GroupAtMessageCreateEvent(
-        __type__=EventType.GROUP_AT_MESSAGE_CREATE,
-        id="1",
-        author=Author(id="3344"),
-        group_id="1122",
-        content="test",
-        timestamp="12345678",
-    )
+        assert extract_target(direct_message_event, bot) == TargetQQGuildDirectOpen(
+            bot_id="3344", recipient_id="1", source_guild_id="5566"
+        )
 
-    assert extract_target(group_at_message_event) == TargetQQGroup(group_id=1122)
+        c2c_message_event = C2CMessageCreateEvent(
+            __type__=EventType.C2C_MESSAGE_CREATE,
+            id="1",
+            author=FriendAuthor(id="CCDD", user_openid="CCDD"),
+            content="test",
+            timestamp="12345678",
+        )
+
+        assert extract_target(c2c_message_event, bot) == TargetQQPrivateOpen(
+            bot_id="3344", user_id="CCDD"
+        )
+
+        group_at_message_event = GroupAtMessageCreateEvent(
+            __type__=EventType.GROUP_AT_MESSAGE_CREATE,
+            id="1",
+            author=GroupMemberAuthor(id="3344", member_openid="3344"),
+            group_openid="AABB",
+            content="test",
+            timestamp="12345678",
+        )
+
+        assert extract_target(group_at_message_event, bot) == TargetQQGroupOpen(
+            bot_id="3344", group_id="AABB"
+        )

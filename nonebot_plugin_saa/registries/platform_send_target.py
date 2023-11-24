@@ -1,3 +1,4 @@
+import inspect
 from typing_extensions import Annotated
 from typing import (
     TYPE_CHECKING,
@@ -42,6 +43,16 @@ class PlatformTarget(SerializationMeta):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
 
+class PlatformTargetOpen(PlatformTarget):
+    """开放平台
+
+    参数
+        bot_id: 机器人ID
+    """
+
+    bot_id: str
+
+
 class TargetQQGroup(PlatformTarget):
     """QQ群
 
@@ -53,6 +64,19 @@ class TargetQQGroup(PlatformTarget):
     group_id: int
 
 
+class TargetQQGroupOpen(PlatformTargetOpen):
+    """QQ群（开放平台）
+
+    参数
+        group_id: 群号
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_group_open
+    ] = SupportedPlatform.qq_group_open
+    group_id: str
+
+
 class TargetQQPrivate(PlatformTarget):
     """QQ私聊
 
@@ -62,6 +86,19 @@ class TargetQQPrivate(PlatformTarget):
 
     platform_type: Literal[SupportedPlatform.qq_private] = SupportedPlatform.qq_private
     user_id: int
+
+
+class TargetQQPrivateOpen(PlatformTargetOpen):
+    """QQ私聊（开放平台）
+
+    参数
+        user_id: QQ号
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_private_open
+    ] = SupportedPlatform.qq_private_open
+    user_id: str
 
 
 class TargetQQGuildChannel(PlatformTarget):
@@ -77,6 +114,19 @@ class TargetQQGuildChannel(PlatformTarget):
     channel_id: int
 
 
+class TargetQQGuildChannelOpen(PlatformTargetOpen):
+    """QQ频道子频道（开放平台）
+
+    参数
+        channel_id: 子频道号
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_guild_channel_open
+    ] = SupportedPlatform.qq_guild_channel_open
+    channel_id: str
+
+
 class TargetQQGuildDirect(PlatformTarget):
     """QQ频道私聊
 
@@ -90,6 +140,21 @@ class TargetQQGuildDirect(PlatformTarget):
     ] = SupportedPlatform.qq_guild_direct
     recipient_id: int
     source_guild_id: int
+
+
+class TargetQQGuildDirectOpen(PlatformTargetOpen):
+    """QQ频道私聊（开放平台）
+
+    参数
+        recipient_id: 接收人ID
+        source_guild_id: 来自的频道号
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.qq_guild_direct_open
+    ] = SupportedPlatform.qq_guild_direct_open
+    recipient_id: str
+    source_guild_id: str
 
 
 class TargetOB12Unknow(PlatformTarget):
@@ -194,9 +259,13 @@ class TargetFeishuGroup(PlatformTarget):
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
+    TargetQQGroupOpen,
     TargetQQPrivate,
+    TargetQQPrivateOpen,
     TargetQQGuildChannel,
+    TargetQQGuildChannelOpen,
     TargetQQGuildDirect,
+    TargetQQGuildDirectOpen,
     TargetKaiheilaPrivate,
     TargetKaiheilaChannel,
     TargetOB12Unknow,
@@ -220,31 +289,39 @@ def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatf
 
 
 Extractor = Callable[[Event], PlatformTarget]
-extractor_map: Dict[Type[Event], Extractor] = {}
+ExtractorOpen = Callable[[Event, Bot], PlatformTarget]
+extractor_map: Dict[Type[Event], Union[Extractor, ExtractorOpen]] = {}
 
 
 def register_target_extractor(event: Type[Event]):
-    def wrapper(func: Extractor):
+    def wrapper(func: Union[Extractor, ExtractorOpen]):
         extractor_map[event] = func
         return func
 
     return wrapper
 
 
-def extract_target(event: Event) -> PlatformTarget:
+def extract_target(event: Event, bot: Optional[Bot] = None) -> PlatformTarget:
     "从事件中提取出发送目标，如果不能提取就抛出错误"
     for event_type in event.__class__.mro():
         if event_type in extractor_map:
             if not issubclass(event_type, Event):
                 break
-            return extractor_map[event_type](event)
+            if "bot" in inspect.signature(extractor_map[event_type]).parameters.keys():
+                if bot is None:
+                    raise RuntimeError(
+                        f"event {event.__class__} need bot parameter to extract target",
+                    )
+                return extractor_map[event_type](event, bot)  # type: ignore
+            else:
+                return extractor_map[event_type](event)  # type: ignore
     raise RuntimeError(f"event {event.__class__} not supported")
 
 
-def get_target(event: Event) -> Optional[PlatformTarget]:
+def get_target(event: Event, bot: Optional[Bot] = None) -> Optional[PlatformTarget]:
     "从事件中提取出发送目标，如果不能提取就返回 None"
     try:
-        return extract_target(event)
+        return extract_target(event, bot)
     except RuntimeError:
         pass
 
@@ -268,11 +345,12 @@ def register_sender(adapter: SupportedAdapters):
 SaaTarget = Annotated[PlatformTarget, Depends(get_target)]
 
 QQGuild_DMS = Callable[[TargetQQGuildDirect, Bot], Awaitable[int]]
-qqguild_dms_map: Dict[SupportedAdapters, QQGuild_DMS] = {}
+QQGuildOpen_DMS = Callable[[TargetQQGuildDirectOpen, Bot], Awaitable[int]]
+qqguild_dms_map: Dict[SupportedAdapters, Union[QQGuild_DMS, QQGuildOpen_DMS]] = {}
 
 
 def register_qqguild_dms(adapter: SupportedAdapters):
-    def wrapper(func: QQGuild_DMS):
+    def wrapper(func: Union[QQGuild_DMS, QQGuildOpen_DMS]):
         qqguild_dms_map[adapter] = func
         return func
 
@@ -280,15 +358,21 @@ def register_qqguild_dms(adapter: SupportedAdapters):
 
 
 class QQGuildDMSManager:
-    _cache: ClassVar[Dict[TargetQQGuildDirect, int]] = {}
+    _cache: ClassVar[
+        Dict[Union[TargetQQGuildDirect, TargetQQGuildDirectOpen], int]
+    ] = {}
 
     @classmethod
-    def get_guild_id(cls, target: TargetQQGuildDirect) -> int:
+    def get_guild_id(
+        cls, target: Union[TargetQQGuildDirect, TargetQQGuildDirectOpen]
+    ) -> int:
         """从缓存中获取私聊所需 guild_id"""
         return cls._cache[target]
 
     @classmethod
-    async def aget_guild_id(cls, target: TargetQQGuildDirect, bot: Bot) -> int:
+    async def aget_guild_id(
+        cls, target: Union[TargetQQGuildDirect, TargetQQGuildDirectOpen], bot: Bot
+    ) -> int:
         """获取私聊所需 guild_id"""
         if target in cls._cache:
             return cls._cache[target]
@@ -298,6 +382,6 @@ class QQGuildDMSManager:
             raise RuntimeError(
                 f"qqguild dms method for {adapter} not registered",
             )  # pragma: no cover
-        guild_id = await qqguild_dms(target, bot)
+        guild_id = await qqguild_dms(target, bot)  # type: ignore
         cls._cache[target] = guild_id
         return guild_id

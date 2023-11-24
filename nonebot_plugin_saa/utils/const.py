@@ -16,9 +16,13 @@ class SupportedAdapters(StrEnum):
 
 class SupportedPlatform(StrEnum):
     qq_group = "QQ Group"
+    qq_group_open = "QQ Group Open"
     qq_private = "QQ Private"
+    qq_private_open = "QQ Private Open"
     qq_guild_channel = "QQ Guild Channel"
+    qq_guild_channel_open = "QQ Guild Channel Open"
     qq_guild_direct = "QQ Guild Direct"
+    qq_guild_direct_open = "QQ Guild Direct Open"
     kaiheila_channel = "Kaiheila Channel"
     kaiheila_private = "Kaiheila Private"
     unknown_ob12 = "Unknow Onebot 12 Platform"
