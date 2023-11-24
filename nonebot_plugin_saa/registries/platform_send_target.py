@@ -55,7 +55,7 @@ class TargetQQGroup(PlatformTarget):
     """
 
     platform_type: Literal[SupportedPlatform.qq_group] = SupportedPlatform.qq_group
-    group_id: Union[int, str]
+    group_id: int
 
 
 class TargetQQPrivate(PlatformTarget):
@@ -66,7 +66,7 @@ class TargetQQPrivate(PlatformTarget):
     """
 
     platform_type: Literal[SupportedPlatform.qq_private] = SupportedPlatform.qq_private
-    user_id: Union[int, str]
+    user_id: int
 
 
 class TargetQQGroupOpenId(PlatformTarget, BotSpecifier):
