@@ -14,6 +14,7 @@ from typing import (
     Awaitable,
 )
 
+from pydantic import BaseModel
 from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
 
@@ -43,13 +44,7 @@ class PlatformTarget(SerializationMeta):
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
 
 
-class PlatformTargetOpen(PlatformTarget):
-    """开放平台
-
-    参数
-        bot_id: 机器人ID
-    """
-
+class BotSpecifier(BaseModel):
     bot_id: str
 
 
@@ -64,7 +59,7 @@ class TargetQQGroup(PlatformTarget):
     group_id: int
 
 
-class TargetQQGroupOpen(PlatformTargetOpen):
+class TargetQQGroupOpen(PlatformTarget, BotSpecifier):
     """QQ群（开放平台）
 
     参数
@@ -88,7 +83,7 @@ class TargetQQPrivate(PlatformTarget):
     user_id: int
 
 
-class TargetQQPrivateOpen(PlatformTargetOpen):
+class TargetQQPrivateOpen(PlatformTarget, BotSpecifier):
     """QQ私聊（开放平台）
 
     参数
@@ -114,7 +109,7 @@ class TargetQQGuildChannel(PlatformTarget):
     channel_id: int
 
 
-class TargetQQGuildChannelOpen(PlatformTargetOpen):
+class TargetQQGuildChannelOpen(PlatformTarget, BotSpecifier):
     """QQ频道子频道（开放平台）
 
     参数
@@ -142,7 +137,7 @@ class TargetQQGuildDirect(PlatformTarget):
     source_guild_id: int
 
 
-class TargetQQGuildDirectOpen(PlatformTargetOpen):
+class TargetQQGuildDirectOpen(PlatformTarget, BotSpecifier):
     """QQ频道私聊（开放平台）
 
     参数
