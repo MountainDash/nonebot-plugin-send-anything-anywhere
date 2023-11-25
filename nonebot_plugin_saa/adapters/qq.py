@@ -106,12 +106,12 @@ try:
     @register_target_extractor(C2CMessageCreateEvent)
     def extract_c2c_message_event(event: Event) -> PlatformTarget:
         assert isinstance(event, C2CMessageCreateEvent)
-        return TargetQQPrivateOpenId(user_openid=event.author.id)
+        return TargetQQPrivateOpenId(user_openid=event.author.user_openid)
 
     @register_target_extractor(GroupAtMessageCreateEvent)
     def extract_group_at_message_event(event: Event) -> PlatformTarget:
         assert isinstance(event, GroupAtMessageCreateEvent)
-        return TargetQQGroupOpenId(group_openid=event.group_id)
+        return TargetQQGroupOpenId(group_openid=event.group_openid)
 
     @register_qqguild_dms(adapter)
     async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
