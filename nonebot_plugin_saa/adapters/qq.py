@@ -175,6 +175,7 @@ try:
             assert event.id
 
             if isinstance(event, (C2CMessageCreateEvent, GroupAtMessageCreateEvent)):
+                at_sender = False # qq will add at automatically
                 reply = False # qq doesnt support reply in group or c2c at this time
 
             full_msg = assamble_message_factory(
