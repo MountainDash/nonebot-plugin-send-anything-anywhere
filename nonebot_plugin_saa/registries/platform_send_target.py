@@ -352,21 +352,15 @@ def register_qqguild_dms(adapter: SupportedAdapters):
 
 
 class QQGuildDMSManager:
-    _cache: ClassVar[
-        Dict[TargetQQGuildDirect, int]
-    ] = {}
+    _cache: ClassVar[Dict[TargetQQGuildDirect, int]] = {}
 
     @classmethod
-    def get_guild_id(
-        cls, target: TargetQQGuildDirect
-    ) -> int:
+    def get_guild_id(cls, target: TargetQQGuildDirect) -> int:
         """从缓存中获取私聊所需 guild_id"""
         return cls._cache[target]
 
     @classmethod
-    async def aget_guild_id(
-        cls, target: TargetQQGuildDirect, bot: Bot
-    ) -> int:
+    async def aget_guild_id(cls, target: TargetQQGuildDirect, bot: Bot) -> int:
         """获取私聊所需 guild_id"""
         if target in cls._cache:
             return cls._cache[target]

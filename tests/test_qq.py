@@ -191,9 +191,7 @@ async def test_send_active(app: App):
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
 
-        target = TargetQQGuildDirect(
-            recipient_id=1111, source_guild_id=2222
-        )
+        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
         ctx.should_call_api(
             "post_dms",
             data={
@@ -267,9 +265,9 @@ async def test_extract_target(app: App):
     from nonebot_plugin_saa import (
         SupportedAdapters,
         TargetQQGroupOpenId,
-        TargetQQPrivateOpenId,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
+        TargetQQPrivateOpenId,
         extract_target,
     )
 

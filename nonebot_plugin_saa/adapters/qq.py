@@ -19,9 +19,9 @@ from ..registries import (
     PlatformTarget,
     QQGuildDMSManager,
     TargetQQGroupOpenId,
-    TargetQQPrivateOpenId,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
+    TargetQQPrivateOpenId,
     register_sender,
     register_qqguild_dms,
     register_target_extractor,
@@ -87,9 +87,7 @@ try:
             )
         elif isinstance(event, (MessageCreateEvent, AtMessageCreateEvent)):
             assert event.channel_id
-            return TargetQQGuildChannel(
-                channel_id=int(event.channel_id)
-            )
+            return TargetQQGuildChannel(channel_id=int(event.channel_id))
         else:
             raise ValueError(f"{type(event)} not supported")
 

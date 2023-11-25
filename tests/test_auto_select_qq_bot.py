@@ -39,8 +39,8 @@ MockMessage = partial(
 
 
 async def test_disable(app: App):
-    from nonebot_plugin_saa.auto_select_bot import get_bot
     from nonebot_plugin_saa import TargetQQGuildChannel
+    from nonebot_plugin_saa.auto_select_bot import get_bot
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
@@ -100,8 +100,8 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
         Text,
         MessageFactory,
         SupportedAdapters,
-        AggregatedMessageFactory,
         TargetQQGuildChannel,
+        AggregatedMessageFactory,
     )
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
