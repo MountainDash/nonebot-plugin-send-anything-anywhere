@@ -292,20 +292,22 @@ def register_target_extractor(event: Type[Event]):
     return wrapper
 
 
-def extract_target(event: Event) -> PlatformTarget:
+def extract_target(event: Event, bot: Optional[Bot] = None) -> PlatformTarget:
     "从事件中提取出发送目标，如果不能提取就抛出错误"
     for event_type in event.__class__.mro():
         if event_type in extractor_map:
             if not issubclass(event_type, Event):
                 break
+            if bot:
+                return extractor_map[event_type](event, bot)
             return extractor_map[event_type](event)
     raise RuntimeError(f"event {event.__class__} not supported")
 
 
-def get_target(event: Event) -> Optional[PlatformTarget]:
+def get_target(event: Event, bot: Optional[Bot] = None) -> Optional[PlatformTarget]:
     "从事件中提取出发送目标，如果不能提取就返回 None"
     try:
-        return extract_target(event)
+        return extract_target(event, bot)
     except RuntimeError:
         pass
 
