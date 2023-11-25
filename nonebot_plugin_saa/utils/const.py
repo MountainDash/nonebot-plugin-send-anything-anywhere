@@ -17,7 +17,6 @@ class SupportedAdapters(StrEnum):
 
 class SupportedPlatform(StrEnum):
     qq_group = "QQ Group"
-    qq_group_open = "QQ Group Open"
     qq_private = "QQ Private"
     qq_group_openid = "QQ Group OpenID"
     qq_private_openid = "QQ Private OpenID"
