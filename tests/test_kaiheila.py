@@ -97,8 +97,8 @@ def mock_kaiheila_message_event(channel=False):
         )
 
 
-def kaiheila_kwargs(name="2233", token="hhhh"):
-    return {"name": name, "token": token}
+def kaiheila_kwargs(name="2233", token="hhhh", auto_connect=True):
+    return {"name": name, "token": token, "auto_connect": auto_connect}
 
 
 assert_kaiheila = partial(

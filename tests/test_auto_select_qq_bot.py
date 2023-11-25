@@ -40,7 +40,7 @@ MockMessage = partial(
 
 async def test_disable(app: App):
     from nonebot_plugin_saa.auto_select_bot import get_bot
-    from nonebot_plugin_saa import TargetQQGuildChannelOpen
+    from nonebot_plugin_saa import TargetQQGuildChannel
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
@@ -53,7 +53,7 @@ async def test_disable(app: App):
 
         await asyncio.sleep(0.1)
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
 
         with pytest.raises(RuntimeError):
             get_bot(target)
@@ -61,7 +61,7 @@ async def test_disable(app: App):
 
 async def test_enable(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa.auto_select_bot import get_bot
-    from nonebot_plugin_saa import TargetQQGuildChannelOpen, enable_auto_select_bot
+    from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
 
     # 结束后会自动恢复到原来的状态
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", False)
@@ -83,7 +83,7 @@ async def test_enable(app: App, mocker: MockerFixture):
         )
         await asyncio.sleep(0.1)
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         assert bot is get_bot(target)
 
     # 清理
@@ -101,7 +101,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
         MessageFactory,
         SupportedAdapters,
         AggregatedMessageFactory,
-        TargetQQGuildChannelOpen,
+        TargetQQGuildChannel,
     )
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
@@ -131,10 +131,10 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
             },
             result=MockMessage(id="1255124", channel_id="2233"),
         )
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target)
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2")
+        target = TargetQQGuildChannel(channel_id=2)
         with pytest.raises(RuntimeError):
             await MessageFactory("123").send_to(target)
 
@@ -174,10 +174,10 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
             result=MockMessage(id="1255124", channel_id="2233"),
         )
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         await AggregatedMessageFactory([Text("123"), Text("456")]).send_to(target)
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2")
+        target = TargetQQGuildChannel(channel_id=2)
         with pytest.raises(RuntimeError):
             await MessageFactory("123").send_to(target)
 
@@ -185,7 +185,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
 
         await refresh_bots()
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         with pytest.raises(RuntimeError):
             await AggregatedMessageFactory([Text("123"), Text("456")]).send_to(target)
 

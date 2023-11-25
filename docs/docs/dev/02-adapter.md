@@ -109,7 +109,7 @@ class OB11Receipt(Receipt):
 - target: PlatformTarget, 需要发送到的目的地
 - event: Optional[Event]，触发消息的事件，如果是主动发送消息则为None
 - at_sender: bool，需不需要顺带at发送者
-- reply: bool, 需不需要以恢复消息的形式发送
+- reply: bool, 需不需要以回复消息的形式发送
 
 而且需要返回刚才定义的 Receipt
 

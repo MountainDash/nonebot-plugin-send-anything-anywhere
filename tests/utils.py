@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
     from nonebot.adapters.qqguild import Message as QQGuildMessage
+    from nonebot.adapters.dodo.models import MessageBody, MessageType
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
     from nonebot_plugin_saa.abstract_factories import (
@@ -37,6 +38,49 @@ async def assert_ms(
         bot = ctx.create_bot(base=bot_base, adapter=adapter_obj, **kwargs)
         generated_ms = await ms_factory.build(bot)
         assert generated_ms.data == ms.data
+
+
+def mock_dodo_message_event(message: "MessageBody", type: "MessageType", private=False):
+    from nonebot.adapters.dodo.models import Sex, Member, Personal
+    from nonebot.adapters.dodo.event import (
+        EventType,
+        ChannelMessageEvent,
+        PersonalMessageEvent,
+    )
+
+    if not private:
+        return ChannelMessageEvent(
+            event_id="1234",
+            event_type=EventType.MESSAGE,
+            timestamp=datetime(2023, 11, 11),
+            dodo_source_id="1111",
+            island_source_id="2222",
+            personal=Personal(
+                nick_name="amiya",
+                avatar_url="https://example.com/amiya.png",
+                sex=Sex(1),
+            ),
+            message_id="33331",
+            message_type=type,
+            message_body=message,
+            member=Member(nick_name="kal'tist", join_time=datetime(2020, 2, 2)),
+            channel_id="5555",
+        )
+    else:
+        return PersonalMessageEvent(
+            event_id="1234",
+            event_type=EventType.PERSONAL_MESSAGE,
+            timestamp=datetime(2023, 11, 11),
+            dodo_source_id="1111",
+            personal=Personal(
+                nick_name="amiya",
+                avatar_url="https://example.com/amiya.png",
+                sex=Sex(1),
+            ),
+            message_id="33332",
+            message_type=type,
+            message_body=message,
+        )
 
 
 def mock_obv11_message_event(message: "OB11Message", group=False):

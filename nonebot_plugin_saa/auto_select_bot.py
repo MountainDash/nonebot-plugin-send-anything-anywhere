@@ -4,11 +4,17 @@ import random
 import asyncio
 from typing import Set, Dict, List, Callable, Awaitable
 
+import nonebot
 from nonebot.adapters import Bot
 from nonebot import logger, get_bots
 
-from .registries import PlatformTarget, TargetQQGuildDirect
-from .utils import NoBotFound, SupportedAdapters, extract_adapter_type
+from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
+from .utils import (
+    NoBotFound,
+    SupportedAdapters,
+    AdapterNotSupported,
+    extract_adapter_type,
+)
 
 BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
 BOT_CACHE_LOCK = asyncio.Lock()
@@ -71,10 +77,18 @@ def register_list_targets(adapter: SupportedAdapters):
 
 async def _refresh_bot(bot: Bot):
     BOT_CACHE.pop(bot, None)
-    adapter_name = extract_adapter_type(bot)
+    try:
+        adapter_name = extract_adapter_type(bot)
+    except AdapterNotSupported as e:
+        logger.warning(f"{bot} adapter [{e.args[0]}] not supported, ignore")
+        return
+
     if list_targets := list_targets_map.get(adapter_name):
-        targets = await list_targets(bot)
-        BOT_CACHE[bot] = set(targets)
+        try:
+            targets = await list_targets(bot)
+            BOT_CACHE[bot] = set(targets)
+        except Exception:
+            logger.exception(f"{bot} get list targets failed")
     _info_current()
 
 
@@ -97,6 +111,9 @@ def get_bot(target: PlatformTarget) -> Bot:
             "    enable_auto_select_bot()\n"
             "\n参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot"
         )
+
+    if isinstance(target, BotSpecifier):
+        return nonebot.get_bot(target.bot_id)
 
     # TODO: 通过更方便的方式判断当前 Target 是否支持
     if isinstance(target, TargetQQGuildDirect):

@@ -165,8 +165,8 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
-        TargetQQGuildDirectOpen,
-        TargetQQGuildChannelOpen,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
     )
 
     async with app.test_api() as ctx:
@@ -188,11 +188,11 @@ async def test_send_active(app: App):
             },
             result=MockMessage(id="1234871", channel_id="2233"),
         )
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
 
-        target = TargetQQGuildDirectOpen(
-            bot_id="3344", recipient_id="1111", source_guild_id="2222"
+        target = TargetQQGuildDirect(
+            recipient_id=1111, source_guild_id=2222
         )
         ctx.should_call_api(
             "post_dms",
@@ -229,7 +229,7 @@ async def test_send_active(app: App):
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
-    from nonebot_plugin_saa import TargetQQGuildChannelOpen
+    from nonebot_plugin_saa import TargetQQGuildChannel
     from nonebot_plugin_saa.auto_select_bot import get_bot, refresh_bots
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
@@ -249,7 +249,7 @@ async def test_list_targets(app: App, mocker: MockerFixture):
         )
         await refresh_bots()
 
-        target = TargetQQGuildChannelOpen(bot_id="3344", channel_id="2233")
+        target = TargetQQGuildChannel(channel_id=2233)
         assert bot is get_bot(target)
 
 
@@ -266,10 +266,10 @@ async def test_extract_target(app: App):
 
     from nonebot_plugin_saa import (
         SupportedAdapters,
-        TargetQQGroupOpen,
-        TargetQQPrivateOpen,
-        TargetQQGuildDirectOpen,
-        TargetQQGuildChannelOpen,
+        TargetQQGroupOpenId,
+        TargetQQPrivateOpenId,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
         extract_target,
     )
 
@@ -290,8 +290,11 @@ async def test_extract_target(app: App):
             author=User(id="1"),
         )
 
-        assert extract_target(guild_message_event, bot) == TargetQQGuildChannelOpen(
-            bot_id="3344", channel_id="6677"
+        assert extract_target(guild_message_event) == TargetQQGuildChannel(
+            channel_id=6677
+        )
+        assert extract_target(guild_message_event, bot) == TargetQQGuildChannel(
+            channel_id=6677
         )
 
         direct_message_event = DirectMessageCreateEvent(
@@ -302,8 +305,8 @@ async def test_extract_target(app: App):
             author=User(id="1"),
         )
 
-        assert extract_target(direct_message_event, bot) == TargetQQGuildDirectOpen(
-            bot_id="3344", recipient_id="1", source_guild_id="5566"
+        assert extract_target(direct_message_event, bot) == TargetQQGuildDirect(
+            recipient_id=1, source_guild_id=5566
         )
 
         c2c_message_event = C2CMessageCreateEvent(
@@ -314,8 +317,8 @@ async def test_extract_target(app: App):
             timestamp="12345678",
         )
 
-        assert extract_target(c2c_message_event, bot) == TargetQQPrivateOpen(
-            bot_id="3344", user_id="CCDD"
+        assert extract_target(c2c_message_event, bot) == TargetQQPrivateOpenId(
+            bot_id="3344", user_openid="CCDD"
         )
 
         group_at_message_event = GroupAtMessageCreateEvent(
@@ -327,6 +330,6 @@ async def test_extract_target(app: App):
             timestamp="12345678",
         )
 
-        assert extract_target(group_at_message_event, bot) == TargetQQGroupOpen(
-            bot_id="3344", group_id="AABB"
+        assert extract_target(group_at_message_event, bot) == TargetQQGroupOpenId(
+            bot_id="3344", group_openid="AABB"
         )

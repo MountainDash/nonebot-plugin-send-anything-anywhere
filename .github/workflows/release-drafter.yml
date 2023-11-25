@@ -6,6 +6,7 @@ on:
       - main
     types:
       - closed
+  workflow_dispatch:
 
 jobs:
   update-release-drafter:

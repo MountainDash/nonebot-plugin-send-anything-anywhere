@@ -340,13 +340,18 @@ async def test_send_revoke(app: App):
 
 async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa import TargetQQGroup, TargetQQPrivate
-    from nonebot_plugin_saa.auto_select_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa.auto_select_bot import BOT_CACHE, get_bot, refresh_bots
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
 
     async with app.test_api() as ctx:
         adapter = get_adapter(Adapter)
         bot = ctx.create_bot(base=Bot, adapter=adapter, info=bot_info)
+
+        ctx.should_call_api("get_groups", data={}, exception=Exception("test"))
+        ctx.should_call_api("get_friends", data={}, exception=Exception("test"))
+        await refresh_bots()
+        assert not BOT_CACHE.get(bot)
 
         ctx.should_call_api(
             "get_groups",

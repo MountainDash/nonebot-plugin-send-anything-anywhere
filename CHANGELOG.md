@@ -2,16 +2,29 @@
 
 ## 最近更新
 
+### 新功能
+
+- 引入 QQ群 和 QQ私聊 的 openid target [@felinae98](https://github.com/felinae98) ([#119](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/119))
+
+## v0.4.0
+
 ### 破坏性变更
 
 - 重构 Reply [@felinae98](https://github.com/felinae98) ([#97](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/97))
 
 ### 新功能
 
+- 适配 DoDo [@AzideCupric](https://github.com/AzideCupric) ([#114](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/114))
+- 支持选择特定 Bot 的 PlatformTarget [@felinae98](https://github.com/felinae98) ([#116](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/116))
 - 为 auto select bot 加入更多日志信息 [@felinae98](https://github.com/felinae98) ([#101](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/101))
+
+### Bug 修复
+
+- 捕获 auto select bot 功能中的各处异常 [@AzideCupric](https://github.com/AzideCupric) ([#115](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/115))
 
 ### 文档
 
+- 修复文档错误  [@Sam5440](https://github.com/Sam5440) ([#110](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/110))
 - 修复文档错误 [@montmorill](https://github.com/montmorill) ([#104](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/104))
 - 更新 adapter 适配指南 [@felinae98](https://github.com/felinae98) ([#98](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/98))
 - 📝 完善自动选择Bot文档 [@AzideCupric](https://github.com/AzideCupric) ([#100](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/100))
