@@ -61,7 +61,12 @@ async def test_disable(app: App):
 
 async def test_enable(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa.auto_select_bot import get_bot
-    from nonebot_plugin_saa import TargetQQGuildChannel, enable_auto_select_bot
+    from nonebot_plugin_saa import (
+        TargetQQGroupOpenId,
+        TargetQQGuildChannel,
+        TargetQQPrivateOpenId,
+        enable_auto_select_bot,
+    )
 
     # 结束后会自动恢复到原来的状态
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", False)
@@ -84,6 +89,12 @@ async def test_enable(app: App, mocker: MockerFixture):
         await asyncio.sleep(0.1)
 
         target = TargetQQGuildChannel(channel_id=2233)
+        assert bot is get_bot(target)
+
+        target = TargetQQGroupOpenId(bot_id="3344", group_openid="GROUP")
+        assert bot is get_bot(target)
+
+        target = TargetQQPrivateOpenId(bot_id="3344", user_openid="USER")
         assert bot is get_bot(target)
 
     # 清理
