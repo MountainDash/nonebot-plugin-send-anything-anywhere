@@ -4,11 +4,10 @@ import random
 import asyncio
 from typing import Set, Dict, List, Callable, Awaitable
 
-import nonebot
 from nonebot.adapters import Bot
 from nonebot import logger, get_bots
 
-from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
+from .registries import PlatformTarget, TargetQQGuildDirect
 from .utils import (
     NoBotFound,
     SupportedAdapters,
@@ -111,9 +110,6 @@ def get_bot(target: PlatformTarget) -> Bot:
             "    enable_auto_select_bot()\n"
             "\n参见：https://send-anything-anywhere.felinae98.cn/usage/send#发送时自动选择bot"
         )
-
-    if isinstance(target, BotSpecifier):
-        return nonebot.get_bot(target.bot_id)
 
     # TODO: 通过更方便的方式判断当前 Target 是否支持
     if isinstance(target, TargetQQGuildDirect):
