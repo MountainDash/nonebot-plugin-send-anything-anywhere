@@ -4,8 +4,9 @@ import random
 import asyncio
 from typing import Set, Dict, List, Callable, Awaitable
 
-from nonebot.adapters import Bot
+from nonebot.adapters import Bot, Event
 from nonebot import logger, get_bots
+from nonebot.message import event_postprocessor
 
 from .registries import PlatformTarget, TargetQQGuildDirect
 from .utils import (
@@ -19,8 +20,10 @@ BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
 BOT_CACHE_LOCK = asyncio.Lock()
 
 ListTargetsFunc = Callable[[Bot], Awaitable[List[PlatformTarget]]]
+StoreTargetsFunc = Callable[[Bot, Event], Awaitable[PlatformTarget]]
 
 list_targets_map: Dict[str, ListTargetsFunc] = {}
+store_targets_map: Dict[str, StoreTargetsFunc] = {}
 
 inited = False
 
@@ -41,6 +44,20 @@ def _register_hook():
         logger.info(f"pop bot {bot}")
         async with BOT_CACHE_LOCK:
             BOT_CACHE.pop(bot, None)
+
+    @event_postprocessor
+    async def _(bot: Bot, event: Event):
+        try:
+            adapter_name = extract_adapter_type(bot)
+        except AdapterNotSupported as e:
+            logger.warning(f"{bot} adapter [{e.args[0]}] not supported, ignore")
+            return
+        if store_targets := store_targets_map.get(adapter_name):
+            try:
+                target = await store_targets(bot, event)
+                BOT_CACHE[bot].add(target)
+            except Exception:
+                logger.exception(f"{bot} store target failed")
 
 
 def enable_auto_select_bot():
@@ -69,6 +86,14 @@ def enable_auto_select_bot():
 def register_list_targets(adapter: SupportedAdapters):
     def wrapper(func: ListTargetsFunc):
         list_targets_map[adapter] = func
+        return func
+
+    return wrapper
+
+
+def register_store_targets(adapter: SupportedAdapters):
+    def wrapper(func: StoreTargetsFunc):
+        store_targets_map[adapter] = func
         return func
 
     return wrapper

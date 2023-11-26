@@ -8,7 +8,7 @@ from nonebot.adapters import Bot as BaseBot
 
 from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
-from ..auto_select_bot import register_list_targets
+from ..auto_select_bot import register_list_targets, register_store_targets
 from ..abstract_factories import (
     MessageFactory,
     MessageSegmentFactory,
@@ -46,6 +46,7 @@ try:
         Bot,
         Message,
         MessageSegment,
+        QQMessageEvent,
         MessageCreateEvent,
         AtMessageCreateEvent,
         C2CMessageCreateEvent,
@@ -254,6 +255,17 @@ try:
                 )
 
         return targets
+
+    @register_store_targets(SupportedAdapters.qq)
+    async def store_targets(bot: BaseBot, event: QQMessageEvent) -> PlatformTarget:
+        assert isinstance(bot, Bot)
+
+        if isinstance(event, C2CMessageCreateEvent):
+            return TargetQQPrivateOpenId(user_openid=event.author.user_openid)
+        elif isinstance(event, GroupAtMessageCreateEvent):
+            return TargetQQGroupOpenId(group_openid=event.group_openid)
+        else:
+            raise ValueError(f"{type(event)} not supported")
 
 except ImportError:
     pass
