@@ -18,9 +18,9 @@ from ..abstract_factories import (
 from ..registries import (
     Receipt,
     MessageId,
-    TargetQQGroup,
+    TargetQQGroupOpenId,
     PlatformTarget,
-    TargetQQPrivate,
+    TargetQQPrivateOpenId,
     QQGuildDMSManager,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
@@ -106,12 +106,12 @@ try:
     @register_target_extractor(C2CMessageCreateEvent)
     def extract_c2c_message_event(event: Event) -> PlatformTarget:
         assert isinstance(event, C2CMessageCreateEvent)
-        return TargetQQPrivate(user_id=int(event.author.id))
+        return TargetQQPrivateOpenId(user_openid=event.author.id)
 
     @register_target_extractor(GroupAtMessageCreateEvent)
     def extract_group_at_message_event(event: Event) -> PlatformTarget:
         assert isinstance(event, GroupAtMessageCreateEvent)
-        return TargetQQGroup(group_id=int(event.group_id))
+        return TargetQQGroupOpenId(group_openid=event.group_id)
 
     @register_qqguild_dms(adapter)
     async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
@@ -162,7 +162,7 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
-            (TargetQQGuildChannel, TargetQQGuildDirect, TargetQQGroup, TargetQQPrivate),
+            (TargetQQGuildChannel, TargetQQGuildDirect, TargetQQGroupOpenId, TargetQQPrivateOpenId),
         )
 
         full_msg = msg
@@ -204,14 +204,14 @@ try:
                         channel_id=str(target.channel_id),
                         message=message,
                     )
-                elif isinstance(target, TargetQQPrivate):
+                elif isinstance(target, TargetQQPrivateOpenId):
                     msg_return = await bot.send_to_c2c(
-                        user_id=str(target.user_id),
+                        user_id=target.user_id,
                         message=message,
                     )
-                elif isinstance(target, TargetQQGroup):
+                elif isinstance(target, TargetQQGroupOpenId):
                     msg_return = await bot.send_to_group(
-                        group_id=str(target.group_id),
+                        group_id=target.group_id,
                         message=message,
                     )
                 else:
