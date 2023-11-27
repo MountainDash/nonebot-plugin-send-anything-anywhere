@@ -284,12 +284,12 @@ def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatf
 
 
 Extractor = Callable[[Event], PlatformTarget]
-ExtractorOpenId = Callable[[Event, Bot], PlatformTarget]
-extractor_map: Dict[Type[Event], Union[Extractor, ExtractorOpenId]] = {}
+ExtractorWithBotSpecifier = Callable[[Event, Bot], PlatformTarget]
+extractor_map: Dict[Type[Event], Union[Extractor, ExtractorWithBotSpecifier]] = {}
 
 
 def register_target_extractor(event: Type[Event]):
-    def wrapper(func: Union[Extractor, ExtractorOpenId]):
+    def wrapper(func: Union[Extractor, ExtractorWithBotSpecifier]):
         extractor_map[event] = func
         return func
 
