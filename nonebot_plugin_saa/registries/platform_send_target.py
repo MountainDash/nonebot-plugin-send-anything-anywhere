@@ -302,7 +302,8 @@ def extract_target(event: Event, bot: Optional[Bot] = None) -> PlatformTarget:
         if event_type in extractor_map:
             if not issubclass(event_type, Event):
                 break
-            if "bot" in inspect.signature(extractor_map[event_type]).parameters.keys():
+            if len(inspect.signature(extractor_map[event_type]).parameters.keys()) == 2:
+                # extractor params: event, bot
                 if bot is None:
                     raise RuntimeError(
                         f"event {event.__class__} need bot parameter to extract target",
