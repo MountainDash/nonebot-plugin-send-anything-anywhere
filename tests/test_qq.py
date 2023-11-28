@@ -422,30 +422,30 @@ async def test_target_dependency_injection(app: App):
     @matcher.handle()
     async def _(event: MessageCreateEvent, target: SaaTarget):
         assert event
-        assert isinstance(target, TargetQQGuildChannel)
+        assert target == TargetQQGuildChannel(channel_id=2233)
 
     @matcher.handle()
     async def _(event: DirectMessageCreateEvent, target: SaaTarget):
         assert event
-        assert isinstance(target, TargetQQGuildDirect)
+        assert target == TargetQQGuildDirect(recipient_id=3344, source_guild_id=1122)
 
     @matcher.handle()
     async def _(event: GroupAtMessageCreateEvent, target: SaaTarget):
         assert event
-        assert isinstance(target, TargetQQGroupOpenId)
+        assert target == TargetQQGroupOpenId(bot_id="314159", group_openid="1122")
 
     @matcher.handle()
     async def _(event: C2CMessageCreateEvent, target: SaaTarget):
         assert event
-        assert isinstance(target, TargetQQPrivateOpenId)
+        assert target == TargetQQPrivateOpenId(bot_id="314159", user_openid="3344")
 
     async with app.test_matcher(matcher) as ctx:
         qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
         bot = ctx.create_bot(
             base=Bot,
             adapter=qq_adapter,
-            self_id="3344",
-            bot_info=BotInfo(id="3344", token="", secret=""),
+            self_id="314159",
+            bot_info=BotInfo(id="314159", token="", secret=""),
         )
 
         event = mock_qq_guild_message_event(Message("321"))
