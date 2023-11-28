@@ -7,11 +7,11 @@ from nonebot import get_adapter
 from pytest_mock import MockerFixture
 from nonebot.adapters.qq import Bot, Adapter
 from nonebot.adapters.qq.config import BotInfo
-from nonebot.adapters.qq.models import DMS, User, Guild, Channel, Message
+from nonebot.adapters.qq.models import DMS, User, Guild, Channel, Message, QQMessage
 
 from nonebot_plugin_saa.utils import SupportedAdapters
 
-from .utils import assert_ms, mock_qq_guild_message_event
+from .utils import assert_ms, mock_qq_message_event, mock_qq_guild_message_event
 
 MockGuild = partial(
     Guild,
@@ -36,11 +36,23 @@ MockChannel = partial(
     private_type=0,
     speak_permission=0,
 )
-MockMessage = partial(
+MockGroup = partial(
+    Channel,
+    id="2233",
+    guild_id="0",
+    name="test1",
+    type=0,
+    sub_type=0,
+    position=0,
+    private_type=0,
+    speak_permission=0,
+)
+MockQQGuildMessage = partial(
     Message, id="1", channel_id="2233", guild_id="1", author=User(id="1")
 )
+MockQQMessage = partial(QQMessage, id="1", timestamp="2023-10-20T00:00:00+08:00")
 
-assert_qqguild = partial(
+assert_qq = partial(
     assert_ms,
     Bot,
     SupportedAdapters.qq,
@@ -54,7 +66,7 @@ async def test_text(app: App):
 
     from nonebot_plugin_saa import Text
 
-    await assert_qqguild(app, Text("text"), MessageSegment.text("text"))
+    await assert_qq(app, Text("text"), MessageSegment.text("text"))
 
 
 async def test_image(app: App, tmp_path: Path):
@@ -62,19 +74,19 @@ async def test_image(app: App, tmp_path: Path):
 
     from nonebot_plugin_saa import Image
 
-    await assert_qqguild(
+    await assert_qq(
         app,
         Image("https://picsum.photos/200"),
         MessageSegment.image("https://picsum.photos/200"),
     )
 
     data = b"\x89PNG\r"
-    await assert_qqguild(app, Image(data), MessageSegment.file_image(data))
+    await assert_qq(app, Image(data), MessageSegment.file_image(data))
 
     image_path = tmp_path / "image.png"
     with open(image_path, "wb") as f:
         f.write(data)
-    await assert_qqguild(app, Image(image_path), MessageSegment.file_image(image_path))
+    await assert_qq(app, Image(image_path), MessageSegment.file_image(image_path))
 
 
 async def test_mention_user(app: App):
@@ -82,7 +94,7 @@ async def test_mention_user(app: App):
 
     from nonebot_plugin_saa import Mention
 
-    await assert_qqguild(app, Mention("314159"), MessageSegment.mention_user("314159"))
+    await assert_qq(app, Mention("314159"), MessageSegment.mention_user("314159"))
 
 
 async def test_send(app: App):
@@ -94,23 +106,24 @@ async def test_send(app: App):
     matcher = on_message()
 
     @matcher.handle()
-    async def handle():
+    async def _():
         await MessageFactory(Text("123")).send()
 
     async with app.test_matcher(matcher) as ctx:
-        qqguild_adapter = get_driver()._adapters[SupportedAdapters.qq]
+        qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
         bot = ctx.create_bot(
             base=Bot,
-            adapter=qqguild_adapter,
+            adapter=qq_adapter,
             self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
+
         event = mock_qq_guild_message_event(Message("321"))
         ctx.receive_event(bot, event)
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockMessage(id="1234871", channel_id=event.channel_id),
+            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
         )
 
         event = mock_qq_guild_message_event(Message("322"), direct=True)
@@ -118,7 +131,23 @@ async def test_send(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockMessage(id="1234871", channel_id=event.channel_id),
+            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+        )
+
+        event = mock_qq_message_event(Message("323"))
+        ctx.receive_event(bot, event)
+        ctx.should_call_send(
+            event,
+            Message("123"),
+            result=MockQQMessage(id="1234871", content="123"),
+        )
+
+        event = mock_qq_message_event(Message("323"), direct=True)
+        ctx.receive_event(bot, event)
+        ctx.should_call_send(
+            event,
+            Message("123"),
+            result=MockQQMessage(id="1234871", content="123"),
         )
 
 
@@ -131,24 +160,26 @@ async def test_send_revoke(app: App):
     matcher = on_message()
 
     @matcher.handle()
-    async def handle():
+    async def _():
         receipt = await MessageFactory(Text("123")).send()
         await receipt.revoke()
 
     async with app.test_matcher(matcher) as ctx:
-        qqguild_adapter = get_driver()._adapters[SupportedAdapters.qq]
+        qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
         bot = ctx.create_bot(
             base=Bot,
-            adapter=qqguild_adapter,
+            adapter=qq_adapter,
             self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
+
+        # only guild message can be revoked
         event = mock_qq_guild_message_event(Message("321"))
         ctx.receive_event(bot, event)
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockMessage(id="1234871", channel_id=event.channel_id),
+            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
         )
         ctx.should_call_api(
             "delete_message",
@@ -165,15 +196,17 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
+        TargetQQGroupOpenId,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
+        TargetQQPrivateOpenId,
     )
 
     async with app.test_api() as ctx:
-        adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qq)]
+        adapter_qq = get_driver()._adapters[str(SupportedAdapters.qq)]
         bot = ctx.create_bot(
             base=Bot,
-            adapter=adapter_qqguild,
+            adapter=adapter_qq,
             self_id="3344",
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
@@ -186,7 +219,7 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockMessage(id="1234871", channel_id="2233"),
+            result=MockQQGuildMessage(id="1234871", channel_id="2233"),
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
@@ -208,10 +241,9 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockMessage(id="1234871", channel_id="12479234"),
+            result=MockQQGuildMessage(id="1234871", channel_id="12479234"),
         )
         await MessageFactory("123").send_to(target, bot)
-
         # 再次发送，这次直接从缓存中获取 guild_id
         ctx.should_call_api(
             "post_dms_messages",
@@ -221,9 +253,41 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "1234",
             },
-            result=MockMessage(id="1234871", channel_id="12355131"),
+            result=MockQQGuildMessage(id="1234871", channel_id="12355131"),
         )
         await MessageFactory("1234").send_to(target, bot)
+
+        ctx.should_call_api(
+            "post_group_messages",
+            data={
+                "group_openid": "2233",
+                "msg_type": 0,
+                "content": "123",
+                "media": None,
+                "msg_id": None,
+                "msg_seq": None,
+                "event_id": None,
+            },
+            result=MockQQMessage(id="1234871", content="123"),
+        )
+        target = TargetQQGroupOpenId(bot_id="3344", group_openid="2233")
+        await MessageFactory("123").send_to(target, bot)
+
+        ctx.should_call_api(
+            "post_c2c_messages",
+            data={
+                "openid": "2233",
+                "msg_type": 0,
+                "content": "123",
+                "media": None,
+                "msg_id": None,
+                "msg_seq": None,
+                "event_id": None,
+            },
+            result=MockQQMessage(id="1234871", content="123"),
+        )
+        target = TargetQQPrivateOpenId(bot_id="3344", user_openid="2233")
+        await MessageFactory("123").send_to(target, bot)
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):
@@ -241,6 +305,7 @@ async def test_list_targets(app: App, mocker: MockerFixture):
             bot_info=BotInfo(id="3344", token="", secret=""),
         )
 
+        # only private-domain guild bot can get target list
         ctx.should_call_api("guilds", {}, [MockGuild(id="1", name="test1")])
         ctx.should_call_api(
             "get_channels", {"guild_id": "1"}, [MockChannel(id="2233", name="test1")]
@@ -331,3 +396,63 @@ async def test_extract_target(app: App):
         assert extract_target(group_at_message_event, bot) == TargetQQGroupOpenId(
             bot_id="3344", group_openid="AABB"
         )
+
+
+async def test_target_dependency_injection(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.qq import (
+        Message,
+        MessageCreateEvent,
+        C2CMessageCreateEvent,
+        DirectMessageCreateEvent,
+        GroupAtMessageCreateEvent,
+    )
+
+    from nonebot_plugin_saa import (
+        SaaTarget,
+        SupportedAdapters,
+        TargetQQGroupOpenId,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+        TargetQQPrivateOpenId,
+    )
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _(event: MessageCreateEvent, target: SaaTarget):
+        assert event
+        assert isinstance(target, TargetQQGuildChannel)
+
+    @matcher.handle()
+    async def _(event: DirectMessageCreateEvent, target: SaaTarget):
+        assert event
+        assert isinstance(target, TargetQQGuildDirect)
+
+    @matcher.handle()
+    async def _(event: GroupAtMessageCreateEvent, target: SaaTarget):
+        assert event
+        assert isinstance(target, TargetQQGroupOpenId)
+
+    @matcher.handle()
+    async def _(event: C2CMessageCreateEvent, target: SaaTarget):
+        assert event
+        assert isinstance(target, TargetQQPrivateOpenId)
+
+    async with app.test_matcher(matcher) as ctx:
+        qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qq_adapter,
+            self_id="3344",
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        event = mock_qq_guild_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        event = mock_qq_guild_message_event(Message("321"), direct=True)
+        ctx.receive_event(bot, event)
+        event = mock_qq_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        event = mock_qq_message_event(Message("321"), direct=True)
+        ctx.receive_event(bot, event)
