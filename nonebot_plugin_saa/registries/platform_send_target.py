@@ -1,3 +1,4 @@
+import inspect
 from typing_extensions import Annotated
 from typing import (
     TYPE_CHECKING,
@@ -256,6 +257,8 @@ class TargetDoDoPrivate(PlatformTarget):
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
     TargetQQPrivate,
+    TargetQQGroupOpenId,
+    TargetQQPrivateOpenId,
     TargetQQGuildChannel,
     TargetQQGuildDirect,
     TargetKaiheilaPrivate,
@@ -281,31 +284,40 @@ def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatf
 
 
 Extractor = Callable[[Event], PlatformTarget]
-extractor_map: Dict[Type[Event], Extractor] = {}
+ExtractorWithBotSpecifier = Callable[[Event, Bot], PlatformTarget]
+extractor_map: Dict[Type[Event], Union[Extractor, ExtractorWithBotSpecifier]] = {}
 
 
 def register_target_extractor(event: Type[Event]):
-    def wrapper(func: Extractor):
+    def wrapper(func: Union[Extractor, ExtractorWithBotSpecifier]):
         extractor_map[event] = func
         return func
 
     return wrapper
 
 
-def extract_target(event: Event) -> PlatformTarget:
+def extract_target(event: Event, bot: Optional[Bot] = None) -> PlatformTarget:
     "从事件中提取出发送目标，如果不能提取就抛出错误"
     for event_type in event.__class__.mro():
         if event_type in extractor_map:
             if not issubclass(event_type, Event):
                 break
-            return extractor_map[event_type](event)
+            if len(inspect.signature(extractor_map[event_type]).parameters.keys()) == 2:
+                # extractor params: event, bot
+                if bot is None:
+                    raise RuntimeError(
+                        f"event {event.__class__} need bot parameter to extract target",
+                    )
+                return extractor_map[event_type](event, bot)  # type: ignore
+            else:
+                return extractor_map[event_type](event)  # type: ignore
     raise RuntimeError(f"event {event.__class__} not supported")
 
 
-def get_target(event: Event) -> Optional[PlatformTarget]:
+def get_target(event: Event, bot: Optional[Bot] = None) -> Optional[PlatformTarget]:
     "从事件中提取出发送目标，如果不能提取就返回 None"
     try:
-        return extract_target(event)
+        return extract_target(event, bot)
     except RuntimeError:
         pass
 
@@ -359,6 +371,6 @@ class QQGuildDMSManager:
             raise RuntimeError(
                 f"qqguild dms method for {adapter} not registered",
             )  # pragma: no cover
-        guild_id = await qqguild_dms(target, bot)
+        guild_id = await qqguild_dms(target, bot)  # type: ignore
         cls._cache[target] = guild_id
         return guild_id

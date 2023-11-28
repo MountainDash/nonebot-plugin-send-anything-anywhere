@@ -270,16 +270,16 @@ def mock_qq_guild_message_event(message: "QQMessage", direct=False):
 
 
 def mock_qq_message_event(message: "QQMessage", direct=False):
-    from nonebot.adapters.qq.models import Author
     from nonebot.adapters.qq.event import EventType
+    from nonebot.adapters.qq.models import FriendAuthor, GroupMemberAuthor
     from nonebot.adapters.qq import C2CMessageCreateEvent, GroupAtMessageCreateEvent
 
     if not direct:
         return GroupAtMessageCreateEvent(
             __type__=EventType.GROUP_AT_MESSAGE_CREATE,
             id=str(random.randrange(0, 10000)),
-            author=Author(id="3344"),
-            group_id="1122",
+            author=GroupMemberAuthor(id="3344", member_openid="3344"),
+            group_openid="1122",
             content=message.extract_content(),
             timestamp="12345678",
         )
@@ -287,7 +287,7 @@ def mock_qq_message_event(message: "QQMessage", direct=False):
         return C2CMessageCreateEvent(
             __type__=EventType.C2C_MESSAGE_CREATE,
             id=str(random.randrange(0, 10000)),
-            author=Author(id="3344"),
+            author=FriendAuthor(id="3344", user_openid="3344"),
             content=message.extract_content(),
             timestamp="12345678",
         )

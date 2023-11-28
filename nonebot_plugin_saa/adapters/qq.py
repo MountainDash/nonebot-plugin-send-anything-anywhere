@@ -16,12 +16,12 @@ from ..abstract_factories import (
 from ..registries import (
     Receipt,
     MessageId,
-    TargetQQGroup,
     PlatformTarget,
-    TargetQQPrivate,
     QQGuildDMSManager,
+    TargetQQGroupOpenId,
     TargetQQGuildDirect,
     TargetQQGuildChannel,
+    TargetQQPrivateOpenId,
     register_sender,
     register_qqguild_dms,
     register_target_extractor,
@@ -82,7 +82,8 @@ try:
             assert event.guild_id
             assert event.author and event.author.id
             return TargetQQGuildDirect(
-                source_guild_id=int(event.guild_id), recipient_id=int(event.author.id)
+                source_guild_id=int(event.guild_id),
+                recipient_id=int(event.author.id),
             )
         elif isinstance(event, (MessageCreateEvent, AtMessageCreateEvent)):
             assert event.channel_id
@@ -91,14 +92,14 @@ try:
             raise ValueError(f"{type(event)} not supported")
 
     @register_target_extractor(C2CMessageCreateEvent)
-    def extract_c2c_message_event(event: Event) -> PlatformTarget:
+    def extract_c2c_message_event(event: Event, bot: BaseBot) -> PlatformTarget:
         assert isinstance(event, C2CMessageCreateEvent)
-        return TargetQQPrivate(user_id=int(event.author.id))
+        return TargetQQPrivateOpenId(bot_id=bot.self_id, user_openid=event.author.id)
 
     @register_target_extractor(GroupAtMessageCreateEvent)
-    def extract_group_at_message_event(event: Event) -> PlatformTarget:
+    def extract_group_at_message_event(event: Event, bot: BaseBot) -> PlatformTarget:
         assert isinstance(event, GroupAtMessageCreateEvent)
-        return TargetQQGroup(group_id=int(event.group_id))
+        return TargetQQGroupOpenId(bot_id=bot.self_id, group_openid=event.group_openid)
 
     @register_qqguild_dms(adapter)
     async def get_dms(target: TargetQQGuildDirect, bot: BaseBot) -> int:
@@ -149,7 +150,12 @@ try:
         assert isinstance(bot, Bot)
         assert isinstance(
             target,
-            (TargetQQGuildChannel, TargetQQGuildDirect, TargetQQGroup, TargetQQPrivate),
+            (
+                TargetQQGuildChannel,
+                TargetQQGuildDirect,
+                TargetQQGroupOpenId,
+                TargetQQPrivateOpenId,
+            ),
         )
 
         full_msg = msg
@@ -186,14 +192,14 @@ try:
                     channel_id=str(target.channel_id),
                     message=message,
                 )
-            elif isinstance(target, TargetQQPrivate):
+            elif isinstance(target, TargetQQPrivateOpenId):
                 msg_return = await bot.send_to_c2c(
-                    user_id=str(target.user_id),
+                    openid=target.user_openid,
                     message=message,
                 )
-            elif isinstance(target, TargetQQGroup):
+            elif isinstance(target, TargetQQGroupOpenId):
                 msg_return = await bot.send_to_group(
-                    group_id=str(target.group_id),
+                    group_openid=target.group_openid,
                     message=message,
                 )
             else:
@@ -211,11 +217,11 @@ try:
 
         guilds = await bot.guilds()
         for guild in guilds:
-            channels = await bot.get_channels(guild_id=guild.id)  # type: ignore
+            channels = await bot.get_channels(guild_id=guild.id)
             for channel in channels:
                 targets.append(
                     TargetQQGuildChannel(
-                        channel_id=channel.id,  # type: ignore
+                        channel_id=int(channel.id),
                     )
                 )
 
