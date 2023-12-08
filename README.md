@@ -57,14 +57,15 @@ await MessageFactory("早上好").send_to(target)
 从消息事件中提取发送目标:
 
 ```python
-from nonebot_plugin_saa import extract_target, get_target
+from nonebot_plugin_saa import extract_target, get_target, SaaTarget
 
 @matcher.handle()
-async def handle(event: MessageEvent):
-    target = extract_target(event)
+async def handle(event: MessageEvent, bot: Bot):
+    # 只有混入了 Specifier 的 PlatformTarget（例如 OpenID 版 QQ）需要传入 bot
+    target = extract_target(event, bot)
 
 @matcher.handle()
-async def handle(target: PlatformTarget = Depends(get_target)):
+async def handle(target: SaaTarget):
     ...
 ```
 
