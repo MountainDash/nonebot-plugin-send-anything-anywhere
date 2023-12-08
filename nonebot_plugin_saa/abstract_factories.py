@@ -298,7 +298,7 @@ class MessageFactory(List[TMSF]):
         except LookupError as e:
             raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
-        target = extract_target(event)
+        target = extract_target(event, bot)
         return await self._do_send(bot, target, event, at_sender, reply)
 
     async def send_to(
@@ -426,7 +426,7 @@ class AggregatedMessageFactory:
         except LookupError as e:
             raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
 
-        target = extract_target(event)
+        target = extract_target(event, bot)
         await self._do_send(bot, target, event)
 
     async def send_to(self, target: PlatformTarget, bot: Optional[Bot] = None):
