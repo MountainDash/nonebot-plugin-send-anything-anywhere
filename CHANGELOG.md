@@ -4,6 +4,7 @@
 
 ### 新功能
 
+- 适配qq适配器 [@AzideCupric](https://github.com/AzideCupric) ([#105](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/105))
 - 导出 OpenID Target [@Dreamail](https://github.com/Dreamail) ([#123](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/123))
 - 引入 QQ群 和 QQ私聊 的 openid target [@felinae98](https://github.com/felinae98) ([#119](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/119))
 

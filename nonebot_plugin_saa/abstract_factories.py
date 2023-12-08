@@ -4,7 +4,9 @@ from copy import deepcopy
 from warnings import warn
 from inspect import signature
 from typing_extensions import Self
+from dataclasses import field, asdict, dataclass
 from typing import (
+    Any,
     Dict,
     List,
     Type,
@@ -94,6 +96,7 @@ async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
     return cast(MessageSegment, res)
 
 
+@dataclass
 class MessageSegmentFactory(ABC):
     _builders: ClassVar[
         Dict[
@@ -105,8 +108,11 @@ class MessageSegmentFactory(ABC):
         ]
     ]
 
-    data: dict
-    _custom_builders: Dict[SupportedAdapters, CustomBuildFunc]
+    type: str
+    data: Dict[str, Any] = field(default_factory=dict)
+    _custom_builders: Dict[SupportedAdapters, CustomBuildFunc] = field(
+        init=False, default_factory=dict
+    )
 
     def _register_custom_builder(
         self,
@@ -151,10 +157,16 @@ class MessageSegmentFactory(ABC):
             return await do_build(self, builder, bot)
         raise AdapterNotInstalled(adapter_name)
 
-    def __add__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
+    def __add__(
+        self,
+        other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
+    ) -> "MessageFactory":
         return MessageFactory(self) + other
 
-    def __radd__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
+    def __radd__(
+        self,
+        other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
+    ) -> "MessageFactory":
         return MessageFactory(other) + self
 
     async def send(self, *, at_sender=False, reply=False):
@@ -206,13 +218,38 @@ class MessageSegmentFactory(ABC):
         await self.send(at_sender=at_sender, reply=reply, **kwargs)
         await matcher.reject_receive(key)
 
+    def copy(self) -> Self:
+        """深拷贝"""
+        return deepcopy(self)
 
-class MessageFactory(List[TMSF]):
-    _text_factory: Callable[[str], TMSF]
+    def _asdict(self):
+        _dict = asdict(self)
+        return {k: v for k, v in _dict.items() if not k.startswith("_")}
+
+    def get(self, key: str, default: Any = None):
+        return asdict(self).get(key, default)
+
+    def keys(self):
+        return self._asdict().keys()
+
+    def values(self):
+        return self._asdict().values()
+
+    def items(self):
+        return self._asdict().items()
+
+    def join(
+        self, iterable: "Iterable[MessageSegmentFactory | MessageFactory]"
+    ) -> "MessageFactory":
+        return MessageFactory(self).join(iterable)
+
+
+class MessageFactory(List[MessageSegmentFactory]):
+    _text_factory: Callable[[str], MessageSegmentFactory]
     _message_registry: Dict[SupportedAdapters, Type[Message]] = {}
 
     @classmethod
-    def register_text_ms(cls, factory: Callable[[str], TMSF]):
+    def register_text_ms(cls, factory: Callable[[str], MessageSegmentFactory]):
         cls._text_factory = factory
         return factory
 
@@ -241,7 +278,10 @@ class MessageFactory(List[TMSF]):
             return message_type(ms)
         raise AdapterNotInstalled(adapter_name)
 
-    def __init__(self, message: Union[str, Iterable[TMSF], TMSF]):
+    def __init__(
+        self,
+        message: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory] | None" = None,  # noqa: E501
+    ):
         super().__init__()
 
         if message is None:
@@ -254,16 +294,25 @@ class MessageFactory(List[TMSF]):
         elif isinstance(message, Iterable):
             self.extend(message)
 
-    def __add__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
+    def __add__(
+        self: TMF,
+        other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
+    ) -> TMF:
         result = self.copy()
         result += other
         return result
 
-    def __radd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
+    def __radd__(
+        self: TMF,
+        other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
+    ) -> TMF:
         result = self.__class__(other)
         return result + self
 
-    def __iadd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
+    def __iadd__(
+        self: TMF,
+        other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
+    ) -> TMF:
         if isinstance(other, str):
             self.append(self.get_text_factory()(other))
         elif isinstance(other, MessageSegmentFactory):
@@ -273,7 +322,7 @@ class MessageFactory(List[TMSF]):
 
         return self
 
-    def append(self: TMF, obj: Union[str, TMSF]) -> TMF:
+    def append(self: TMF, obj: Union[str, MessageSegmentFactory]) -> TMF:
         if isinstance(obj, MessageSegmentFactory):
             super().append(obj)
         elif isinstance(obj, str):
