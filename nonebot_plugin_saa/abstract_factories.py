@@ -241,7 +241,7 @@ class MessageFactory(List[TMSF]):
             return message_type(ms)
         raise AdapterNotInstalled(adapter_name)
 
-    def __init__(self, message: Union[str, Iterable[TMSF], TMSF]):
+    def __init__(self, message: Union[str, Iterable[TMSF], TMSF, None] = None):
         super().__init__()
 
         if message is None:
