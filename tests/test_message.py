@@ -84,7 +84,7 @@ def test_message_operation():
     # __iadd__
     tt = Text("abc")
     tt += i
-    assert t == mti
+    assert tt == mti
     tt += [r, m]
     assert tt == mtirm
 
@@ -115,13 +115,13 @@ def test_message_segment_saa_code():
     assert str(t) == "abc"
     assert str(i) == "[SAA:{0}|{1}]".format(*name_kvstr(i))
     assert str(m) == "[SAA:{0}|{1}]".format(*name_kvstr(m))
-    assert repr(t) == f"{0}({1})".format(*name_kvrepr(t))
-    assert repr(i) == f"{0}({1})".format(*name_kvrepr(i))
-    assert repr(m) == f"{0}({1})".format(*name_kvrepr(m))
+    assert repr(t) == "{0}({1})".format(*name_kvrepr(t))
+    assert repr(i) == "{0}({1})".format(*name_kvrepr(i))
+    assert repr(m) == "{0}({1})".format(*name_kvrepr(m))
 
-    ",".join([f"{k}={v!r}" for k, v in r.data.dict().items()])
-    assert str(r) == "[SAA:{0}|{1}]".format(*name_kvstr(r))
-    assert repr(r) == f"{0}({1})".format(*name_kvrepr(r))
+    r_kvstr = ",".join([f"{k}={v!r}" for k, v in r.data.dict().items()])
+    assert str(r) == "[SAA:{0}|{1}]".format(r.__class__.__name__, r_kvstr)
+    assert repr(r) == "{0}({1})".format(r.__class__.__name__, r_kvstr)
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

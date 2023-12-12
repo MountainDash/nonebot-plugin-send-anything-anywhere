@@ -96,3 +96,7 @@ class Reply(MessageSegmentFactory):
     def __str__(self) -> str:
         kvstr = ",".join([f"{k}={v!r}" for k, v in self.data.dict().items()])
         return f"[SAA:{self.__class__.__name__}|{kvstr}]"
+
+    def __repr__(self) -> str:
+        kvrepr = ", ".join([f"{k}={v!r}" for k, v in self.data.dict().items()])
+        return f"{self.__class__.__name__}({kvrepr})"
