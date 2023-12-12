@@ -459,12 +459,12 @@ class MessageFactory(List[TMSF]):
                 f"unsupported operand type(s) for +=: '{self.__class__.__name__}' and '{type(other)}'"  # noqa: E501
             )
 
-    def append(self, obj: Union[str, TMSFO]) -> None:
+    def append(self, obj: Union[str, TMSFO]):
         if isinstance(obj, str):
             super().append(self.get_text_factory()(obj))
-            return
         elif isinstance(obj, MessageSegmentFactory):
             super().append(obj)  # type: ignore
+        return self
 
     def extend(self: TMF, obj: Union[TMF, Iterable[Union[str, TMSFO]]]):
         for message_segment_factory in obj:

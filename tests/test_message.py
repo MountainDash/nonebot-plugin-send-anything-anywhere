@@ -22,7 +22,9 @@ def test_message_assamble():
     assert MessageFactory("abc") + "123" == target_two_msg
     assert "abc" + MessageFactory("123") == target_two_msg
 
-    assert MessageFactory("abc").append("123") == target_two_msg
+    assert MessageFactory("abc").append("123").append("456") == target_two_msg + Text(
+        "456"
+    )
 
 
 def test_message_operation():
