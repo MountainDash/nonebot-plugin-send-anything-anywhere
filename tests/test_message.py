@@ -4,8 +4,9 @@ from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
-from nonebot_plugin_saa import Text, MessageFactory
+from nonebot_plugin_saa.registries import MessageId
 from nonebot_plugin_saa.utils import SupportedAdapters
+from nonebot_plugin_saa import Text, Image, Reply, Mention, MessageFactory
 
 
 def test_message_assamble():
@@ -22,6 +23,45 @@ def test_message_assamble():
     assert "abc" + MessageFactory("123") == target_two_msg
 
     assert MessageFactory("abc").append("123") == target_two_msg
+
+
+def test_message_operation():
+    empty_msg = MessageFactory()
+    assert empty_msg == MessageFactory()
+    assert empty_msg == MessageFactory([])
+    assert empty_msg != MessageFactory("")
+
+    empty_msg.append("abc")
+    assert empty_msg == MessageFactory("abc")
+    empty_msg.append(Text("456"))
+    empty_msg.extend([Text("789"), Image("123")])
+    assert empty_msg[0] == Text("abc")
+    assert empty_msg[1] == Text("456")
+    assert empty_msg[3] == Image("123")
+
+    t = Text("abc")
+    i = Image("123")
+    r = Reply(MessageId(adapter_name=SupportedAdapters.onebot_v11))
+    m = Mention("114514")
+
+    mt = MessageFactory(t)
+    assert mt == MessageFactory([t])
+    assert mt == MessageFactory("abc")
+
+    mti = MessageFactory([t, i])
+    assert mti == MessageFactory(["abc", i])
+
+    mtirm = MessageFactory([t, i, r, m])
+    assert len(mtirm) == 4
+
+    assert t + i == mti
+    assert "abc" + i == mti
+    assert t + i + r + m == mtirm
+    assert "abc" + i + r + m == mtirm
+    assert t + i + [r, m] == mtirm
+    assert "abc" + i + [r, m] == mtirm
+    assert [t, i, r] + m == mtirm
+    assert ["abc", i, r] + m == mtirm
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")

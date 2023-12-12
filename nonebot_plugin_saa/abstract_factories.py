@@ -5,6 +5,7 @@ from warnings import warn
 from inspect import signature
 from typing_extensions import Self
 from typing import (
+    TYPE_CHECKING,
     Dict,
     List,
     Type,
@@ -17,6 +18,7 @@ from typing import (
     Optional,
     Awaitable,
     cast,
+    overload,
 )
 
 from nonebot.adapters import Bot, Event, Message, MessageSegment
@@ -32,7 +34,11 @@ from .utils import (
     extract_adapter_type,
 )
 
+if TYPE_CHECKING:
+    from .types import Text
+
 TMSF = TypeVar("TMSF", bound="MessageSegmentFactory")
+TMSFO = TypeVar("TMSFO", bound="MessageSegmentFactory")
 TMF = TypeVar("TMF", bound="MessageFactory")
 BuildFunc = Union[
     Callable[[TMSF], Union[MessageSegment, Awaitable[MessageSegment]]],
@@ -131,8 +137,21 @@ class MessageSegmentFactory(ABC):
         cls._builders = {}
         return super().__init_subclass__()
 
-    def __eq__(self, other: Self) -> bool:
-        return self.data == other.data
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, MessageSegmentFactory):
+            return self.data == other.data
+        elif isinstance(other, str):
+            return self.data["text"] == other
+        else:
+            return False
+
+    def __str__(self) -> str:
+        kvstr = ",".join([f"{k}={v!r}" for k, v in self.data.items()])
+        return f"[SAA:{self.__class__.__name__};{kvstr}]"
+
+    def __repr__(self) -> str:
+        attrs = ", ".join([f"{k}={v!r}" for k, v in self.data.items()])
+        return f"{self.__class__.__name__}({attrs})"
 
     def overwrite(
         self,
@@ -151,11 +170,70 @@ class MessageSegmentFactory(ABC):
             return await do_build(self, builder, bot)
         raise AdapterNotInstalled(adapter_name)
 
-    def __add__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
-        return MessageFactory(self) + other
+    @overload
+    def __add__(
+        self: Self, other: Union[str, Iterable[str]]
+    ) -> "MessageFactory[Union[Self, Text]]":
+        ...
 
-    def __radd__(self: TMSF, other: Union[str, TMSF, Iterable[TMSF]]):
-        return MessageFactory(other) + self
+    @overload
+    def __add__(
+        self: Self, other: Union[TMSFO, Iterable[TMSFO]]
+    ) -> "MessageFactory[Union[Self, TMSFO]]":
+        ...
+
+    @overload
+    def __add__(
+        self: Self, other: Iterable[Union[str, TMSFO]]
+    ) -> "MessageFactory[Union[Self, Text, TMSFO]]":
+        ...
+
+    def __add__(
+        self: Self, other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]]
+    ) -> "MessageFactory":
+        if isinstance(other, str):
+            text = MessageFactory.get_text_factory()(other)
+            return MessageFactory([self, text])
+        elif isinstance(other, MessageSegmentFactory):
+            return MessageFactory([self, other])
+        elif isinstance(other, Iterable):
+            return MessageFactory([self, *other])
+        else:
+            raise TypeError(f"unsupported type {type(other)}")
+
+    @overload
+    def __radd__(
+        self: Self, other: Union[str, Iterable[str]]
+    ) -> "MessageFactory[Union[Self, Text]]":
+        ...
+
+    @overload
+    def __radd__(
+        self: Self, other: Union[TMSFO, Iterable[TMSFO]]
+    ) -> "MessageFactory[Union[Self, TMSFO]]":
+        ...
+
+    @overload
+    def __radd__(
+        self: Self, other: Iterable[Union[str, TMSFO]]
+    ) -> "MessageFactory[Union[Self, Text, TMSFO]]":
+        ...
+
+    def __radd__(
+        self: Self, other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]]
+    ) -> "MessageFactory":
+        if isinstance(other, str):
+            text = MessageFactory.get_text_factory()(other)
+            return MessageFactory([text, self])
+        elif isinstance(other, MessageSegmentFactory):
+            return MessageFactory([other, self])
+        elif isinstance(other, Iterable):
+            return MessageFactory([*other, self])
+        else:
+            raise TypeError(f"unsupported type {type(other)}")
+
+    def copy(self):
+        return deepcopy(self)
 
     async def send(self, *, at_sender=False, reply=False):
         "回复消息，仅能用在事件响应器中"
@@ -241,51 +319,156 @@ class MessageFactory(List[TMSF]):
             return message_type(ms)
         raise AdapterNotInstalled(adapter_name)
 
-    def __init__(self, message: Union[str, Iterable[TMSF], TMSF, None] = None):
-        super().__init__()
+    @overload
+    def __init__(self: "MessageFactory[Text]", ms: Union[str, Iterable[str]]) -> None:
+        ...
 
-        if message is None:
+    @overload
+    def __init__(
+        self: "MessageFactory[TMSFO]", ms: Union[TMSFO, Iterable[TMSFO]]
+    ) -> None:
+        ...
+
+    @overload
+    def __init__(
+        self: "MessageFactory[TMSF | Text | TMSFO]",
+        ms: Iterable[Union[str, TMSFO]],
+    ) -> None:
+        ...
+
+    @overload
+    def __init__(self: "MessageFactory") -> None:
+        ...
+
+    def __init__(self, ms: Union[str, TMSFO, Iterable[Union[str, TMSFO]], None] = None):
+        super().__init__()
+        if ms is None:
             return
 
-        if isinstance(message, str):
-            self.append(self.get_text_factory()(message))
-        elif isinstance(message, MessageSegmentFactory):
-            self.append(message)
-        elif isinstance(message, Iterable):
-            self.extend(message)
+        if isinstance(ms, (str, MessageSegmentFactory)):
+            self.__iadd__(ms)
+        elif isinstance(ms, Iterable):
+            for i in ms:
+                self.__iadd__(i)
 
-    def __add__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
-        result = self.copy()
-        result += other
-        return result
+    @overload
+    def __add__(
+        self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
+    ) -> "MessageFactory[Union[TMSF, Text]]":
+        ...
 
-    def __radd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
-        result = self.__class__(other)
-        return result + self
+    @overload
+    def __add__(
+        self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
+    ) -> "MessageFactory[Union[TMSF, TMSFO]]":
+        ...
 
-    def __iadd__(self: TMF, other: Union[str, TMSF, Iterable[TMSF]]) -> TMF:
+    @overload
+    def __add__(
+        self: "MessageFactory[TMSF]",
+        other: Iterable[Union[str, TMSFO]],
+    ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
+        ...
+
+    def __add__(
+        self: "MessageFactory[TMSF]",
+        other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]],
+    ) -> "MessageFactory":
+        copied = self.copy()
+        if isinstance(other, str):
+            copied.append(self.get_text_factory()(other))
+            return copied
+        elif isinstance(other, MessageSegmentFactory):
+            copied.append(other)
+            return copied
+        elif isinstance(other, Iterable):
+            for i in other:
+                copied += i
+            return copied
+        else:
+            raise TypeError(
+                f"unsupported operand type(s) for +: '{self.__class__.__name__}' and '{type(other)}'"  # noqa: E501
+            )
+
+    @overload
+    def __radd__(
+        self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
+    ) -> "MessageFactory[Union[TMSF, Text]]":
+        ...
+
+    @overload
+    def __radd__(
+        self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
+    ) -> "MessageFactory[Union[TMSF, TMSFO]]":
+        ...
+
+    @overload
+    def __radd__(
+        self: "MessageFactory[TMSF]",
+        other: Iterable[Union[str, TMSFO]],
+    ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
+        ...
+
+    def __radd__(
+        self: "MessageFactory[TMSF]",
+        other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]],
+    ) -> "MessageFactory":
+        if isinstance(other, (str, MessageSegmentFactory)):
+            return MessageFactory(other) + self
+        elif isinstance(other, Iterable):
+            return MessageFactory(other) + self  # type: ignore
+        else:
+            raise TypeError(
+                f"unsupported operand type(s) for +: '{type(other)}' and '{self.__class__.__name__}'"  # noqa: E501
+            )
+
+    @overload
+    def __iadd__(
+        self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
+    ) -> "MessageFactory[Union[TMSF, Text]]":
+        ...
+
+    @overload
+    def __iadd__(
+        self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
+    ) -> "MessageFactory[Union[TMSF, TMSFO]]":
+        ...
+
+    @overload
+    def __iadd__(
+        self: "MessageFactory[TMSF]",
+        other: Iterable[Union[str, TMSFO]],
+    ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
+        ...
+
+    def __iadd__(
+        self: "MessageFactory[TMSF]",
+        other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]],
+    ) -> "MessageFactory":
         if isinstance(other, str):
             self.append(self.get_text_factory()(other))
+            return self
         elif isinstance(other, MessageSegmentFactory):
             self.append(other)
+            return self
         elif isinstance(other, Iterable):
             self.extend(other)
+            return self
+        else:
+            raise TypeError(
+                f"unsupported operand type(s) for +=: '{self.__class__.__name__}' and '{type(other)}'"  # noqa: E501
+            )
 
-        return self
-
-    def append(self: TMF, obj: Union[str, TMSF]) -> TMF:
-        if isinstance(obj, MessageSegmentFactory):
-            super().append(obj)
-        elif isinstance(obj, str):
+    def append(self, obj: Union[str, TMSFO]) -> None:
+        if isinstance(obj, str):
             super().append(self.get_text_factory()(obj))
+            return
+        elif isinstance(obj, MessageSegmentFactory):
+            super().append(obj)  # type: ignore
 
-        return self
-
-    def extend(self: TMF, obj: Union[TMF, Iterable[TMSF]]) -> TMF:
+    def extend(self: TMF, obj: Union[TMF, Iterable[Union[str, TMSFO]]]):
         for message_segment_factory in obj:
             self.append(message_segment_factory)
-
-        return self
 
     def copy(self: TMF) -> TMF:
         return deepcopy(self)
