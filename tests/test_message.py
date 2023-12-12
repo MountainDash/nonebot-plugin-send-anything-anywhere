@@ -64,6 +64,10 @@ def test_message_operation():
     assert "abc" + i + [r, m] == mtirm
     assert [t, i, r] + m == mtirm
     assert ["abc", i, r] + m == mtirm
+    t += i
+    assert t == mti
+    t += [r, m]
+    assert t == mtirm
 
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
