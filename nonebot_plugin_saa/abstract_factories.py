@@ -6,6 +6,7 @@ from inspect import signature
 from typing_extensions import Self
 from typing import (
     TYPE_CHECKING,
+    Any,
     Dict,
     List,
     Type,
@@ -111,7 +112,7 @@ class MessageSegmentFactory(ABC):
         ]
     ]
 
-    data: dict
+    data: Dict[str, Any]
     _custom_builders: Dict[SupportedAdapters, CustomBuildFunc]
 
     def _register_custom_builder(
@@ -147,7 +148,7 @@ class MessageSegmentFactory(ABC):
 
     def __str__(self) -> str:
         kvstr = ",".join([f"{k}={v!r}" for k, v in self.data.items()])
-        return f"[SAA:{self.__class__.__name__};{kvstr}]"
+        return f"[SAA:{self.__class__.__name__}|{kvstr}]"
 
     def __repr__(self) -> str:
         attrs = ", ".join([f"{k}={v!r}" for k, v in self.data.items()])
@@ -231,9 +232,6 @@ class MessageSegmentFactory(ABC):
             return MessageFactory([*other, self])
         else:
             raise TypeError(f"unsupported type {type(other)}")
-
-    def copy(self):
-        return deepcopy(self)
 
     async def send(self, *, at_sender=False, reply=False):
         "回复消息，仅能用在事件响应器中"
@@ -331,7 +329,7 @@ class MessageFactory(List[TMSF]):
 
     @overload
     def __init__(
-        self: "MessageFactory[TMSF | Text | TMSFO]",
+        self: "MessageFactory[Text | TMSFO]",
         ms: Iterable[Union[str, TMSFO]],
     ) -> None:
         ...
@@ -464,6 +462,8 @@ class MessageFactory(List[TMSF]):
             super().append(self.get_text_factory()(obj))
         elif isinstance(obj, MessageSegmentFactory):
             super().append(obj)  # type: ignore
+        else:
+            raise TypeError(f"unsupported type {type(obj)}")
         return self
 
     def extend(self: TMF, obj: Union[TMF, Iterable[Union[str, TMSFO]]]):
