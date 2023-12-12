@@ -97,6 +97,11 @@ def test_message_operation():
     with pytest.raises(TypeError):
         mf += [1]  # type: ignore
 
+    # __eq__
+    assert t == Text("abc")
+    assert t == "abc"
+    assert not (t == 123)
+
 
 def test_message_segment_saa_code():
     t = Text("abc")

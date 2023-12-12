@@ -175,19 +175,19 @@ class MessageSegmentFactory(ABC):
     def __add__(
         self: Self, other: Union[str, Iterable[str]]
     ) -> "MessageFactory[Union[Self, Text]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __add__(
         self: Self, other: Union[TMSFO, Iterable[TMSFO]]
     ) -> "MessageFactory[Union[Self, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __add__(
         self: Self, other: Iterable[Union[str, TMSFO]]
     ) -> "MessageFactory[Union[Self, Text, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     def __add__(
         self: Self, other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]]
@@ -206,19 +206,19 @@ class MessageSegmentFactory(ABC):
     def __radd__(
         self: Self, other: Union[str, Iterable[str]]
     ) -> "MessageFactory[Union[Self, Text]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __radd__(
         self: Self, other: Union[TMSFO, Iterable[TMSFO]]
     ) -> "MessageFactory[Union[Self, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __radd__(
         self: Self, other: Iterable[Union[str, TMSFO]]
     ) -> "MessageFactory[Union[Self, Text, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     def __radd__(
         self: Self, other: Union[str, TMSFO, Iterable[Union[str, TMSFO]]]
@@ -319,24 +319,24 @@ class MessageFactory(List[TMSF]):
 
     @overload
     def __init__(self: "MessageFactory[Text]", ms: Union[str, Iterable[str]]) -> None:
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __init__(
         self: "MessageFactory[TMSFO]", ms: Union[TMSFO, Iterable[TMSFO]]
     ) -> None:
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __init__(
         self: "MessageFactory[Text | TMSFO]",
         ms: Iterable[Union[str, TMSFO]],
     ) -> None:
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __init__(self: "MessageFactory") -> None:
-        ...
+        ...  # pragma: no cover
 
     def __init__(self, ms: Union[str, TMSFO, Iterable[Union[str, TMSFO]], None] = None):
         super().__init__()
@@ -353,20 +353,20 @@ class MessageFactory(List[TMSF]):
     def __add__(
         self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
     ) -> "MessageFactory[Union[TMSF, Text]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __add__(
         self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
     ) -> "MessageFactory[Union[TMSF, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __add__(
         self: "MessageFactory[TMSF]",
         other: Iterable[Union[str, TMSFO]],
     ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     def __add__(
         self: "MessageFactory[TMSF]",
@@ -392,20 +392,20 @@ class MessageFactory(List[TMSF]):
     def __radd__(
         self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
     ) -> "MessageFactory[Union[TMSF, Text]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __radd__(
         self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
     ) -> "MessageFactory[Union[TMSF, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __radd__(
         self: "MessageFactory[TMSF]",
         other: Iterable[Union[str, TMSFO]],
     ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     def __radd__(
         self: "MessageFactory[TMSF]",
@@ -424,20 +424,20 @@ class MessageFactory(List[TMSF]):
     def __iadd__(
         self: "MessageFactory[TMSF]", other: Union[str, Iterable[str]]
     ) -> "MessageFactory[Union[TMSF, Text]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __iadd__(
         self: "MessageFactory[TMSF]", other: Union[TMSFO, Iterable[TMSFO]]
     ) -> "MessageFactory[Union[TMSF, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     @overload
     def __iadd__(
         self: "MessageFactory[TMSF]",
         other: Iterable[Union[str, TMSFO]],
     ) -> "MessageFactory[Union[TMSF, Text, TMSFO]]":
-        ...
+        ...  # pragma: no cover
 
     def __iadd__(
         self: "MessageFactory[TMSF]",
