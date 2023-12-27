@@ -28,6 +28,9 @@ class Text(MessageSegmentFactory):
     def __str__(self) -> str:
         return self.data["text"]
 
+    def __len__(self) -> int:
+        return len(self.data["text"])
+
 
 MessageFactory.register_text_ms(lambda text: Text(text))
 
@@ -83,6 +86,9 @@ class Mention(MessageSegmentFactory):
 
 class Reply(MessageSegmentFactory):
     """回复其他消息的消息段"""
+
+    type: Literal["reply"] = "reply"
+    data: MessageId
 
     def __init__(self, message_id: MessageId):
         """回复其他消息的消息段

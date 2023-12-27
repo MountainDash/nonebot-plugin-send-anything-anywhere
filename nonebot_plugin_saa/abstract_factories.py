@@ -10,6 +10,7 @@ from typing import (
     Dict,
     List,
     Type,
+    Tuple,
     Union,
     TypeVar,
     Callable,
@@ -18,7 +19,9 @@ from typing import (
     NoReturn,
     Optional,
     Awaitable,
+    SupportsIndex,
     cast,
+    overload,
 )
 
 from nonebot.adapters import Bot, Event, Message, MessageSegment
@@ -137,8 +140,23 @@ class MessageSegmentFactory(ABC):
         cls._builders = {}
         return super().__init_subclass__()
 
-    def __eq__(self, other: Self) -> bool:
-        return self.data == other.data
+    def __str__(self) -> str:
+        kwstr = ",".join(f"{k}={v!r}" for k, v in self.data.items())
+        return f"[SAA:{self.type}|{kwstr}]"
+
+    def __repr__(self) -> str:
+        kwrepr = ", ".join(f"{k}={v!r}" for k, v in self.data.items())
+        return f"{self.__class__.__name__}({kwrepr})"
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, MessageSegmentFactory):
+            return self.data == other.data
+        elif isinstance(other, str):
+            return self.data == {"text": other}
+        return False
 
     def overwrite(
         self,
@@ -330,14 +348,38 @@ class MessageFactory(List[MessageSegmentFactory]):
 
         return self
 
-    def extend(self: TMF, obj: Union[TMF, Iterable[TMSF]]) -> TMF:
+    def extend(
+        self: TMF, obj: Union[TMF, Iterable[Union[str, MessageSegmentFactory]]]
+    ) -> TMF:
         for message_segment_factory in obj:
             self.append(message_segment_factory)
 
         return self
 
-    def copy(self: TMF) -> TMF:
+    def copy(self) -> Self:
         return deepcopy(self)
+
+    def join(self, iterable: "Iterable[MessageSegmentFactory | Self]") -> Self:
+        """将多个消息连接并将自身作为分割
+
+        参数:
+            iterable: 要连接的消息
+
+        返回:
+            连接后的消息
+        """
+        ret = self.__class__()
+        for index, msg in enumerate(iterable):
+            if index != 0:
+                ret.extend(self)
+            if isinstance(msg, MessageSegmentFactory):
+                ret.append(msg.copy())
+            else:
+                ret.extend(msg.copy())
+        return ret
+
+    def __str__(self) -> str:
+        return "".join(str(ms_factory) for ms_factory in self)
 
     async def send(self, *, at_sender=False, reply=False) -> "Receipt":
         "回复消息，仅能用在事件响应器中"
@@ -413,6 +455,192 @@ class MessageFactory(List[MessageSegmentFactory]):
                 f"send method for {adapter} not registered",
             )  # pragma: no cover
         return await sender(bot, self, target, event, at_sender, reply)
+
+    @overload
+    def __getitem__(self, args: str) -> Self:
+        """获取仅包含指定消息段类型的消息
+
+        参数:
+            args: 消息段类型
+
+        返回:
+            所有类型为 `args` 的消息段
+        """
+
+    @overload
+    def __getitem__(self, args: Tuple[str, int]) -> MessageSegmentFactory:
+        """索引指定类型的消息段
+
+        参数:
+            args: 消息段类型和索引
+
+        返回:
+            类型为 `args[0]` 的消息段第 `args[1]` 个
+        """
+
+    @overload
+    def __getitem__(self, args: Tuple[str, slice]) -> Self:
+        """切片指定类型的消息段
+
+        参数:
+            args: 消息段类型和切片
+
+        返回:
+            类型为 `args[0]` 的消息段切片 `args[1]`
+        """
+
+    @overload
+    def __getitem__(self, args: int) -> MessageSegmentFactory:
+        """索引消息段
+
+        参数:
+            args: 索引
+
+        返回:
+            第 `args` 个消息段
+        """
+
+    @overload
+    def __getitem__(self, args: slice) -> Self:
+        """切片消息段
+
+        参数:
+            args: 切片
+
+        返回:
+            消息切片 `args`
+        """
+
+    def __getitem__(
+        self,
+        args: Union[
+            str,
+            Tuple[str, int],
+            Tuple[str, slice],
+            int,
+            slice,
+        ],
+    ) -> Union[MessageSegmentFactory, Self]:
+        arg1, arg2 = args if isinstance(args, tuple) else (args, None)
+        if isinstance(arg1, int) and arg2 is None:
+            return super().__getitem__(arg1)
+        elif isinstance(arg1, slice) and arg2 is None:
+            return self.__class__(super().__getitem__(arg1))
+        elif isinstance(arg1, str) and arg2 is None:
+            return self.__class__(seg for seg in self if seg.type == arg1)
+        elif isinstance(arg1, str) and isinstance(arg2, int):
+            return [seg for seg in self if seg.type == arg1][arg2]
+        elif isinstance(arg1, str) and isinstance(arg2, slice):
+            return self.__class__([seg for seg in self if seg.type == arg1][arg2])
+        else:
+            raise ValueError("Incorrect arguments to slice")  # pragma: no cover
+
+    def __contains__(self, value: Union[MessageSegmentFactory, str]) -> bool:
+        """检查消息段是否存在
+
+        参数:
+            value: 消息段或消息段类型
+        返回:
+            消息内是否存在给定消息段或给定类型的消息段
+        """
+        if isinstance(value, str):
+            return bool(next((seg for seg in self if seg.type == value), None))
+        return super().__contains__(value)
+
+    def has(self, value: Union[MessageSegmentFactory, str]) -> bool:
+        """与 {ref}``__contains__` <nonebot.adapters.Message.__contains__>` 相同"""
+        return value in self
+
+    def index(
+        self, value: Union[MessageSegmentFactory, str], *args: SupportsIndex
+    ) -> int:
+        """索引消息段
+
+        参数:
+            value: 消息段或者消息段类型
+            arg: start 与 end
+
+        返回:
+            索引 index
+
+        异常:
+            ValueError: 消息段不存在
+        """
+        if isinstance(value, str):
+            first_segment = next((seg for seg in self if seg.type == value), None)
+            if first_segment is None:
+                raise ValueError(f"Segment with type {value!r} is not in message")
+            return super().index(first_segment, *args)
+        return super().index(value, *args)
+
+    def get(self, type_: str, count: Optional[int] = None):
+        """获取指定类型的消息段
+
+        参数:
+            type_: 消息段类型
+            count: 获取个数
+
+        返回:
+            构建的新消息
+        """
+        if count is None:
+            return self[type_]
+
+        iterator, filtered = (
+            seg for seg in self if seg.type == type_
+        ), self.__class__()
+        for _ in range(count):
+            seg = next(iterator, None)
+            if seg is None:
+                break
+            filtered.append(seg)
+        return filtered
+
+    def count(self, value: Union[MessageSegmentFactory, str]) -> int:
+        """计算指定消息段的个数
+
+        参数:
+            value: 消息段或消息段类型
+
+        返回:
+            个数
+        """
+        return len(self[value]) if isinstance(value, str) else super().count(value)
+
+    def only(self, value: Union[MessageSegmentFactory, str]) -> bool:
+        """检查消息中是否仅包含指定消息段
+
+        参数:
+            value: 指定消息段或消息段类型
+
+        返回:
+            是否仅包含指定消息段
+        """
+        if isinstance(value, str):
+            return all(seg.type == value for seg in self)
+        return all(seg == value for seg in self)
+
+    def include(self, *types: str) -> Self:
+        """过滤消息
+
+        参数:
+            types: 包含的消息段类型
+
+        返回:
+            新构造的消息
+        """
+        return self.__class__(seg for seg in self if seg.type in types)
+
+    def exclude(self, *types: str) -> Self:
+        """过滤消息
+
+        参数:
+            types: 不包含的消息段类型
+
+        返回:
+            新构造的消息
+        """
+        return self.__class__(seg for seg in self if seg.type not in types)
 
 
 AggregatedSender = Callable[
