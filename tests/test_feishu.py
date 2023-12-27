@@ -5,8 +5,8 @@ from functools import partial
 import httpx
 from nonebug import App
 from nonebot import get_driver
-from nonebot.adapters.feishu.bot import BotInfo
 from nonebot.adapters.feishu import Bot, Message
+from nonebot.adapters.feishu.models import BotInfo
 from nonebot.adapters.feishu.config import BotConfig
 
 from nonebot_plugin_saa.utils import SupportedAdapters
@@ -86,6 +86,8 @@ def mock_feishu_message_event(message: Message, group=False):
                 message=PrivateEventMessage(chat_type="p2p", **event_message_dict),
             ),
             reply=None,
+            _message=message,
+            original_message=message,
         )
     else:
         return GroupMessageEvent(
@@ -96,6 +98,8 @@ def mock_feishu_message_event(message: Message, group=False):
                 message=GroupEventMessage(chat_type="group", **event_message_dict),
             ),
             reply=None,
+            _message=message,
+            original_message=message,
         )
 
 
