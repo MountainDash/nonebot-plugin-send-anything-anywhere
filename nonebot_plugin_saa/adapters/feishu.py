@@ -77,8 +77,8 @@ try:
 
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, FeishuMessageId)
-        return MessageSegment("reply", {"message_id": r.data.message_id})
+        assert isinstance(mid := r.data["message_id"], FeishuMessageId)
+        return MessageSegment("reply", {"message_id": mid.message_id})
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetFeishuPrivate:
@@ -141,8 +141,10 @@ try:
         message_to_send = Message()
         for message_segment_factory in full_msg:
             if isinstance(message_segment_factory, Reply):
-                assert isinstance(message_segment_factory.data, FeishuMessageId)
-                reply_to_message_id = message_segment_factory.data.message_id
+                assert isinstance(
+                    mid := message_segment_factory.data["message_id"], FeishuMessageId
+                )
+                reply_to_message_id = mid.message_id
                 continue
 
             message_segment = await message_segment_factory.build(bot)

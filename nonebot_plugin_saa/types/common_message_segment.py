@@ -112,10 +112,14 @@ class Mention(MessageSegmentFactory):
         self.data = {"user_id": user_id}
 
 
+class ReplyData(TypedDict):
+    message_id: MessageId
+
+
 class Reply(MessageSegmentFactory):
     """回复其他消息的消息段"""
 
-    data: MessageId
+    data: ReplyData
 
     def __init__(self, message_id: MessageId):
         """回复其他消息的消息段
@@ -123,9 +127,5 @@ class Reply(MessageSegmentFactory):
         参数:
             message_id: 需要回复消息的 MessageId
         """
-
         super().__init__()
-        self.data = message_id
-
-    def __len__(self) -> int:
-        return 1  # 仅占一个消息段 FIXME: Reply的data应该统一为dict，而不是MessageId
+        self.data = {"message_id": message_id}

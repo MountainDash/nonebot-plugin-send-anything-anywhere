@@ -90,8 +90,8 @@ with suppress(ImportError):
 
     @register_dodo(Reply)
     def _reply(reply: Reply) -> MessageSegment:
-        assert isinstance(reply.data, DodoMessageId)
-        return MessageSegment.reference(reply.data.message_id)
+        assert isinstance(mid := reply.data["message_id"], DodoMessageId)
+        return MessageSegment.reference(mid.message_id)
 
     @register_dodo(Mention)
     def _mention(mention: Mention) -> MessageSegment:

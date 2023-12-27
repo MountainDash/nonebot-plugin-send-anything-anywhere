@@ -70,8 +70,8 @@ try:
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, TelegramMessageId)
-        return MessageSegment("reply", {"message_id": str(r.data.message_id)})
+        assert isinstance(mid := r.data["message_id"], TelegramMessageId)
+        return MessageSegment("reply", {"message_id": str(mid.message_id)})
 
     @register_target_extractor(PrivateMessageEvent)
     @register_target_extractor(GroupMessageEvent)
@@ -165,8 +165,10 @@ try:
         message_to_send = Message()
         for message_segment_factory in full_msg:
             if isinstance(message_segment_factory, Reply):
-                assert isinstance(message_segment_factory.data, TelegramMessageId)
-                reply_to_message_id = message_segment_factory.data.message_id
+                assert isinstance(
+                    mid := message_segment_factory.data["message_id"], TelegramMessageId
+                )
+                reply_to_message_id = mid.message_id
                 continue
 
             if (

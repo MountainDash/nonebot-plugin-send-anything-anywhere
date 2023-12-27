@@ -1,3 +1,4 @@
+from abc import ABC
 from typing_extensions import Annotated
 from typing import Dict, Type, Callable, Optional
 
@@ -8,7 +9,7 @@ from .meta import SerializationMeta
 from ..utils import SupportedAdapters
 
 
-class MessageId(SerializationMeta):
+class MessageId(SerializationMeta, ABC):
     _index_key = "adapter_name"
 
     adapter_name: SupportedAdapters

@@ -96,8 +96,8 @@ try:
 
     @register_onebot_v12(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, OB12MessageId)
-        return MessageSegment.reply(r.data.message_id)
+        assert isinstance(mid := r.data["message_id"], OB12MessageId)
+        return MessageSegment.reply(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:

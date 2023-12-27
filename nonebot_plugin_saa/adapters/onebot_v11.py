@@ -70,8 +70,8 @@ try:
 
     @register_onebot_v11(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, OB11MessageId)
-        return MessageSegment.reply(r.data.message_id)
+        assert isinstance(mid := r.data["message_id"], OB11MessageId)
+        return MessageSegment.reply(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetQQPrivate:
