@@ -99,3 +99,6 @@ class Reply(MessageSegmentFactory):
 
         super().__init__()
         self.data = message_id
+
+    def __len__(self) -> int:
+        return 1  # 仅占一个消息段 FIXME: Reply的data应该统一为dict，而不是MessageId
