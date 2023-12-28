@@ -111,7 +111,6 @@ class MessageSegmentFactory(ABC):
         ]
     ]
 
-    type: str
     data: Dict[str, Any] = field(default_factory=dict)
     _custom_builders: Dict[SupportedAdapters, CustomBuildFunc] = field(
         init=False, default_factory=dict
@@ -142,7 +141,7 @@ class MessageSegmentFactory(ABC):
 
     def __str__(self) -> str:
         kwstr = ",".join(f"{k}={v!r}" for k, v in self.data.items())
-        return f"[SAA:{self.type}|{kwstr}]"
+        return f"[SAA:{self.__class__.__name__}|{kwstr}]"
 
     def __repr__(self) -> str:
         kwrepr = ", ".join(f"{k}={v!r}" for k, v in self.data.items())
@@ -457,7 +456,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         return await sender(bot, self, target, event, at_sender, reply)
 
     @overload
-    def __getitem__(self, args: str) -> Self:
+    def __getitem__(self, args: Type[MessageSegmentFactory]) -> Self:
         """获取仅包含指定消息段类型的消息
 
         参数:
@@ -468,7 +467,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
 
     @overload
-    def __getitem__(self, args: Tuple[str, int]) -> MessageSegmentFactory:
+    def __getitem__(self, args: Tuple[Type[TMSF], int]) -> TMSF:
         """索引指定类型的消息段
 
         参数:
@@ -479,7 +478,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
 
     @overload
-    def __getitem__(self, args: Tuple[str, slice]) -> Self:
+    def __getitem__(self, args: Tuple[Type[TMSF], slice]) -> "MessageFactory":
         """切片指定类型的消息段
 
         参数:
@@ -501,7 +500,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
 
     @overload
-    def __getitem__(self, args: slice) -> Self:
+    def __getitem__(self, args: slice) -> "MessageFactory":
         """切片消息段
 
         参数:
@@ -514,28 +513,30 @@ class MessageFactory(List[MessageSegmentFactory]):
     def __getitem__(
         self,
         args: Union[
-            str,
-            Tuple[str, int],
-            Tuple[str, slice],
+            Type[MessageSegmentFactory],
+            Tuple[Type[MessageSegmentFactory], int],
+            Tuple[Type[MessageSegmentFactory], slice],
             int,
             slice,
         ],
-    ) -> Union[MessageSegmentFactory, Self]:
+    ) -> "MessageSegmentFactory | MessageFactory":
         arg1, arg2 = args if isinstance(args, tuple) else (args, None)
-        if isinstance(arg1, int) and arg2 is None:
+        if isinstance(arg1, type) and arg2 is None:
+            return self.__class__(seg for seg in self if isinstance(seg, arg1))
+        elif isinstance(arg1, type) and isinstance(arg2, int):
+            return [seg for seg in self if isinstance(seg, arg1)][arg2]
+        elif isinstance(arg1, type) and isinstance(arg2, slice):
+            return self.__class__([seg for seg in self if isinstance(seg, arg1)][arg2])
+        elif isinstance(arg1, int) and arg2 is None:
             return super().__getitem__(arg1)
         elif isinstance(arg1, slice) and arg2 is None:
             return self.__class__(super().__getitem__(arg1))
-        elif isinstance(arg1, str) and arg2 is None:
-            return self.__class__(seg for seg in self if seg.type == arg1)
-        elif isinstance(arg1, str) and isinstance(arg2, int):
-            return [seg for seg in self if seg.type == arg1][arg2]
-        elif isinstance(arg1, str) and isinstance(arg2, slice):
-            return self.__class__([seg for seg in self if seg.type == arg1][arg2])
         else:
             raise ValueError("Incorrect arguments to slice")  # pragma: no cover
 
-    def __contains__(self, value: Union[MessageSegmentFactory, str]) -> bool:
+    def __contains__(
+        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+    ) -> bool:
         """检查消息段是否存在
 
         参数:
@@ -543,16 +544,20 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             消息内是否存在给定消息段或给定类型的消息段
         """
-        if isinstance(value, str):
-            return bool(next((seg for seg in self if seg.type == value), None))
+        if isinstance(value, type):
+            return bool(next((seg for seg in self if isinstance(seg, value)), None))
         return super().__contains__(value)
 
-    def has(self, value: Union[MessageSegmentFactory, str]) -> bool:
-        """与 {ref}``__contains__` <nonebot.adapters.Message.__contains__>` 相同"""
+    def has(
+        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+    ) -> bool:
+        """与 `__contains__` 相同"""
         return value in self
 
     def index(
-        self, value: Union[MessageSegmentFactory, str], *args: SupportsIndex
+        self,
+        value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]],
+        *args: SupportsIndex,
     ) -> int:
         """索引消息段
 
@@ -566,14 +571,14 @@ class MessageFactory(List[MessageSegmentFactory]):
         异常:
             ValueError: 消息段不存在
         """
-        if isinstance(value, str):
-            first_segment = next((seg for seg in self if seg.type == value), None)
+        if isinstance(value, type):
+            first_segment = next((seg for seg in self if isinstance(seg, value)), None)
             if first_segment is None:
                 raise ValueError(f"Segment with type {value!r} is not in message")
             return super().index(first_segment, *args)
         return super().index(value, *args)
 
-    def get(self, type_: str, count: Optional[int] = None):
+    def get(self, type_: Type[MessageSegmentFactory], count: Optional[int] = None):
         """获取指定类型的消息段
 
         参数:
@@ -583,20 +588,11 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             构建的新消息
         """
-        if count is None:
-            return self[type_]
+        return self[type_] if count is None else self[type_, :count]
 
-        iterator, filtered = (
-            seg for seg in self if seg.type == type_
-        ), self.__class__()
-        for _ in range(count):
-            seg = next(iterator, None)
-            if seg is None:
-                break
-            filtered.append(seg)
-        return filtered
-
-    def count(self, value: Union[MessageSegmentFactory, str]) -> int:
+    def count(
+        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+    ) -> int:
         """计算指定消息段的个数
 
         参数:
@@ -605,9 +601,11 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             个数
         """
-        return len(self[value]) if isinstance(value, str) else super().count(value)
+        return len(self[value]) if isinstance(value, type) else super().count(value)
 
-    def only(self, value: Union[MessageSegmentFactory, str]) -> bool:
+    def only(
+        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+    ) -> bool:
         """检查消息中是否仅包含指定消息段
 
         参数:
@@ -616,11 +614,11 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             是否仅包含指定消息段
         """
-        if isinstance(value, str):
-            return all(seg.type == value for seg in self)
+        if isinstance(value, type):
+            return all(isinstance(seg, value) for seg in self)
         return all(seg == value for seg in self)
 
-    def include(self, *types: str) -> Self:
+    def include(self, *types: Type[MessageSegmentFactory]) -> Self:
         """过滤消息
 
         参数:
@@ -629,9 +627,9 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             新构造的消息
         """
-        return self.__class__(seg for seg in self if seg.type in types)
+        return self.__class__(seg for seg in self if isinstance(seg, types))
 
-    def exclude(self, *types: str) -> Self:
+    def exclude(self, *types: Type[MessageSegmentFactory]) -> Self:
         """过滤消息
 
         参数:
@@ -640,7 +638,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         返回:
             新构造的消息
         """
-        return self.__class__(seg for seg in self if seg.type not in types)
+        return self.__class__(seg for seg in self if not isinstance(seg, types))
 
 
 AggregatedSender = Callable[

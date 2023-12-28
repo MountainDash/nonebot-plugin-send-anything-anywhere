@@ -100,10 +100,9 @@ def test_message_add(app: App):
 def test_segment_data():
     assert len(Text("text")) == 4
     assert Text("text").get("data") == {"text": "text"}
-    assert list(Text("text").keys()) == ["type", "data"]
-    assert list(Text("text").values()) == ["text", {"text": "text"}]
+    assert list(Text("text").keys()) == ["data"]
+    assert list(Text("text").values()) == [{"text": "text"}]
     assert list(Text("text").items()) == [
-        ("type", "text"),
         ("data", {"text": "text"}),
     ]
 
@@ -146,19 +145,19 @@ def test_message_getitem():
 
     assert message[:2] == MessageFactory([Text("test"), Image("test2")])
 
-    assert message["image"] == MessageFactory([Image("test2"), Image("test3")])
+    assert message[Image] == MessageFactory([Image("test2"), Image("test3")])
 
-    assert message["image", 0] == Image("test2")
-    assert message["image", 0:2] == message["image"]
+    assert message[Image, 0] == Image("test2")
+    assert message[Image, 0:2] == message[Image]
 
     assert message.index(message[0]) == 0
-    assert message.index("image") == 1
+    assert message.index(Image) == 1
 
-    assert message.get("image") == message["image"]
-    assert message.get("image", 114514) == message["image"]
-    assert message.get("image", 1) == MessageFactory([message["image", 0]])
+    assert message.get(Image) == message[Image]
+    assert message.get(Image, 114514) == message[Image]
+    assert message.get(Image, 1) == MessageFactory([message[Image, 0]])
 
-    assert message.count("image") == 2
+    assert message.count(Image) == 2
 
 
 def test_message_contains():
@@ -173,13 +172,13 @@ def test_message_contains():
 
     assert message.has(Text("test")) is True
     assert Text("test") in message
-    assert message.has("image") is True
-    assert "image" in message
+    assert message.has(Image) is True
+    assert Image in message
 
     assert message.has(Text("foo")) is False
     assert Text("foo") not in message
-    assert message.has("foo") is False
-    assert "foo" not in message
+    assert message.has(Reply) is False
+    assert Reply not in message
 
 
 def test_message_only():
@@ -190,7 +189,7 @@ def test_message_only():
         ]
     )
 
-    assert message.only("text") is True
+    assert message.only(Text) is True
     assert message.only(Text("test")) is False
 
     message = MessageFactory(
@@ -202,7 +201,7 @@ def test_message_only():
         ]
     )
 
-    assert message.only("text") is False
+    assert message.only(Text) is False
 
     message = MessageFactory(
         [
@@ -241,7 +240,7 @@ def test_message_include():
         ]
     )
 
-    assert message.include("text") == MessageFactory(
+    assert message.include(Text) == MessageFactory(
         [
             Text("test"),
             Text("test4"),
@@ -259,7 +258,7 @@ def test_message_exclude():
         ]
     )
 
-    assert message.exclude("image") == MessageFactory(
+    assert message.exclude(Image) == MessageFactory(
         [
             Text("test"),
             Text("test4"),
