@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import pytest
 from nonebug import App
 from nonebot import get_driver
@@ -7,6 +9,57 @@ from nonebot.adapters.onebot.v11.message import MessageSegment
 from nonebot_plugin_saa.registries import MessageId
 from nonebot_plugin_saa.utils import SupportedAdapters
 from nonebot_plugin_saa import Text, Image, Reply, Mention, MessageFactory
+
+
+def test_message_segment_to_str():
+    t = Text("abc")
+    assert t.get("data").get("text") == "abc"
+    assert str(t) == "abc"
+    assert repr(t) == "Text(text='abc')"
+
+    i_str = Image("http://example.com/abc.png")
+    assert i_str.get("data").get("image") == "http://example.com/abc.png"
+    assert str(i_str) == "[SAA:Image|name='image',image='http://example.com/abc.png']"
+    assert repr(i_str) == "Image(name='image', image='http://example.com/abc.png')"
+
+    i_path = Image("file:///abc.png")
+    assert i_path.get("data").get("image") == "file:///abc.png"
+    assert str(i_path) == "[SAA:Image|name='image',image='file:///abc.png']"
+    assert repr(i_path) == "Image(name='image', image='file:///abc.png')"
+
+    i_bytes = Image(b"123")
+    assert i_bytes.get("data").get("image") == b"123"
+    assert str(i_bytes) == f"[SAA:Image|name='image',image=<bytes {len(b'123')}>]"
+    assert repr(i_bytes) == "Image(name='image', image=b'123')"
+
+    i_bytesio = Image(BytesIO(b"123"))
+    assert i_bytesio.get("data").get("image").getvalue() == BytesIO(b"123").getvalue()
+    assert str(i_bytesio) == f"[SAA:Image|name='image',image=<BytesIO {len(b'123')}>]"
+    assert repr(i_bytesio) == "Image(name='image', image=BytesIO(b'123'))"
+
+    # FIXME: Reply还不支持
+    # r = Reply(MessageId(adapter_name=SupportedAdapters.fake))
+    # assert r.get("data").get("message_id") == MessageId(
+    #     adapter_name=SupportedAdapters.fake
+    # )
+    # assert str(r) == "[SAA:Reply|message_id=MessageId(adapter_name='fake')]"
+    # assert repr(r) == "Reply(message_id=MessageId(adapter_name='fake'))"
+
+    m = Mention("123")
+    assert m.get("data").get("user_id") == "123"
+    assert str(m) == "[SAA:Mention|user_id='123']"
+    assert repr(m) == "Mention(user_id='123')"
+
+    t__i_str = t + i_str
+    assert (
+        str(t__i_str)
+        == "abc[SAA:Image|name='image',image='http://example.com/abc.png']"
+    )
+
+    i_str__i_path = i_str + i_path
+    assert str(i_str__i_path) == (
+        "[SAA:Image|name='image',image='http://example.com/abc.png'][SAA:Image|name='image',image='file:///abc.png']"
+    )
 
 
 def test_message_assamble():

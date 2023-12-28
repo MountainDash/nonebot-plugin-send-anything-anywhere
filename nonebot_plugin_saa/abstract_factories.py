@@ -244,7 +244,7 @@ class MessageSegmentFactory(ABC):
         return {k: v for k, v in _dict.items() if not k.startswith("_")}
 
     def get(self, key: str, default: Any = None):
-        return asdict(self).get(key, default)
+        return self._asdict().get(key, default)
 
     def keys(self):
         return self._asdict().keys()
