@@ -2,6 +2,7 @@ from functools import partial
 from datetime import datetime, timezone
 
 import httpx
+import pytest
 from nonebug import App
 from respx import MockRouter
 from nonebot import get_adapter
@@ -9,15 +10,19 @@ from pytest_mock import MockerFixture
 from nonebot.adapters.red import Bot, Adapter
 from nonebot.adapters.red.config import BotInfo
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-
 from .utils import assert_ms, mock_red_message_event
 
 bot_info = BotInfo(port=1234, token="1234")
-assert_red = partial(assert_ms, Bot, SupportedAdapters.red, info=bot_info)
 
 
-async def test_text(app: App):
+@pytest.fixture
+def assert_red(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(assert_ms, Bot, SupportedAdapters.red, info=bot_info)
+
+
+async def test_text(app: App, assert_red):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -25,7 +30,7 @@ async def test_text(app: App):
     await assert_red(app, Text("123"), MessageSegment.text("123"))
 
 
-async def test_image(app: App, respx_mock: MockRouter):
+async def test_image(app: App, respx_mock: MockRouter, assert_red):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -44,7 +49,7 @@ async def test_image(app: App, respx_mock: MockRouter):
     assert test.called
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_red):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -52,7 +57,7 @@ async def test_mention(app: App):
     await assert_red(app, Mention("123"), MessageSegment.at("123"))
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_red):
     from nonebot.adapters.red import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -273,7 +278,12 @@ async def test_send_with_reply(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver
 
-    from nonebot_plugin_saa import TargetQQGroup, MessageFactory, TargetQQPrivate
+    from nonebot_plugin_saa import (
+        TargetQQGroup,
+        MessageFactory,
+        TargetQQPrivate,
+        SupportedAdapters,
+    )
 
     async with app.test_api() as ctx:
         adapter_ob11 = get_driver()._adapters[str(SupportedAdapters.red)]

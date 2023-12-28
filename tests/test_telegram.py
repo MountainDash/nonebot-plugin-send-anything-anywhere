@@ -1,21 +1,27 @@
 import time
 from functools import partial
 
+import pytest
 from nonebug import App
 from nonebot.adapters.telegram import Bot
 from nonebot.adapters.telegram.config import BotConfig
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-
 from .utils import assert_ms, mock_telegram_message_event
 
 BOT_CONFIG = BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11")
-assert_telegram = partial(
-    assert_ms,
-    Bot,
-    SupportedAdapters.telegram,
-    config=BOT_CONFIG,
-)
+
+
+@pytest.fixture
+def assert_telegram(app: App):
+    from nonebot_plugin_saa import SupportedAdapters
+
+    return partial(
+        assert_ms,
+        Bot,
+        SupportedAdapters.telegram,
+        config=BOT_CONFIG,
+    )
+
 
 SEND_MESSAGE_PARAMS = {
     "chat_id": 1145141919810,
@@ -51,7 +57,7 @@ FAKE_MESSAGE_RETURN = {
 }
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_telegram):
     from nonebot.adapters.telegram.message import Entity
 
     from nonebot_plugin_saa import Text
@@ -59,7 +65,7 @@ async def test_text(app: App):
     await assert_telegram(app, Text("114514"), Entity.text("114514"))
 
 
-async def test_image(app: App):
+async def test_image(app: App, assert_telegram):
     from nonebot.adapters.telegram.message import File
 
     from nonebot_plugin_saa import Image
@@ -67,7 +73,7 @@ async def test_image(app: App):
     await assert_telegram(app, Image("114514"), File.photo("114514"))
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_telegram):
     from nonebot.adapters.telegram.message import Entity
 
     from nonebot_plugin_saa import Mention
@@ -81,7 +87,7 @@ async def test_mention(app: App):
     )
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_telegram):
     from nonebot.adapters.telegram.message import MessageSegment
 
     from nonebot_plugin_saa import Reply

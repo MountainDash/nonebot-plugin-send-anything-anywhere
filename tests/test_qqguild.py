@@ -3,25 +3,29 @@ from functools import partial
 
 from nonebug import App
 from nonebot import get_adapter
+import pytest
 from pytest_mock import MockerFixture
 from nonebot.adapters.qqguild.api import DMS
 from nonebot.adapters.qqguild import Bot, Adapter
 from nonebot.adapters.qqguild.config import BotInfo
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-
 from .utils import assert_ms, mock_qqguild_message_event
 
-assert_qqguild = partial(
-    assert_ms,
-    Bot,
-    SupportedAdapters.qqguild,
-    self_id="314159",
-    bot_info=BotInfo(id="314159", token="token", secret="secret"),
-)
+
+@pytest.fixture
+def assert_qqguild(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(
+        assert_ms,
+        Bot,
+        SupportedAdapters.qqguild,
+        self_id="314159",
+        bot_info=BotInfo(id="314159", token="token", secret="secret"),
+    )
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -29,7 +33,7 @@ async def test_text(app: App):
     await assert_qqguild(app, Text("text"), MessageSegment.text("text"))
 
 
-async def test_image(app: App, tmp_path: Path):
+async def test_image(app: App, tmp_path: Path, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -49,7 +53,7 @@ async def test_image(app: App, tmp_path: Path):
     await assert_qqguild(app, Image(image_path), MessageSegment.file_image(image_path))
 
 
-async def test_mention_user(app: App):
+async def test_mention_user(app: App, assert_qqguild):
     from nonebot.adapters.qqguild import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -170,6 +174,7 @@ async def test_send_active(app: App):
         MessageFactory,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
+        SupportedAdapters,
     )
 
     async with app.test_api() as ctx:

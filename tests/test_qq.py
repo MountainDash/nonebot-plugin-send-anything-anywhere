@@ -4,12 +4,12 @@ from functools import partial
 
 from nonebug import App
 from nonebot import get_adapter
+import pytest
 from pytest_mock import MockerFixture
 from nonebot.adapters.qq import Bot, Adapter
 from nonebot.adapters.qq.config import BotInfo
 from nonebot.adapters.qq.models import DMS, User, Guild, Channel, Message, QQMessage
 
-from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms, mock_qq_message_event, mock_qq_guild_message_event
 
@@ -52,16 +52,21 @@ MockQQGuildMessage = partial(
 )
 MockQQMessage = partial(QQMessage, id="1", timestamp="2023-10-20T00:00:00+08:00")
 
-assert_qq = partial(
-    assert_ms,
-    Bot,
-    SupportedAdapters.qq,
-    self_id="314159",
-    bot_info=BotInfo(id="314159", token="token", secret="secret"),
-)
+
+@pytest.fixture
+def assert_qq(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(
+        assert_ms,
+        Bot,
+        SupportedAdapters.qq,
+        self_id="314159",
+        bot_info=BotInfo(id="314159", token="token", secret="secret"),
+    )
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_qq):
     from nonebot.adapters.qq import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -69,7 +74,7 @@ async def test_text(app: App):
     await assert_qq(app, Text("text"), MessageSegment.text("text"))
 
 
-async def test_image(app: App, tmp_path: Path):
+async def test_image(app: App, tmp_path: Path, assert_qq):
     from nonebot.adapters.qq import MessageSegment
 
     from nonebot_plugin_saa import Image
@@ -89,7 +94,7 @@ async def test_image(app: App, tmp_path: Path):
     await assert_qq(app, Image(image_path), MessageSegment.file_image(image_path))
 
 
-async def test_mention_user(app: App):
+async def test_mention_user(app: App, assert_qq):
     from nonebot.adapters.qq import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -200,6 +205,7 @@ async def test_send_active(app: App):
         TargetQQGuildDirect,
         TargetQQGuildChannel,
         TargetQQPrivateOpenId,
+        SupportedAdapters,
     )
 
     async with app.test_api() as ctx:

@@ -9,21 +9,27 @@ from pytest_mock import MockerFixture
 from nonebot import get_driver, get_adapter
 from nonebot.adapters.onebot.v12 import Bot, Adapter, Message, MessageSegment
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-from nonebot_plugin_saa import Text, Image, MessageFactory
-
 from .utils import assert_ms, ob12_kwargs, mock_obv12_message_event
 
-assert_onebot_v12 = partial(
-    assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", **ob12_kwargs()
-)
+
+@pytest.fixture
+def assert_onebot_v12(app: App):
+    from nonebot_plugin_saa import SupportedAdapters
+
+    return partial(
+        assert_ms, Bot, SupportedAdapters.onebot_v12, self_id="314159", **ob12_kwargs()
+    )
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_onebot_v12):
+    from nonebot_plugin_saa import Text
+
     await assert_onebot_v12(app, Text("123"), MessageSegment.text("123"))
 
 
 async def test_image(app: App):
+    from nonebot_plugin_saa import Image, SupportedAdapters
+
     adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v12)]
 
     async with app.test_api() as ctx:
@@ -84,7 +90,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_onebot_v12):
     from nonebot.adapters.onebot.v12 import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -92,7 +98,7 @@ async def test_mention(app: App):
     await assert_onebot_v12(app, Mention("123"), MessageSegment.mention("123"))
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_onebot_v12):
     from nonebot.adapters.onebot.v12 import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -107,7 +113,7 @@ async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v12 import Bot, Message
 
-    from nonebot_plugin_saa import Text, MessageFactory
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
     matcher = on_message()
 
@@ -140,7 +146,7 @@ async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v12 import Bot, Message
 
-    from nonebot_plugin_saa import Text, MessageFactory
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
     matcher = on_message()
 
@@ -210,8 +216,10 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         TargetQQGroup,
+        MessageFactory,
         TargetQQPrivate,
         TargetOB12Unknow,
+        SupportedAdapters,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
     )

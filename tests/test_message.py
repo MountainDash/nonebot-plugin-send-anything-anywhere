@@ -6,12 +6,12 @@ from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot
 from nonebot.adapters.onebot.v11.message import MessageSegment
 
-from nonebot_plugin_saa.registries import MessageId
-from nonebot_plugin_saa.utils import SupportedAdapters
-from nonebot_plugin_saa import Text, Image, Reply, Mention, MessageFactory
 
+def test_message_segment_to_str(app: App):
+    from nonebot_plugin_saa.registries import MessageId
+    from nonebot_plugin_saa.utils import SupportedAdapters
+    from nonebot_plugin_saa import Text, Image, Reply, Mention
 
-def test_message_segment_to_str():
     t = Text("abc")
     assert t.get("data").get("text") == "abc"
     assert str(t) == "abc"
@@ -62,6 +62,8 @@ def test_message_segment_to_str():
 
 
 def test_message_assamble():
+    from nonebot_plugin_saa import Text, MessageFactory
+
     target_two_msg = MessageFactory([Text("abc"), Text("123")])
 
     assert len(target_two_msg) == 2
@@ -79,6 +81,8 @@ def test_message_assamble():
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 async def test_build_message(app: App):
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
     async with app.test_api() as ctx:
         adapter = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
         bot = ctx.create_bot(base=Bot, adapter=adapter, self_id="123")
@@ -90,6 +94,10 @@ async def test_build_message(app: App):
 
 
 def test_message_add(app: App):
+    from nonebot_plugin_saa.registries import MessageId
+    from nonebot_plugin_saa.utils import SupportedAdapters
+    from nonebot_plugin_saa import Text, Image, Reply, Mention, MessageFactory
+
     s = "123"
     t = Text("abc")
     i = Image("http://example.com/abc.png")
@@ -149,7 +157,9 @@ def test_message_add(app: App):
     assert tt_iadd == MessageFactory([Text("q"), t])
 
 
-def test_segment_data():
+def test_segment_data(app: App):
+    from nonebot_plugin_saa import Text
+
     assert len(Text("text")) == 4
     assert Text("text").get("data") == {"text": "text"}
     assert list(Text("text").keys()) == ["data"]
@@ -159,7 +169,9 @@ def test_segment_data():
     ]
 
 
-def test_segment_join():
+def test_segment_join(app: App):
+    from nonebot_plugin_saa import Text, MessageFactory
+
     seg = Text("test")
     iterable = [
         Text("first"),
@@ -176,14 +188,18 @@ def test_segment_join():
     )
 
 
-def test_segment_copy():
+def test_segment_copy(app: App):
+    from nonebot_plugin_saa import Text
+
     origin = Text("text")
     copy = origin.copy()
     assert origin is not copy
     assert origin == copy
 
 
-def test_message_getitem():
+def test_message_getitem(app: App):
+    from nonebot_plugin_saa import Text, Image, MessageFactory
+
     message = MessageFactory(
         [
             Text("test"),
@@ -212,7 +228,9 @@ def test_message_getitem():
     assert message.count(Image) == 2
 
 
-def test_message_contains():
+def test_message_contains(app: App):
+    from nonebot_plugin_saa import Text, Image, Reply, MessageFactory
+
     message = MessageFactory(
         [
             Text("test"),
@@ -233,7 +251,9 @@ def test_message_contains():
     assert Reply not in message
 
 
-def test_message_only():
+def test_message_only(app: App):
+    from nonebot_plugin_saa import Text, Image, MessageFactory
+
     message = MessageFactory(
         [
             Text("test"),
@@ -265,7 +285,9 @@ def test_message_only():
     assert message.only(Text("test")) is True
 
 
-def test_message_join():
+def test_message_join(app: App):
+    from nonebot_plugin_saa import Text, MessageFactory
+
     msg = MessageFactory([Text("test")])
     iterable = [
         Text("first"),
@@ -282,7 +304,9 @@ def test_message_join():
     )
 
 
-def test_message_include():
+def test_message_include(app: App):
+    from nonebot_plugin_saa import Text, Image, MessageFactory
+
     message = MessageFactory(
         [
             Text("test"),
@@ -300,7 +324,9 @@ def test_message_include():
     )
 
 
-def test_message_exclude():
+def test_message_exclude(app: App):
+    from nonebot_plugin_saa import Text, Image, MessageFactory
+
     message = MessageFactory(
         [
             Text("test"),

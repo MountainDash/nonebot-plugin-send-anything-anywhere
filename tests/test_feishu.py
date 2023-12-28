@@ -3,13 +3,12 @@ from pathlib import Path
 from functools import partial
 
 import httpx
+import pytest
 from nonebug import App
 from nonebot import get_driver
 from nonebot.adapters.feishu import Bot, Message
 from nonebot.adapters.feishu.models import BotInfo
 from nonebot.adapters.feishu.config import BotConfig
-
-from nonebot_plugin_saa.utils import SupportedAdapters
 
 from .utils import assert_ms
 
@@ -28,7 +27,13 @@ feishu_kwargs = {
     "bot_config": BOT_CONFIG,
     "bot_info": BOT_INFO,
 }
-assert_feishu = partial(assert_ms, Bot, SupportedAdapters.feishu, **feishu_kwargs)
+
+
+@pytest.fixture
+def assert_feishu(app: App):
+    from nonebot_plugin_saa import SupportedAdapters
+
+    return partial(assert_ms, Bot, SupportedAdapters.feishu, **feishu_kwargs)
 
 
 def mock_feishu_message_event(message: Message, group=False):
@@ -103,7 +108,7 @@ def mock_feishu_message_event(message: Message, group=False):
         )
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_feishu):
     from nonebot.adapters.feishu import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -114,7 +119,7 @@ async def test_text(app: App):
 async def test_image(app: App, tmp_path: Path):
     from nonebot.adapters.feishu import MessageSegment
 
-    from nonebot_plugin_saa import Image
+    from nonebot_plugin_saa import Image, SupportedAdapters
 
     async with app.test_api() as ctx:
         adapter = get_driver()._adapters[str(SupportedAdapters.feishu)]
@@ -178,7 +183,7 @@ async def test_image(app: App, tmp_path: Path):
         assert generated_ms == MessageSegment.image("114514")
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_feishu):
     from nonebot.adapters.feishu.message import At
 
     from nonebot_plugin_saa import Mention
@@ -186,7 +191,7 @@ async def test_mention(app: App):
     await assert_feishu(app, Mention("114514"), At("at", {"user_id": "114514"}))
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_feishu):
     from nonebot.adapters.feishu import MessageSegment
 
     from nonebot_plugin_saa import Reply

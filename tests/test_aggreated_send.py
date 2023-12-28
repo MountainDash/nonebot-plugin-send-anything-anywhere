@@ -1,7 +1,5 @@
 from nonebug import App
 
-from nonebot_plugin_saa.abstract_factories import MessageFactory
-
 from .utils import ob12_kwargs, mock_obv12_message_event
 
 
@@ -50,6 +48,7 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         Text,
+        MessageFactory,
         TargetOB12Unknow,
         SupportedAdapters,
         AggregatedMessageFactory,
