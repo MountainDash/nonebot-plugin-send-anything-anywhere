@@ -1,9 +1,9 @@
 from pathlib import Path
 from functools import partial
 
+import pytest
 from nonebug import App
 from nonebot import get_adapter
-import pytest
 from pytest_mock import MockerFixture
 from nonebot.adapters.qqguild.api import DMS
 from nonebot.adapters.qqguild import Bot, Adapter
@@ -172,9 +172,9 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
+        SupportedAdapters,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
-        SupportedAdapters,
     )
 
     async with app.test_api() as ctx:
@@ -196,6 +196,7 @@ async def test_send_active(app: App):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=ApiMessage(id="1234871", channel_id=2233),
         )
@@ -222,6 +223,7 @@ async def test_send_active(app: App):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=ApiMessage(id="1234871", channel_id=12479234),
         )
@@ -239,10 +241,79 @@ async def test_send_active(app: App):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=ApiMessage(id="1234871", channel_id=12355131),
         )
         await MessageFactory("1234").send_to(target, bot)
+
+
+async def test_send_active_with_magic_msg_id(app: App, mocker: MockerFixture):
+    from nonebot import get_driver
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
+
+    from nonebot_plugin_saa import (
+        MessageFactory,
+        SupportedAdapters,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+    )
+
+    mocker.patch(
+        "nonebot_plugin_saa.config.plugin_config.use_qqguild_magic_msg_id", True
+    )
+
+    async with app.test_api() as ctx:
+        adapter_qqguild = get_driver()._adapters[str(SupportedAdapters.qqguild)]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_qqguild,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": 2233,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+                "msg_id": "1000",
+            },
+            result=ApiMessage(id="1234871", channel_id=2233),
+        )
+        target = TargetQQGuildChannel(channel_id=2233)
+        await MessageFactory("123").send_to(target, bot)
+
+        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
+        ctx.should_call_api(
+            "post_dms",
+            data={
+                "recipient_id": "1111",
+                "source_guild_id": "2222",
+            },
+            result=DMS(guild_id=3333),
+        )
+        ctx.should_call_api(
+            "post_dms_messages",
+            data={
+                "guild_id": 3333,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+                "msg_id": "1000",
+            },
+            result=ApiMessage(id="1234871", channel_id=12479234),
+        )
+        await MessageFactory("123").send_to(target, bot)
 
 
 async def test_list_targets(app: App, mocker: MockerFixture):

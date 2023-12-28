@@ -4,6 +4,7 @@ from typing import List, Union, Literal, Optional
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
+from ..config import plugin_config
 from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
@@ -180,16 +181,23 @@ try:
         if event:  # reply to user
             msg_return = await bot.send(event, message)
         else:
+            msg_id = (
+                plugin_config.qqguild_magic_msg_id
+                if plugin_config.use_qqguild_magic_msg_id
+                else None
+            )
             if isinstance(target, TargetQQGuildDirect):
                 guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
                 msg_return = await bot.send_to_dms(
                     guild_id=str(guild_id),
                     message=message,
+                    msg_id=msg_id,
                 )
             elif isinstance(target, TargetQQGuildChannel):
                 msg_return = await bot.send_to_channel(
                     channel_id=str(target.channel_id),
                     message=message,
+                    msg_id=msg_id,
                 )
             elif isinstance(target, TargetQQPrivateOpenId):
                 msg_return = await bot.send_to_c2c(

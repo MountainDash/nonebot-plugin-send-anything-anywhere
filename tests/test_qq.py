@@ -2,14 +2,13 @@ from pathlib import Path
 from datetime import datetime
 from functools import partial
 
+import pytest
 from nonebug import App
 from nonebot import get_adapter
-import pytest
 from pytest_mock import MockerFixture
 from nonebot.adapters.qq import Bot, Adapter
 from nonebot.adapters.qq.config import BotInfo
 from nonebot.adapters.qq.models import DMS, User, Guild, Channel, Message, QQMessage
-
 
 from .utils import assert_ms, mock_qq_message_event, mock_qq_guild_message_event
 
@@ -201,11 +200,11 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
+        SupportedAdapters,
         TargetQQGroupOpenId,
         TargetQQGuildDirect,
         TargetQQGuildChannel,
         TargetQQPrivateOpenId,
-        SupportedAdapters,
     )
 
     async with app.test_api() as ctx:
@@ -293,6 +292,64 @@ async def test_send_active(app: App):
             result=MockQQMessage(id="1234871", content="123"),
         )
         target = TargetQQPrivateOpenId(bot_id="3344", user_openid="2233")
+        await MessageFactory("123").send_to(target, bot)
+
+
+async def test_send_active_with_magic_msg_id(app: App, mocker: MockerFixture):
+    from nonebot import get_driver
+
+    from nonebot_plugin_saa import (
+        MessageFactory,
+        SupportedAdapters,
+        TargetQQGuildDirect,
+        TargetQQGuildChannel,
+    )
+
+    mocker.patch(
+        "nonebot_plugin_saa.config.plugin_config.use_qqguild_magic_msg_id", True
+    )
+
+    async with app.test_api() as ctx:
+        adapter_qq = get_driver()._adapters[str(SupportedAdapters.qq)]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=adapter_qq,
+            self_id="3344",
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": "2233",
+                "msg_id": "1000",
+                "event_id": None,
+                "content": "123",
+            },
+            result=MockQQGuildMessage(id="1234871", channel_id="2233"),
+        )
+        target = TargetQQGuildChannel(channel_id=2233)
+        await MessageFactory("123").send_to(target, bot)
+
+        target = TargetQQGuildDirect(recipient_id=1111, source_guild_id=2222)
+        ctx.should_call_api(
+            "post_dms",
+            data={
+                "recipient_id": "1111",
+                "source_guild_id": "2222",
+            },
+            result=DMS(guild_id="3333"),
+        )
+        ctx.should_call_api(
+            "post_dms_messages",
+            data={
+                "guild_id": "3333",
+                "msg_id": "1000",
+                "event_id": None,
+                "content": "123",
+            },
+            result=MockQQGuildMessage(id="1234871", channel_id="12479234"),
+        )
         await MessageFactory("123").send_to(target, bot)
 
 
