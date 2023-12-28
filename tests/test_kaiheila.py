@@ -195,6 +195,35 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot.adapters.kaiheila import Bot
+    from nonebot import get_driver, on_message
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.adapters.kaiheila import KaiheilaReceipt, KaiheilaMessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process():
+        receipt = await MessageFactory(Text("123")).send()
+        assert isinstance(receipt, KaiheilaReceipt)
+        assert receipt.extract_message_id() == KaiheilaMessageId(message_id="adfadf")
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kaiheila_kwargs())
+        msg_event = mock_kaiheila_message_event()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "directMessage_create",
+            data={"type": 1, "content": "123", "target_id": "3344"},
+            result=MessageCreateReturn(
+                msg_id="adfadf", msg_timestamp=98190, nonce="12adjf"
+            ),
+        )
+
+
 async def test_send_revoke(app: App):
     from nonebot.adapters.kaiheila import Bot
     from nonebot import get_driver, on_message

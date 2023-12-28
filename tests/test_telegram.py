@@ -128,6 +128,39 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.telegram import Bot, Message
+    from nonebot.adapters.telegram.event import MessageEvent
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.adapters.telegram import TelegramReceipt, TelegramMessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _(ev: MessageEvent):
+        receipt = await MessageFactory(
+            [Text(f"homo senpai {ev.message.extract_plain_text()}")]
+        ).send()
+        assert isinstance(receipt, TelegramReceipt)
+        assert receipt.extract_message_id() == [
+            TelegramMessageId(message_id=1145141919810)
+        ]
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, config=BOT_CONFIG)
+
+        msg_event = mock_telegram_message_event(Message("114514"))
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "send_message",
+            {**SEND_MESSAGE_PARAMS, "text": "homo senpai 114514"},
+            FAKE_MESSAGE_RETURN,
+        )
+
+
 async def test_send_with_reply(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.telegram import Bot, Message

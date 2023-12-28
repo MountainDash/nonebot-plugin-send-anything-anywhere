@@ -128,6 +128,9 @@ try:
         def raw(self):
             return self.messages
 
+        def extract_message_id(self) -> List[TelegramMessageId]:
+            return [TelegramMessageId(message_id=x.message_id) for x in self.messages]
+
     @register_message_id_getter(MessageEvent)
     def _(event: Event):
         assert isinstance(event, MessageEvent)

@@ -109,6 +109,10 @@ try:
         def raw(self):
             return self.sent_msg
 
+        def extract_message_id(self) -> QQGuildMessageId:
+            assert self.sent_msg.id
+            return QQGuildMessageId(message_id=self.sent_msg.id)
+
     @register_sender(SupportedAdapters.qqguild)
     async def send(
         bot,
