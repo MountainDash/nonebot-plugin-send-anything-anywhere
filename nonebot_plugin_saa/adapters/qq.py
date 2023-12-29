@@ -9,7 +9,6 @@ from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..abstract_factories import (
     MessageFactory,
-    MessageSegmentFactory,
     register_ms_adapter,
     assamble_message_factory,
 )
@@ -141,7 +140,7 @@ try:
     @register_sender(SupportedAdapters.qq)
     async def send(
         bot,
-        msg: MessageFactory[MessageSegmentFactory],
+        msg: MessageFactory,
         target: PlatformTarget,
         event: Optional[Event],
         at_sender: bool,

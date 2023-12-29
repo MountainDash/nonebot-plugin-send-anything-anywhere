@@ -9,7 +9,6 @@ from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
 from ..abstract_factories import (
     MessageFactory,
-    MessageSegmentFactory,
     register_ms_adapter,
     assamble_message_factory,
 )
@@ -133,7 +132,7 @@ try:
     @register_sender(SupportedAdapters.kaiheila)
     async def send(
         bot,
-        msg: MessageFactory[MessageSegmentFactory],
+        msg: MessageFactory,
         target,
         event,
         at_sender: bool,

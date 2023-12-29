@@ -10,7 +10,6 @@ from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
 from ..abstract_factories import (
     MessageFactory,
-    MessageSegmentFactory,
     register_ms_adapter,
     assamble_message_factory,
 )
@@ -113,7 +112,7 @@ try:
     @register_sender(adapter)
     async def send(
         bot,
-        msg: MessageFactory[MessageSegmentFactory],
+        msg: MessageFactory,
         target,
         event,
         at_sender: bool,
