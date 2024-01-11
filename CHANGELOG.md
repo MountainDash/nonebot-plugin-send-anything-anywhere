@@ -8,6 +8,7 @@
 
 ### 新功能
 
+- 引入config，并为QQ频道添加 magic_msg_id 相关配置 [@AzideCupric](https://github.com/AzideCupric) ([#131](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/131))
 - 去除MessageFactory和MessageSegmentFactory的泛型，补充成员方法 [@AzideCupric](https://github.com/AzideCupric) ([#128](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/128))
 - 适配qq适配器 [@AzideCupric](https://github.com/AzideCupric) ([#105](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/105))
 - 导出 OpenID Target [@Dreamail](https://github.com/Dreamail) ([#123](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/123))
