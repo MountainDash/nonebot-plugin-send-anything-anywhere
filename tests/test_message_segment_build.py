@@ -1,26 +1,25 @@
-from typing import Type
-
 import pytest
 from nonebug import App
-
-from nonebot_plugin_saa.abstract_factories import (
-    SupportedAdapters,
-    MessageSegmentFactory,
-)
 
 from .utils import assert_ms, mock_obv11_message_event
 
 
-class MyText(MessageSegmentFactory):
-    text: str
+@pytest.fixture(scope="module")
+def MyText():
+    from nonebot_plugin_saa.abstract_factories import MessageSegmentFactory
 
-    def __init__(self, text: str) -> None:
-        self.text = text
-        super().__init__()
+    class MyText(MessageSegmentFactory):
+        text: str
+
+        def __init__(self, text: str) -> None:
+            self.text = text
+            super().__init__()
+
+    return MyText
 
 
 @pytest.fixture
-def dummy_factory(app: App):
+def dummy_factory(app: App, MyText):
     class _Test(MyText):
         pass
 
@@ -28,18 +27,17 @@ def dummy_factory(app: App):
 
 
 @pytest.fixture
-def onebot_v11(app: App):
+def onebot_v11(app: App, MyText):
     from nonebot_plugin_saa.utils import SupportedAdapters
 
     return SupportedAdapters.onebot_v11
 
 
-async def test_sync_without_bot(
-    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
-):
+async def test_sync_without_bot(app: App, dummy_factory, onebot_v11):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
+    from nonebot_plugin_saa import SupportedAdapters
     from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
@@ -55,12 +53,11 @@ async def test_sync_without_bot(
     )
 
 
-async def test_sync_with_bot(
-    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
-):
+async def test_sync_with_bot(app: App, dummy_factory, onebot_v11):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
+    from nonebot_plugin_saa import SupportedAdapters
     from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
@@ -76,12 +73,11 @@ async def test_sync_with_bot(
     )
 
 
-async def test_async_without_bot(
-    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
-):
+async def test_async_without_bot(app: App, dummy_factory, onebot_v11):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
+    from nonebot_plugin_saa import SupportedAdapters
     from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
@@ -97,12 +93,11 @@ async def test_async_without_bot(
     )
 
 
-async def test_async_with_bot(
-    app: App, dummy_factory: "Type[MyText]", onebot_v11: "SupportedAdapters"
-):
+async def test_async_with_bot(app: App, dummy_factory, onebot_v11):
     from nonebot.adapters.onebot.v11.bot import Bot
     from nonebot.adapters.onebot.v11.message import MessageSegment
 
+    from nonebot_plugin_saa import SupportedAdapters
     from nonebot_plugin_saa.abstract_factories import register_ms_adapter
 
     @register_ms_adapter(onebot_v11, dummy_factory)
@@ -161,7 +156,7 @@ async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.onebot.v11 import Bot, Message
 
-    from nonebot_plugin_saa import Text, TargetQQPrivate
+    from nonebot_plugin_saa import Text, TargetQQPrivate, SupportedAdapters
 
     async with app.test_api() as ctx:
         adapter_ob11 = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]

@@ -2,7 +2,6 @@ import pytest
 from nonebug import App
 from nonebot import get_driver, on_message
 
-from nonebot_plugin_saa.utils.const import SupportedAdapters
 from tests.utils import ob12_kwargs, mock_obv12_message_event
 
 
@@ -17,7 +16,12 @@ async def test_not_send_in_handler(app: App):
 async def test_send_message(app: App):
     from nonebot.adapters.onebot.v12 import Bot, Message
 
-    from nonebot_plugin_saa import Text, MessageFactory, AggregatedMessageFactory
+    from nonebot_plugin_saa import (
+        Text,
+        MessageFactory,
+        SupportedAdapters,
+        AggregatedMessageFactory,
+    )
 
     for test_subject in [
         MessageFactory("123"),

@@ -26,9 +26,6 @@ from nonebot.adapters.kaiheila.api import (
     MessageCreateReturn,
 )
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-from nonebot_plugin_saa import TargetKaiheilaChannel, TargetKaiheilaPrivate
-
 from .utils import assert_ms
 
 
@@ -101,12 +98,14 @@ def kaiheila_kwargs(name="2233", token="hhhh", auto_connect=True):
     return {"name": name, "token": token, "auto_connect": auto_connect}
 
 
-assert_kaiheila = partial(
-    assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs()
-)
+@pytest.fixture
+def assert_kaiheila(app: App):
+    from nonebot_plugin_saa.utils import SupportedAdapters
+
+    return partial(assert_ms, Bot, SupportedAdapters.kaiheila, **kaiheila_kwargs())
 
 
-async def test_text(app: App):
+async def test_text(app: App, assert_kaiheila):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -117,7 +116,7 @@ async def test_text(app: App):
 async def test_image(app: App):
     from nonebot.adapters.kaiheila import MessageSegment
 
-    from nonebot_plugin_saa import Image
+    from nonebot_plugin_saa import Image, SupportedAdapters
 
     adapter = get_driver()._adapters[str(SupportedAdapters.kaiheila)]
     async with app.test_api() as ctx:
@@ -136,7 +135,7 @@ async def test_image(app: App):
         assert generated_ms == MessageSegment.image("123")
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_kaiheila):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -146,7 +145,7 @@ async def test_mention(app: App):
     )
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_kaiheila):
     from nonebot.adapters.kaiheila import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -283,6 +282,7 @@ async def test_send_active(app: App):
 
     from nonebot_plugin_saa import (
         MessageFactory,
+        SupportedAdapters,
         TargetKaiheilaChannel,
         TargetKaiheilaPrivate,
     )
@@ -314,6 +314,11 @@ async def test_send_active(app: App):
 
 async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot_plugin_saa.auto_select_bot import get_bot, refresh_bots
+    from nonebot_plugin_saa import (
+        SupportedAdapters,
+        TargetKaiheilaChannel,
+        TargetKaiheilaPrivate,
+    )
 
     mocker.patch("nonebot_plugin_saa.auto_select_bot.inited", True)
 

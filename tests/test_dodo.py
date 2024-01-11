@@ -11,26 +11,28 @@ from nonebot import get_driver, get_adapter
 from nonebot.adapters.dodo import Bot, Adapter
 from nonebot.adapters.dodo.config import BotConfig
 
-from nonebot_plugin_saa.utils import SupportedAdapters
-
 from .utils import assert_ms, mock_dodo_message_event
 
 dodo_bot_config = BotConfig(client_id="112233", token="3.14159")
-
-assert_dodo = partial(
-    assert_ms,
-    Bot,
-    SupportedAdapters.dodo,
-    bot_config=dodo_bot_config,
-)
-
 dodo_kwargs = {
     "self_id": "123456",
     "bot_config": dodo_bot_config,
 }
 
 
-async def test_text(app: App):
+@pytest.fixture
+def assert_dodo(app: App):
+    from nonebot_plugin_saa import SupportedAdapters
+
+    return partial(
+        assert_ms,
+        Bot,
+        SupportedAdapters.dodo,
+        bot_config=dodo_bot_config,
+    )
+
+
+async def test_text(app: App, assert_dodo):
     from nonebot.adapters.dodo import MessageSegment
 
     from nonebot_plugin_saa import Text
@@ -43,7 +45,7 @@ async def test_image(app: App):
     from nonebot.adapters.dodo import MessageSegment
     from nonebot.adapters.dodo.models import PictureInfo
 
-    from nonebot_plugin_saa import Image
+    from nonebot_plugin_saa import Image, SupportedAdapters
 
     image_route = respx.get("https://example.com/amiya.png")
     upload_route = respx.post(
@@ -88,7 +90,7 @@ async def test_image(app: App):
         await Image("https://example.com/amiya.png").build(bot)
 
 
-async def test_mention(app: App):
+async def test_mention(app: App, assert_dodo):
     from nonebot.adapters.dodo import MessageSegment
 
     from nonebot_plugin_saa import Mention
@@ -96,7 +98,7 @@ async def test_mention(app: App):
     await assert_dodo(app, Mention("123456"), MessageSegment.at_user("123456"))
 
 
-async def test_reply(app: App):
+async def test_reply(app: App, assert_dodo):
     from nonebot.adapters.dodo import MessageSegment
 
     from nonebot_plugin_saa import Reply
@@ -213,7 +215,12 @@ async def test_send_active(app: App):
     from nonebot import get_driver
     from nonebot.adapters.dodo.models import MessageType, TextMessage, MessageReturn
 
-    from nonebot_plugin_saa import MessageFactory, TargetDoDoChannel, TargetDoDoPrivate
+    from nonebot_plugin_saa import (
+        MessageFactory,
+        SupportedAdapters,
+        TargetDoDoChannel,
+        TargetDoDoPrivate,
+    )
 
     async with app.test_api() as ctx:
         adapter_obj = get_driver()._adapters[SupportedAdapters.dodo]

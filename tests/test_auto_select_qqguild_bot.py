@@ -102,6 +102,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=Message(id="1255124", channel_id=2233),
         )
@@ -137,6 +138,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=Message(id="1255124", channel_id=2233),
         )
@@ -151,6 +153,7 @@ async def test_send_auto_select(app: App, mocker: MockerFixture):
                 "file_image": None,
                 "markdown": None,
                 "message_reference": None,
+                "msg_id": None,
             },
             result=Message(id="1255124", channel_id=2233),
         )

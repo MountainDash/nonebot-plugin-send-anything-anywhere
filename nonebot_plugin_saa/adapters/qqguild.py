@@ -1,9 +1,11 @@
+from warnings import warn
 from functools import partial
 from typing import List, Literal
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
+from ..config import plugin_config
 from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
@@ -116,6 +118,10 @@ try:
         at_sender: bool,
         reply: bool,
     ) -> QQGuildReceipt:
+        warn(
+            "QQGuild adapter is dedeprecated. Please use 'nonebot-adapter-qq' instead.",
+            DeprecationWarning,
+        )
         assert isinstance(bot, Bot)
         assert isinstance(target, (TargetQQGuildChannel, TargetQQGuildDirect))
 
@@ -176,6 +182,11 @@ try:
                     message_reference=reference,  # type: ignore
                 )
         else:
+            msg_id = (
+                plugin_config.qqguild_magic_msg_id
+                if plugin_config.use_qqguild_magic_msg_id
+                else None
+            )
             if isinstance(target, TargetQQGuildChannel):
                 assert target.channel_id
                 sent_msg = await bot.post_messages(
@@ -187,6 +198,7 @@ try:
                     file_image=file_image,  # type: ignore
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
+                    msg_id=msg_id,
                 )
             else:
                 guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
@@ -199,6 +211,7 @@ try:
                     file_image=file_image,  # type: ignore
                     markdown=markdown,  # type: ignore
                     message_reference=reference,  # type: ignore
+                    msg_id=msg_id,
                 )
 
         return QQGuildReceipt(bot_id=bot.self_id, sent_msg=sent_msg)
