@@ -1,6 +1,6 @@
 from io import BytesIO
 from pathlib import Path
-from typing import Union, TypedDict
+from typing import Union, Literal, TypedDict
 
 from ..registries import MessageId
 from ..abstract_factories import MessageFactory, MessageSegmentFactory
@@ -13,6 +13,7 @@ class TextData(TypedDict):
 class Text(MessageSegmentFactory):
     """文本消息段"""
 
+    type: Literal["text"] = "text"
     data: TextData
 
     def __init__(self, text: str) -> None:
@@ -42,6 +43,7 @@ class ImageData(TypedDict):
 class Image(MessageSegmentFactory):
     """图片消息段"""
 
+    type: Literal["image"] = "image"
     data: ImageData
 
     def __init__(
@@ -99,6 +101,7 @@ class MentionData(TypedDict):
 class Mention(MessageSegmentFactory):
     """提到其他用户"""
 
+    type: Literal["mention"] = "mention"
     data: MentionData
 
     def __init__(self, user_id: str):
