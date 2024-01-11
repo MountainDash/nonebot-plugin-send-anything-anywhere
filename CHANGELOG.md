@@ -2,6 +2,10 @@
 
 ## 最近更新
 
+### 破坏性变更
+
+- 将 Reply 的 data 字段统一为 dict [@AzideCupric](https://github.com/AzideCupric) ([#129](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/129))
+
 ### 新功能
 
 - 去除MessageFactory和MessageSegmentFactory的泛型，补充成员方法 [@AzideCupric](https://github.com/AzideCupric) ([#128](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/128))
