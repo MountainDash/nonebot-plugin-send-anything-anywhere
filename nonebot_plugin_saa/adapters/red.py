@@ -71,11 +71,11 @@ try:
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, RedMessageId)
+        assert isinstance(mid := r.data["message_id"], RedMessageId)
         return MessageSegment.reply(
-            message_seq=r.data.message_seq,
-            message_id=r.data.message_id,
-            sender_uin=r.data.sender_uin,
+            message_seq=mid.message_seq,
+            message_id=mid.message_id,
+            sender_uin=mid.sender_uin,
         )
 
     @register_target_extractor(PrivateMessageEvent)

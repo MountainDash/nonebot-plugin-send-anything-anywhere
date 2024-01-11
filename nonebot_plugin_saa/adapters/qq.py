@@ -72,8 +72,8 @@ try:
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, QQMessageId)
-        return MessageSegment.reference(r.data.message_id)
+        assert isinstance(mid := r.data["message_id"], QQMessageId)
+        return MessageSegment.reference(mid.message_id)
 
     @register_target_extractor(GuildMessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:

@@ -37,13 +37,12 @@ def test_message_segment_to_str():
     assert str(i_bytesio) == f"[SAA:Image|name='image',image=<BytesIO {len(b'123')}>]"
     assert repr(i_bytesio) == "Image(name='image', image=BytesIO(b'123'))"
 
-    # FIXME: Reply还不支持
-    # r = Reply(MessageId(adapter_name=SupportedAdapters.fake))
-    # assert r.get("data").get("message_id") == MessageId(
-    #     adapter_name=SupportedAdapters.fake
-    # )
-    # assert str(r) == "[SAA:Reply|message_id=MessageId(adapter_name='fake')]"
-    # assert repr(r) == "Reply(message_id=MessageId(adapter_name='fake'))"
+    r = Reply(MessageId(adapter_name=SupportedAdapters.fake))
+    assert r.get("data").get("message_id") == MessageId(
+        adapter_name=SupportedAdapters.fake
+    )
+    assert str(r).startswith("[SAA:Reply|message_id=MessageId(adapter_name=")
+    assert repr(r).startswith("Reply(message_id=MessageId(adapter_name=")
 
     m = Mention("123")
     assert m.get("data").get("user_id") == "123"

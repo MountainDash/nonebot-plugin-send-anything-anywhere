@@ -83,8 +83,8 @@ try:
 
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, KaiheilaMessageId)
-        return MessageSegment.quote(r.data.message_id)
+        assert isinstance(mid := r.data["message_id"], KaiheilaMessageId)
+        return MessageSegment.quote(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> TargetKaiheilaPrivate:
