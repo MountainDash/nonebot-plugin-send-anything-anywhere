@@ -130,8 +130,10 @@ async def test_send(app: App):
 
 async def test_extract_message_id(app: App):
     from nonebot import get_driver, on_message
+    from nonebot.adapters.telegram.model import Chat
     from nonebot.adapters.telegram import Bot, Message
     from nonebot.adapters.telegram.event import MessageEvent
+    from nonebot.adapters.telegram.model import Message as ModelMessage
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
     from nonebot_plugin_saa.adapters.telegram import TelegramReceipt, TelegramMessageId
@@ -144,9 +146,9 @@ async def test_extract_message_id(app: App):
             [Text(f"homo senpai {ev.message.extract_plain_text()}")]
         ).send()
         assert isinstance(receipt, TelegramReceipt)
-        assert receipt.extract_message_id() == [
-            TelegramMessageId(message_id=1145141919810)
-        ]
+        assert receipt.extract_message_id() == TelegramMessageId(
+            message_id=1145141919810
+        )
 
     async with app.test_matcher(matcher) as ctx:
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
@@ -159,6 +161,17 @@ async def test_extract_message_id(app: App):
             {**SEND_MESSAGE_PARAMS, "text": "homo senpai 114514"},
             FAKE_MESSAGE_RETURN,
         )
+
+    mm1 = ModelMessage(message_id=111, date=1, chat=Chat(id=1, type="private"))
+    mm2 = ModelMessage(message_id=222, date=1, chat=Chat(id=1, type="private"))
+    mm3 = ModelMessage(message_id=333, date=1, chat=Chat(id=1, type="private"))
+    receipt = TelegramReceipt(bot_id="1", chat_id="2", messages=[mm1, mm2, mm3])
+    assert receipt.extract_message_id() == TelegramMessageId(message_id=111)
+    assert receipt.extract_message_id(0) == receipt.extract_message_id()
+    assert receipt.extract_message_id(1) == TelegramMessageId(message_id=222)
+    assert receipt.extract_message_id(2) == TelegramMessageId(message_id=333)
+    with pytest.raises(IndexError):
+        assert receipt.extract_message_id(4)
 
 
 async def test_send_with_reply(app: App):

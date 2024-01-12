@@ -128,8 +128,13 @@ try:
         def raw(self):
             return self.messages
 
-        def extract_message_id(self) -> List[TelegramMessageId]:
-            return [TelegramMessageId(message_id=x.message_id) for x in self.messages]
+        def extract_message_id(self, index: int = 0) -> TelegramMessageId:
+            """从 Receipt 中提取 MessageId
+
+            Args:
+                index (int, optional): 默认为0, 即提取第一条消息的 MessageId.
+            """
+            return TelegramMessageId(message_id=self.messages[index].message_id)
 
     @register_message_id_getter(MessageEvent)
     def _(event: Event):
