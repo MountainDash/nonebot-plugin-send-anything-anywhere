@@ -124,6 +124,10 @@ try:
         def raw(self) -> MessageCreateReturn:
             return self.data
 
+        def extract_message_id(self) -> KaiheilaMessageId:
+            assert self.data.msg_id
+            return KaiheilaMessageId(message_id=self.data.msg_id)
+
     @register_message_id_getter(MessageEvent)
     def _(event: Event) -> KaiheilaMessageId:
         assert isinstance(event, MessageEvent)

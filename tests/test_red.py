@@ -99,6 +99,42 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot.adapters.red import Bot
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.red.event import PrivateMessageEvent
+
+    from nonebot_plugin_saa.adapters.red import RedReceipt, RedMessageId
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process(msg: PrivateMessageEvent):
+        receipt = await MessageFactory(Text("123")).send()
+        assert isinstance(receipt, RedReceipt)
+        assert receipt.extract_message_id() == RedMessageId(
+            message_seq="103",
+            message_id="7272944767457625851",
+            sender_uin="1234",
+        )
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.red)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, info=bot_info)
+        msg_event = mock_red_message_event()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "send_message",
+            data={
+                "chat_type": 1,
+                "target": "1234",
+                "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
+            },
+            result=msg_event.dict(),
+        )
+
+
 async def test_send_aggreted_red(app: App, mocker: MockerFixture):
     from nonebot.adapters.red import Bot
     from nonebot import get_driver, on_message

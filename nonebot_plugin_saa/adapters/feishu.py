@@ -104,6 +104,9 @@ try:
         def raw(self) -> Any:
             return self.data
 
+        def extract_message_id(self) -> FeishuMessageId:
+            return FeishuMessageId(message_id=self.message_id)
+
     @register_message_id_getter(MessageEvent)
     def _(event: Event) -> FeishuMessageId:
         assert isinstance(event, MessageEvent)
