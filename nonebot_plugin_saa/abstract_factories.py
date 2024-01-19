@@ -653,7 +653,7 @@ class AggregatedMessageFactory:
 
     def __init__(
         self,
-        msgs: List[Union[MessageFactory, MessageSegmentFactory]],
+        msgs: Iterable[Union[MessageFactory, MessageSegmentFactory]],
     ) -> None:
         self.message_factories = []
         for msg in msgs:
