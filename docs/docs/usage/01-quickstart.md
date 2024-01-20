@@ -122,7 +122,7 @@ async def get_weather(args: Message = CommandArg()):
 
 上文中，我们使用了 `Text` 和 `Image` 来包装文本和图片，这些都是 SAA 内置的消息段类型。
 
-所有的消息段类型参见 [消息构建](./02-message-build.md) 章节。
+所有的消息段类型参见 [消息构建](./02-message-build.md#内置的消息段类型messagesegmentfactory) 章节。
 
 :::
 
@@ -158,11 +158,11 @@ async def report_weather():
 
 PlatformTarget 是 SAA 用来表示一个可发送目标的类，它记录了需要发送到的平台、目标ID等信息。
 
-所有可用的 PlatformTarget 参见 [消息发送](./03-send.md) 章节。
+所有可用的 PlatformTarget 参见 [消息发送](./03-send.md#可用的子类) 章节。
 
 :::
 
-SAA 提供了一个便捷的依赖注入来获取 PlatformTarget，即 **`SaaTarget`**
+SAA 提供了一个便捷的依赖注入来获取 PlatformTarget，即 [**`SaaTarget`**](./03-send.md#saatarget)
 
 ```python
 from typing import Dict, Any, Tuple, Annotated
@@ -234,7 +234,6 @@ async def report_weather(
 
 :::info[序列化/反序列化]
 
-例子的代码中额外多使用了 `target.dict()` 和 `PlatformTarget.deserialize(target_dict)` 来演示 PlatformTarget 的序列化和反序列化。
-这对需要将 PlatformTarget 存储到数据库中的场景非常有用。
+例子的代码中额外使用了 `target.dict()` 和 `PlatformTarget.deserialize(target_dict)` 来演示 PlatformTarget 的[序列化和反序列化](./03-send.md#序列化与反序列化)。
 
 :::
