@@ -63,8 +63,10 @@ from nonebot.params import CommandArg
 require("nonebot_plugin_saa")
 from nonebot_plugin_saa import Text
 
+# 函数模拟了一个对天气API的异步请求用以演示
+# 这里用一个固定的字符串返回替代请求结果
 async def weather_api(city: str) -> str:
-    response: str = "柳州: 🌦   +14°C"# 能返回文本的天气API
+    response: str = "柳州: 🌦   +14°C"
     return response
 
 weather = on_command("天气", rule=to_me(), aliases={"weather", "查天气"}, priority=10, block=True)
