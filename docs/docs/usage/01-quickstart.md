@@ -95,12 +95,14 @@ async def get_weather(args: Message = CommandArg()):
 
 ![插件-仅文字](../assets/plugin-only-text.png)
 
-也可以进行图文混排，这个时候，我们需要使用 `Image` 来包装图片，并且使用 `Message` 来组装文本和图片。
+也可以进行图文混排，这个时候，我们需要使用 `Image` 来包装图片，并且使用 `MessageFactory` 来组装文本和图片。
 
 ```python
 from pathlib import Path
+# ...
+from nonebot_plugin_saa import Text, Image, MessageFactory
 
-assets_path = #资源文件夹路径
+assets_path = Path("/资源文件夹路径")
 
 # ...
 @weather.handle()
@@ -114,7 +116,7 @@ async def get_weather(args: Message = CommandArg()):
         await Text("请输入要查询的地点").finish()
 ```
 
-<!-- ![插件-图文混排](../assets/plugin-text-image.png) #TODO-->
+![插件-图文混排](../assets/plugin-text-image.png)
 
 :::info[内置的消息段类型]
 
@@ -126,4 +128,113 @@ async def get_weather(args: Message = CommandArg()):
 
 ### 定时推送
 
-TODO.
+另一种常见需求是用户希望 Bot 能定时向用户推送天气消息，例如每天早上 7 点通过私聊推送当天的天气。
+
+```python
+from nonebot import require, on_command
+from nonebot.rule import to_me
+from nonebot.adapters import Message
+from nonebot.params import CommandArg
+
+require("nonebot_plugin_saa")
+from nonebot_plugin_saa import Text, SaaTarget
+
+weather_report = on_command(
+    "每日播报", rule=to_me(), aliases={"weather_report", "定时天气"}, priority=10, block=True
+)
+
+@weather_report.handle()
+async def report_weather():
+    pass
+```
+
+定时任务的创建和执行可以通过官方插件 [`nonebot-plugin-apscheduler`](https://nonebot.dev/docs/best-practice/scheduler) 来实现。
+
+在这个需求中，需要发送的目标存储起来，然后在定时任务中读取并发送。
+
+这里需要关注的是如何获取 SAA 可使用的发送目标(PlatformTarget)。
+
+:::info[PlatformTarget?]
+
+PlatformTarget 是 SAA 用来表示一个可发送目标的类，它记录了需要发送到的平台、目标ID等信息。
+
+所有可用的 PlatformTarget 参见 [消息发送](./03-send.md) 章节。
+
+:::
+
+SAA 提供了一个便捷的依赖注入来获取 PlatformTarget，即 **`SaaTarget`**
+
+```python
+from typing import Dict, Any, Tuple, Annotated
+from nonebot import require, on_command, logger
+from nonebot.rule import to_me
+from nonebot.adapters import Message
+from nonebot.params import CommandArg, Depends
+
+require("nonebot_plugin_saa")
+require("nonebot_plugin_apscheduler")
+from nonebot_plugin_apscheduler import scheduler
+from nonebot_plugin_saa import Text, SaaTarget, PlatformTarget, enable_auto_select_bot
+
+enable_auto_select_bot()
+
+def scheduler_job_builder(location: str, target_dict: Dict[str, Any]):
+    async def job():
+        result = await weather_api(location)
+        await Text(result).send_to(target=PlatformTarget.deserialize(target_dict))
+
+    return job
+
+
+def extract_location_and_hour(args: Message = CommandArg()):
+    logger.info(f"func: {args}")
+    if args:
+        location, hour = args.extract_plain_text().split()
+        logger.info(f"func: {location} {hour}")
+        return location, hour
+    return "", ""
+
+# ...
+
+@weather_report.handle()
+async def report_weather(
+    args: Annotated[Tuple[str, str], Depends(extract_location_and_hour, use_cache=False)], target: SaaTarget
+):
+    if not target:
+        await Text("无法提取SAA Target").finish()
+    location, hour = args
+    if not all((location, hour)):
+        await Text("请正确输入要查询的地点和小时").finish()
+
+    scheduler.add_job(
+        func=scheduler_job_builder(location, target.dict()),
+        trigger="cron",
+        hour=hour,
+        id=f"weather_report_{'_'.join(map(str, target.dict().values()))}",
+        max_instances=1,
+    )
+    await Text("已开启定时天气报告").send()
+```
+
+::::tip[send/send_to]
+
+在 Bot 主动发送消息的场景中，SAA 需要使用 `send_to` 来传入 PlatformTarget。
+
+:::warning[自动选择Bot]
+
+在例子中我们启用了 `enable_auto_select_bot`，这样 SAA 将会自动选择一个可用的 Bot 来发送消息。
+这样就无需显式获取一个 Bot 实例传入 `send_to` 了。
+
+详细的介绍参见 [自动选择Bot](./03-send.md#发送时自动选择bot) 章节。
+
+:::
+
+对于用户主动触发的场景，直接使用 `send` 即可。
+::::
+
+:::info[序列化/反序列化]
+
+例子的代码中额外多使用了 `target.dict()` 和 `PlatformTarget.deserialize(target_dict)` 来演示 PlatformTarget 的序列化和反序列化。
+这对需要将 PlatformTarget 存储到数据库中的场景非常有用。
+
+:::
