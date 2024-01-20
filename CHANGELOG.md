@@ -2,7 +2,9 @@
 
 ## 最近更新
 
-* No changes
+### Bug 修复
+
+- 放宽AggregatedMessageFactory.__init__的类型约束 [@AzideCupric](https://github.com/AzideCupric) ([#132](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/132))
 
 ## v0.5.0
 
