@@ -4,7 +4,7 @@ SAA 的 `MessageSegmentFactory`、`MessageFactory`、`AggregatedMessageFactory` 
 
 ## 被动发送
 
-被动发送是指用户方触发消息发送，例如用户发送一条消息，然后Bot进行回复。
+被动发送是指用户方触发消息发送，例如用户发送一条消息，然后 Bot 进行回复。
 
 对于这个场景，可以直接使用 `send` 方法，saa会自动提取会话中的 PlatformTarget 和 Bot 进行发送。
 
@@ -35,7 +35,7 @@ async def morning_greeting():
 
 :::info
 
-可以发现其实 `send_to` 方法允许不提供 bot参数，只提供 PlatformTarget，这会让SAA自动按照 PlatformTarget 的具体实例按照一定的规则选择Bot进行发送。
+可以发现其实 `send_to` 方法允许不提供 bot 参数，只提供 PlatformTarget，这会让 SAA 自动按照 PlatformTarget 的具体实例按照一定的规则选择 Bot 进行发送。
 
 但是启用这个功能需要一定的条件，参见 [自动选择Bot](#发送时自动选择bot)
 
@@ -111,7 +111,7 @@ PlatformTarget 的反序列化方法 `deserialize` 仅支持上述 AllSupportedP
 
 ## 发送时自动选择Bot
 
-在使用saa的主动发送消息功能
+在使用 SAA 的主动发送消息功能
 
 ```python
 async def send_to(
@@ -122,10 +122,10 @@ async def send_to(
     ...
 ```
 
-时，可以使用`enable_auto_select_bot`函数来开启自动选择Bot功能。
-开启后，saa会自动选择一个Bot来发送消息，而不需要手动指定Bot。
+时，可以使用 `enable_auto_select_bot` 函数来开启自动选择 Bot 功能。
+开启后，SAA 会自动选择一个 Bot 来发送消息，而不需要手动指定 Bot。
 
-在插件加载时调用`enable_auto_select_bot`函数即可开启这个功能。
+在插件加载时调用 `enable_auto_select_bot` 函数即可开启这个功能。
 
 ```python title="nonebot_plugin_xxx/__init__.py"
 from nonebot import require
@@ -136,19 +136,19 @@ enable_auto_select_bot()
 ```
 
 :::warning[调用时机]
-`enable_auto_select_bot`的作用仅仅是将刷新target与bot的映射缓存的函数注册到 nonebot 的`on_bot_connect`和`on_bot_disconnect`事件中，
-并不会直接进行缓存的更新，因此在发送时才调用`enable_auto_select_bot`并不会立即生效。  
-正确的做法之一是如同示例一样在插件加载时就调用`enable_auto_select_bot`。
+`enable_auto_select_bot` 的作用仅仅是将刷新 target 与 bot 的映射缓存的函数注册到 nonebot 的 `on_bot_connect` 和 `on_bot_disconnect` 事件中，
+并不会直接进行缓存的更新，因此在发送时才调用 `enable_auto_select_bot` 并不会立即生效。  
+正确的做法之一是如同示例一样在插件加载时就调用 `enable_auto_select_bot` 。
 :::
 
 :::info[为什么enable_auto_select_bot不是一个配置项？]
-启用`enable_auto_select_bot`功能是开发者决定的功能，属于开发者的配置项，因此提供一个函数来开启这个功能。  
-在不涉及主动发送消息时，不需要saa自动选择Bot发送，而是直接从会话中提取，
+启用 `enable_auto_select_bot` 功能是开发者决定的功能，属于开发者的配置项，因此提供一个函数来开启这个功能。  
+在不涉及主动发送消息时，不需要 SAA 自动选择 Bot 发送，而是直接从会话中提取，
 而主动发送消息功能的实现取决于开发者，而非用户。  
-再者配置项一般由用户决定，存放在配置文件`.env`中，让开发者保证用户开启这个配置不现实。
+再者配置项一般由用户决定，存放在配置文件 `.env` 中，让开发者保证用户开启这个配置不现实。
 :::
 
 :::tip
-在所有加载的插件中，只要有一个插件开启了`enable_auto_select_bot`功能，
-那么所有插件都会自动开启`enable_auto_select_bot`功能。
+在所有加载的插件中，只要有一个插件开启了 `enable_auto_select_bot` 功能，
+那么所有插件都会自动开启 `enable_auto_select_bot` 功能。
 :::
