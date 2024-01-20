@@ -102,6 +102,15 @@ mention = Mention("123456789")
 
 SAA 并不提供 user_id 的获取方法，因此需要自行获取。
 
+```python
+from nonebot.adapters import Event
+
+@matcher.handle()
+async def handle(event: Event):
+    user_id = event.get_user_id()
+    ...
+```
+
 :::
 
 ## MessageId
