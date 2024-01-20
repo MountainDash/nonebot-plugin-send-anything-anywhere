@@ -2,12 +2,12 @@ name: Setup Node
 description: Setup Node
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Install node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '16'
+        node-version: "16"
 
     - name: Install pnpm
       uses: pnpm/action-setup@v2
