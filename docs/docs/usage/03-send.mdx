@@ -1,3 +1,6 @@
+import DotMark from "@site/src/components/DotMark";
+import Curtain from "@site/src/components/Curtain";
+
 # 消息发送
 
 SAA 的 `MessageSegmentFactory`、`MessageFactory`、`AggregatedMessageFactory` 都实现了消息的发送功能。
@@ -78,6 +81,8 @@ async def _(target: SaaTarget, args: Message = CommandArg()):
 
 bot 参数主要用于那些混入了 [BotSpecifier](#botspecifier) 的 PlatformTarget，主要是 OpenID 相关的 PlatformTarget。
 
+<Curtain>这完全是为了妥协腾讯 Open ID 的刁钻设计</Curtain>
+
 :::
 
 ### 可用的子类
@@ -90,8 +95,8 @@ SAA 内置了一些常用的 PlatformTarget 子类，可以直接使用。
 
 - TargetQQGroup
 - TargetQQPrivate
-- TargetQQGroupOpenId
-- TargetQQPrivateOpenId
+- <DotMark color="green">TargetQQGroupOpenId</DotMark>
+- <DotMark color="green">TargetQQPrivateOpenId</DotMark>
 - TargetQQGuildChannel
 - TargetQQGuildDirect
 - TargetKaiheilaPrivate
@@ -105,6 +110,12 @@ SAA 内置了一些常用的 PlatformTarget 子类，可以直接使用。
 - TargetDoDoPrivate
 
 以及一个总的类型 `AllSupportedPlatformTarget`，用于标识所有支持的 PlatformTarget。
+
+:::tip[小绿点]
+
+小绿点标记的 PlatformTarget 是混入了 [BotSpecifier](#botspecifier) 的 PlatformTarget。
+
+:::
 
 ### 序列化与反序列化
 
@@ -136,6 +147,8 @@ BotSpecifier 是一个 Mixin 类，用于指定 PlatformTarget 与 Bot 的绑定
 
 QQ开放平台的 [OpenID 机制](https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/unique-id.html)就是如此，不同 Bot 对同一个目标，所获得的 ID 是不同的，因此需要 BotSpecifier 来指定这个 OpenID 与 Bot 的绑定关系。
 
+<Curtain>目前适配的 Adapter 中也只有它如此</Curtain>
+
 :::
 
 ## 发送时自动选择Bot
@@ -166,14 +179,14 @@ enable_auto_select_bot()
 
 :::warning[调用时机]
 `enable_auto_select_bot` 的作用仅仅是将刷新 target 与 bot 的映射缓存的函数注册到 nonebot 的 `on_bot_connect` 和 `on_bot_disconnect` 事件中，
-并不会直接进行缓存的更新，因此在发送时才调用 `enable_auto_select_bot` 并不会立即生效。  
+并不会直接进行缓存的更新，因此在发送时才调用 `enable_auto_select_bot` 并不会立即生效。
 正确的做法之一是如同示例一样在插件加载时就调用 `enable_auto_select_bot` 。
 :::
 
 :::info[为什么enable_auto_select_bot不是一个配置项？]
-启用 `enable_auto_select_bot` 功能是开发者决定的功能，属于开发者的配置项，因此提供一个函数来开启这个功能。  
+启用 `enable_auto_select_bot` 功能是开发者决定的功能，属于开发者的配置项，因此提供一个函数来开启这个功能。
 在不涉及主动发送消息时，不需要 SAA 自动选择 Bot 发送，而是直接从会话中提取，
-而主动发送消息功能的实现取决于开发者，而非用户。  
+而主动发送消息功能的实现取决于开发者，而非用户。
 再者配置项一般由用户决定，存放在配置文件 `.env` 中，让开发者保证用户开启这个配置不现实。
 :::
 

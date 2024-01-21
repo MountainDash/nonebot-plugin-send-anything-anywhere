@@ -160,11 +160,11 @@ async def report_weather():
 
 PlatformTarget 是 SAA 用来表示一个可发送目标的类，它记录了需要发送到的平台、目标ID等信息。
 
-所有可用的 PlatformTarget 参见 [消息发送](./03-send.md#可用的子类) 章节。
+所有可用的 PlatformTarget 参见 [消息发送](./03-send.mdx#可用的子类) 章节。
 
 :::
 
-SAA 提供了一个便捷的依赖注入来获取 PlatformTarget，即 [**`SaaTarget`**](./03-send.md#saatarget)
+SAA 提供了一个便捷的依赖注入来获取 PlatformTarget，即 [**`SaaTarget`**](./03-send.mdx#saatarget)
 
 ```python
 from typing import Dict, Any, Tuple, Annotated
@@ -227,7 +227,7 @@ async def report_weather(
 在例子中我们启用了 `enable_auto_select_bot`，这样 SAA 将会自动选择一个可用的 Bot 来发送消息。
 这样就无需显式获取一个 Bot 实例传入 `send_to` 了。
 
-详细的介绍参见 [自动选择Bot](./03-send.md#发送时自动选择bot) 章节。
+详细的介绍参见 [自动选择Bot](./03-send.mdx#发送时自动选择bot) 章节。
 
 :::
 
@@ -236,6 +236,6 @@ async def report_weather(
 
 :::info[序列化/反序列化]
 
-例子的代码中额外使用了 `target.dict()` 和 `PlatformTarget.deserialize(target_dict)` 来演示 PlatformTarget 的[序列化和反序列化](./03-send.md#序列化与反序列化)。
+例子的代码中额外使用了 `target.dict()` 和 `PlatformTarget.deserialize(target_dict)` 来演示 PlatformTarget 的[序列化和反序列化](./03-send.mdx#序列化与反序列化)。
 
 :::
