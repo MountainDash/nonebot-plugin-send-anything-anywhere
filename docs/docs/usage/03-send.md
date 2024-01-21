@@ -9,18 +9,24 @@ SAA 的 `MessageSegmentFactory`、`MessageFactory`、`AggregatedMessageFactory` 
 对于这个场景，可以直接使用 `send` 方法，saa会自动提取会话中的 PlatformTarget 和 Bot 进行发送。
 
 ```python
-cmd = on_command("repeat", rule=to_me())
+cmd = on_command("say", rule=to_me())
 
 @cmd.handle()
 async def _(args: Message = CommandArg()):
     await Text(args.extract_plain_text()).send()
 ```
 
+`send` 方法提供了两个参数，`reply` 和 `at_sender`
+
+当 `reply` 为 `True` 时，发送的消息会自动回复用户的消息。
+
+当 `at_sender` 为 `True` 时，发送的消息会在消息前 `@用户`。
+
 ## 主动发送
 
 主动发送是指 Bot 方在没有用户触发的情况下发送消息，例如每天早八的早安问候 ~(?)~。
 
-显然在这个场景下，我们无法从会话中提取 PlatformTarget 和 Bot，因此需要使用 `send_to` 方法，并手动指定参数。
+显然这个场景并不在会话中，无从提取 PlatformTarget 和 Bot，因此需要使用 `send_to` 方法，并手动指定需要发送到的 PlatformTarget 和 Bot。
 
 ```python
 from nonebot import get_bot
@@ -28,14 +34,17 @@ from nonebot import get_bot
 @scheduler.scheduled_job("cron", hour=8, id="morning_greeting")
 async def morning_greeting():
     await Text("博士，你今天有早八，还不能休息哦").send_to(
+        # 在这里，假设存在一个函数 get_target_from_db 来从数据库中获取 PlatformTarget 的序列化结果
         target=PlatformTarget.deserialize(await get_target_from_db(...)),
         bot=get_bot()
     )
 ```
 
+`send_to` 方法并不提供 `reply` 和 `at_sender` 参数，因为这些参数只有在会话中才有意义。想要在主动发送时使用这些消息段，需要手动构造。
+
 :::info
 
-可以发现其实 `send_to` 方法允许不提供 bot 参数，只提供 PlatformTarget，这会让 SAA 自动按照 PlatformTarget 的具体实例按照一定的规则选择 Bot 进行发送。
+其实 `send_to` 方法允许不提供 bot 参数，只提供 PlatformTarget，这会让 SAA 自动按照 PlatformTarget 的具体实例根据一定的规则选择 Bot 进行发送。
 
 但是启用这个功能需要一定的条件，参见 [自动选择Bot](#发送时自动选择bot)
 
