@@ -2,10 +2,10 @@
   "name": "docs",
   "version": "0.0.1",
   "description": "峯驰物流 - Send Anything Anywhere",
-  "homepage": "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere",
-  "repository": "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere",
+  "homepage": "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere",
+  "repository": "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere",
   "bug": {
-    "url": "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/issues"
+    "url": "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/issues"
   },
   "license": "MIT",
   "private": true,

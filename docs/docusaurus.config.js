@@ -18,7 +18,7 @@ const config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "felinea98", // Usually your GitHub org/user name.
+  organizationName: "MountainDash", // Usually your GitHub org/user name.
   projectName: "nonebot-plugin-send-anything-anywhere", // Usually your repo name.
 
   onBrokenLinks: "throw",
@@ -43,7 +43,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere/docs",
+            "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/edit/main/docs/",
         },
         blog: false,
         theme: {
@@ -87,7 +87,7 @@ const config = {
             label: "开发",
           },
           {
-            href: "https://github.com/felinae98/nonebot-plugin-send-anything-anywhere",
+            href: "https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere",
             label: "GitHub",
             position: "right",
           },
@@ -101,7 +101,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} Felinae98. All rights reserved.`,
+        copyright: `Copyright © ${new Date().getFullYear()} MountainDash. All rights reserved.`,
         links: [
           {
             title: "文档",
@@ -134,7 +134,7 @@ const config = {
             items: [
               {
                 label: "Nonebot Bison",
-                href: "https://github.com/felinae98/nonebot-bison",
+                href: "https://github.com/MountainDash/nonebot-bison",
               },
               {
                 label: "Docusaurus",
