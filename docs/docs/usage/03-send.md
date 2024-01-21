@@ -72,6 +72,14 @@ async def _(target: SaaTarget, args: Message = CommandArg()):
 
 这也是 SaaTarget 的内部实现。
 
+:::warning[什么时候需要传入bot参数]
+
+`get_target` 函数及其更内部的 `extract_target` 函数使用时一般不需要传入 bot 参数。
+
+bot 参数主要用于那些混入了 [BotSpecifier](#botspecifier) 的 PlatformTarget，主要是 OpenID 相关的 PlatformTarget。
+
+:::
+
 ### 可用的子类
 
 SAA 内置了一些常用的 PlatformTarget 子类，可以直接使用。
@@ -115,6 +123,18 @@ assert pt == pt_deserialized
 :::warning[可反序列化范围]
 
 PlatformTarget 的反序列化方法 `deserialize` 仅支持上述 AllSupportedPlatformTarget 中的子类。
+
+:::
+
+### BotSpecifier
+
+BotSpecifier 是一个 Mixin 类，用于指定 PlatformTarget 与 Bot 的绑定关系。
+
+混入了 BotSpecifier 的 PlatformTarget 与一个特定的 Bot 关联，因为只有这个 Bot 才能正确使用这个 PlatformTarget。
+
+:::note[实际案例]
+
+QQ开放平台的 [OpenID 机制](https://bot.q.qq.com/wiki/develop/api-v2/dev-prepare/unique-id.html)就是如此，不同 Bot 对同一个目标，所获得的 ID 是不同的，因此需要 BotSpecifier 来指定这个 OpenID 与 Bot 的绑定关系。
 
 :::
 
