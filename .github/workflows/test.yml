@@ -6,6 +6,11 @@ on:
       - main
       - next
   pull_request:
+    paths:
+      - "nonebot_plugin_saa/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "poetry.lock"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
