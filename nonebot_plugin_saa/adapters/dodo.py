@@ -180,6 +180,9 @@ with suppress(ImportError):
         def raw(self) -> str:
             return self.message_id
 
+        def extract_message_id(self) -> DodoMessageId:
+            return DodoMessageId(message_id=self.message_id)
+
     @register_sender(adapter)
     async def send(
         bot,

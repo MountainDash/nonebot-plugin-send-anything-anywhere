@@ -138,6 +138,12 @@ try:
         def raw(self):
             return self.msg_return
 
+        def extract_message_id(self) -> QQMessageId:
+            assert hasattr(self.msg_return, "id")
+            mid = getattr(self.msg_return, "id")
+            assert isinstance(mid, str)
+            return QQMessageId(message_id=mid)
+
     @register_sender(SupportedAdapters.qq)
     async def send(
         bot,

@@ -118,6 +118,48 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.qqguild import Bot, Message
+    from nonebot.adapters.qqguild.api import Message as ApiMessage
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.adapters.qqguild import QQGuildReceipt, QQGuildMessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def handle():
+        receipt = await MessageFactory(Text("123")).send()
+        assert isinstance(receipt, QQGuildReceipt)
+        assert receipt.extract_message_id() == QQGuildMessageId(message_id="1234871")
+
+    async with app.test_matcher(matcher) as ctx:
+        qqguild_adapter = get_driver()._adapters[SupportedAdapters.qqguild]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qqguild_adapter,
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+        event = mock_qqguild_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        ctx.should_call_api(
+            "post_messages",
+            data={
+                "channel_id": event.channel_id,
+                "msg_id": event.id,
+                "content": "123",
+                "embed": None,
+                "ark": None,
+                "image": None,
+                "file_image": None,
+                "markdown": None,
+                "message_reference": None,
+            },
+            result=ApiMessage(id="1234871", channel_id=event.channel_id),
+        )
+
+
 async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.qqguild import Bot, Message

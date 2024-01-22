@@ -238,6 +238,43 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.feishu import Bot, Message, MessageEvent, MessageSegment
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.adapters.feishu import FeishuReceipt, FeishuMessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _(event: MessageEvent):
+        receipt = await MessageFactory([Text("1919810")]).send()
+        assert isinstance(receipt, FeishuReceipt)
+        assert receipt.extract_message_id() == FeishuMessageId(message_id="114514")
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.feishu)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **feishu_kwargs)
+
+        msg_event = mock_feishu_message_event(Message("114514"))
+        msg_type, content = Message([MessageSegment.text("1919810")]).serialize()
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "im/v1/messages",
+            {
+                "method": "POST",
+                "query": {"receive_id_type": "open_id"},
+                "body": {
+                    "receive_id": "open_id",
+                    "content": content,
+                    "msg_type": msg_type,
+                },
+            },
+            {"message_id": "114514"},
+        )
+
+
 async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.feishu import Bot, Message, MessageEvent, MessageSegment

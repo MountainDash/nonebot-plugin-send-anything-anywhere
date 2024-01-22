@@ -122,6 +122,13 @@ try:
         def raw(self) -> MessageModel:
             return self.message
 
+        def extract_message_id(self) -> RedMessageId:
+            return RedMessageId(
+                message_seq=self.message.msgSeq,
+                message_id=self.message.msgId,
+                sender_uin=self.message.senderUin,
+            )
+
     @register_sender(SupportedAdapters.red)
     async def send(
         bot,

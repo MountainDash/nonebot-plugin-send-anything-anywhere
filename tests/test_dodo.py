@@ -141,6 +141,41 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot.adapters.dodo import Bot
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.dodo.models import MessageType, TextMessage, MessageReturn
+
+    from nonebot_plugin_saa import Text, SupportedAdapters
+    from nonebot_plugin_saa.adapters.dodo import DodoReceipt, DodoMessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _():
+        receipt = await Text("amiya").send()
+        assert isinstance(receipt, DodoReceipt)
+        assert receipt.extract_message_id() == DodoMessageId(message_id="33331")
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[SupportedAdapters.dodo]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **dodo_kwargs)
+        msg_event = mock_dodo_message_event(
+            TextMessage(content="aa"), type=MessageType(1)
+        )
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "set_channel_message_send",
+            data={
+                "channel_id": "5555",
+                "message_type": MessageType.TEXT,
+                "message_body": TextMessage(content="amiya"),
+                "referenced_message_id": None,
+            },
+            result=MessageReturn(message_id="33331"),
+        )
+
+
 async def test_send_with_reply_and_receipt(app: App):
     from nonebot import on_message
     from nonebot.adapters.dodo import Bot, Message, MessageSegment

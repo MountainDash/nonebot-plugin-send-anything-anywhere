@@ -81,6 +81,39 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.onebot.v11 import Bot, Message, PrivateMessageEvent
+
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.adapters.onebot_v11 import OB11Receipt, OB11MessageId
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def process(msg: PrivateMessageEvent):
+        receipt = await MessageFactory(Text("123")).send()
+        assert isinstance(receipt, OB11Receipt)
+        assert receipt.extract_message_id() == OB11MessageId(message_id=667788)
+
+    async with app.test_matcher(matcher) as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.onebot_v11)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj)
+        msg_event = mock_obv11_message_event(Message("321"))
+        ctx.receive_event(bot, msg_event)
+        ctx.should_call_api(
+            "send_msg",
+            data={
+                "message": Message("123"),
+                "user_id": 2233,
+                "message_type": "private",
+            },
+            result={
+                "message_id": 667788,
+            },
+        )
+
+
 async def test_send_with_reply_and_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.onebot.v11 import (

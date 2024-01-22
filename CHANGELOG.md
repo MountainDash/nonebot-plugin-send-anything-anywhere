@@ -2,12 +2,19 @@
 
 ## 最近更新
 
+### Bug 修复
+
+- 放宽AggregatedMessageFactory.__init__的类型约束 [@AzideCupric](https://github.com/AzideCupric) ([#132](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/132))
+
+## v0.5.0
+
 ### 破坏性变更
 
 - 将 Reply 的 data 字段统一为 dict [@AzideCupric](https://github.com/AzideCupric) ([#129](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/129))
 
 ### 新功能
 
+- 为 Receipt 添加 MessageId 的转换支持 [@AzideCupric](https://github.com/AzideCupric) ([#130](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/130))
 - 引入config，并为QQ频道添加 magic_msg_id 相关配置 [@AzideCupric](https://github.com/AzideCupric) ([#131](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/131))
 - 去除MessageFactory和MessageSegmentFactory的泛型，补充成员方法 [@AzideCupric](https://github.com/AzideCupric) ([#128](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/128))
 - 适配qq适配器 [@AzideCupric](https://github.com/AzideCupric) ([#105](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/105))

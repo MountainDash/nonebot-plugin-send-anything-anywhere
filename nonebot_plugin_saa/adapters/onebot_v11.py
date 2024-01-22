@@ -169,6 +169,9 @@ try:
         def raw(self) -> Any:
             return self.message_id
 
+        def extract_message_id(self) -> OB11MessageId:
+            return OB11MessageId(message_id=self.message_id)
+
     @register_sender(SupportedAdapters.onebot_v11)
     async def send(
         bot,

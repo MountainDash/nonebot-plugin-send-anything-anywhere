@@ -155,6 +155,39 @@ async def test_send(app: App):
         )
 
 
+async def test_extract_message_id(app: App):
+    from nonebot import get_driver, on_message
+    from nonebot.adapters.qq import Bot, Message
+
+    from nonebot_plugin_saa.adapters.qq import QQReceipt, QQMessageId
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+
+    matcher = on_message()
+
+    @matcher.handle()
+    async def _():
+        receipt = await MessageFactory(Text("123")).send()
+        assert isinstance(receipt, QQReceipt)
+        assert receipt.extract_message_id() == QQMessageId(message_id="1234871")
+
+    async with app.test_matcher(matcher) as ctx:
+        qq_adapter = get_driver()._adapters[SupportedAdapters.qq]
+        bot = ctx.create_bot(
+            base=Bot,
+            adapter=qq_adapter,
+            self_id="3344",
+            bot_info=BotInfo(id="3344", token="", secret=""),
+        )
+
+        event = mock_qq_guild_message_event(Message("321"))
+        ctx.receive_event(bot, event)
+        ctx.should_call_send(
+            event,
+            Message("123"),
+            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+        )
+
+
 async def test_send_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.qq import Bot, Message
