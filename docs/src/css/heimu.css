@@ -4,7 +4,7 @@
 
 .heimu,
 .heimu rt {
-  background-color: #252525;
+  background-color: var(--ifm-color-content);
 }
 
 .heimu,
@@ -19,7 +19,7 @@ span.heimu a.extiw:visited,
 span.heimu a.mw-disambig,
 span.heimu a.mw-redirect {
   transition: color 0.13s linear;
-  color: #252525;
+  color: var(--ifm-color-content);
   text-shadow: none;
 }
 
