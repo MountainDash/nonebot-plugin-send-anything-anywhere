@@ -28,3 +28,53 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+.alert--secondary .heimu {
+  background-color: var(--ifm-color-secondary-light);
+  color: var(--ifm-color-secondary-light);
+
+  html.dark & {
+    background-color: var(--ifm-color-secondary-dark);
+    color: var(--ifm-color-secondary-dark);
+  }
+}
+
+.alert--success .heimu {
+  background-color: var(--ifm-color-success-light);
+  color: var(--ifm-color-success-light);
+
+  html.dark & {
+    background-color: var(--ifm-color-success-dark);
+    color: var(--ifm-color-success-dark);
+  }
+}
+
+.alert--info .heimu {
+  background-color: var(--ifm-color-info-light);
+  color: var(--ifm-color-info-light);
+
+  html.dark & {
+    background-color: var(--ifm-color-info-dark);
+    color: var(--ifm-color-info-dark);
+  }
+}
+
+.alert--warning .heimu {
+  background-color: var(--ifm-color-warning-light);
+  color: var(--ifm-color-warning-light);
+
+  html.dark & {
+    background-color: var(--ifm-color-warning-dark);
+    color: var(--ifm-color-warning-dark);
+  }
+}
+
+.alert--danger .heimu {
+  background-color: var(--ifm-color-danger-light);
+  color: var(--ifm-color-danger-light);
+
+  html.dark & {
+    background-color: var(--ifm-color-danger-dark);
+    color: var(--ifm-color-danger-dark);
+  }
+}
