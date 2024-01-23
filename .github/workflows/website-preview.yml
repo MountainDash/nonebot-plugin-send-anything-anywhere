@@ -1,0 +1,40 @@
+name: Site Deploy(Preview)
+
+on:
+  pull_request_target:
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pull-request-preview-${{ github.event.number }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node Environment
+        uses: ./.github/actions/setup-node
+
+      - name: Build Doc
+        run: pnpm build
+
+      - name: Get Deploy Name
+        run: |
+          echo "DEPLOY_NAME=deploy-preview-${{ github.event.number }}" >> $GITHUB_ENV
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2
+        with:
+          publish-dir: "./docs/build"
+          production-deploy: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy ${{ env.DEPLOY_NAME }}@${{ github.sha }}"
+          enable-commit-comment: false
+          alias: ${{ env.DEPLOY_NAME }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.SITE_ID }}
