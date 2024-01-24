@@ -3,7 +3,7 @@ name: Site Deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   publish:
@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Build Doc
-        run: pnpm build
+        run: pnpm --filter docs build
 
       - name: Get Branch Name
         run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
