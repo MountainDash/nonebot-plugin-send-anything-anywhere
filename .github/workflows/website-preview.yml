@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Build Doc
-        run: pnpm --filter docs build
+        run: pnpm docs:build
 
       - name: Get Deploy Name
         run: |
