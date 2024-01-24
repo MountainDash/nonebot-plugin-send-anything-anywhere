@@ -6,6 +6,10 @@
 
 - 放宽AggregatedMessageFactory.__init__的类型约束 [@AzideCupric](https://github.com/AzideCupric) ([#132](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/132))
 
+### 文档
+
+- 完善使用文档 [@AzideCupric](https://github.com/AzideCupric) ([#133](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/133))
+
 ## v0.5.0
 
 ### 破坏性变更
