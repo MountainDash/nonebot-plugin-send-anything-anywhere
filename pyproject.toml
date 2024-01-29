@@ -23,7 +23,7 @@ python = "^3.8"
 nonebot2 = "^2.0.0"
 strenum = "^0.4.8"
 pydantic = "^1.10.5"
-anyio = "^3.6.2"
+anyio = ">=3.6.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest-asyncio = "^0.20.2"
