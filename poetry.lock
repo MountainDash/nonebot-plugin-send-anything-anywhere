@@ -905,18 +905,18 @@ auto-detect = ["PyYAML"]
 
 [[package]]
 name = "nonebot-adapter-telegram"
-version = "0.1.0b15"
+version = "0.1.0b14"
 description = "Telegram Adapter for NoneBot2"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot-adapter-telegram-0.1.0b15.tar.gz", hash = "sha256:ce95b87af42e6da0f455c6723857608391ba6f882133eea942186f43a4995316"},
-    {file = "nonebot_adapter_telegram-0.1.0b15-py3-none-any.whl", hash = "sha256:01e1f5ec41342a8af72dabc31caabff808558d0b90c53718c12a2d05179fb49b"},
+    {file = "nonebot-adapter-telegram-0.1.0b14.tar.gz", hash = "sha256:9e6f7b7b1b04eaac7af7e3fb496875d988be84a8a22bd67afde4e5b08be0fcbc"},
+    {file = "nonebot_adapter_telegram-0.1.0b14-py3-none-any.whl", hash = "sha256:2b8a1f8ee0833994b00d48ffb57833fc52fe43290b0e100cf9f81e01412872b1"},
 ]
 
 [package.dependencies]
 anyio = ">=3.6.2,<4.0.0"
-nonebot2 = ">=2.1.3,<3.0.0"
+nonebot2 = ">=2.0.0b1,<3.0.0"
 
 [[package]]
 name = "nonebot2"
@@ -1899,4 +1899,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "d0cd9adca62242effeb3ba1b599883abc07538a0ace5062b371acd81429a7c63"
+content-hash = "7d60f4b28a6e83c4e1138fbc1e8004fb4a84d217cd8ac4d6ca1b76121b75362b"
