@@ -9,7 +9,7 @@ SAA 的 `MessageSegmentFactory`、`MessageFactory`、`AggregatedMessageFactory` 
 
 被动发送是指用户方触发消息发送，例如用户发送一条消息，然后 Bot 进行回复。
 
-对于这个场景，可以直接使用 `send` 方法，saa会自动提取会话中的 PlatformTarget 和 Bot 进行发送。
+对于这个场景，可以直接使用 `send` 方法，SAA 会自动提取会话中的 PlatformTarget 和 Bot 进行发送。
 
 ```python
 cmd = on_command("say", rule=to_me())
