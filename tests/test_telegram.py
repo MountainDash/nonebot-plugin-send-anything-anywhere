@@ -1,6 +1,6 @@
 import time
 from functools import partial
-from typing import TYPE_CHECKING, Awaitable, Callable
+from typing import TYPE_CHECKING, Callable, Awaitable
 
 import pytest
 from nonebug import App
@@ -13,6 +13,7 @@ BOT_CONFIG = BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11")  # noq
 
 if TYPE_CHECKING:
     from nonebot.adapters import MessageSegment
+
     from nonebot_plugin_saa import MessageSegmentFactory
 
 
@@ -154,9 +155,9 @@ async def test_send(app: App):
 
 async def test_extract_message_id(app: App):
     from nonebot import get_driver, on_message
+    from nonebot.adapters.telegram.model import Chat
     from nonebot.adapters.telegram import Bot, Message
     from nonebot.adapters.telegram.event import MessageEvent
-    from nonebot.adapters.telegram.model import Chat
     from nonebot.adapters.telegram.model import Message as ModelMessage
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters

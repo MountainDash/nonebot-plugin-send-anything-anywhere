@@ -2,7 +2,7 @@ import asyncio
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import TYPE_CHECKING, List, Optional, Union, Literal, cast
+from typing import TYPE_CHECKING, List, Union, Literal, Optional, cast
 
 import anyio
 
@@ -16,25 +16,24 @@ from ..abstract_factories import (
 from ..registries import (
     Receipt,
     MessageId,
+    PlatformTarget,
     TargetTelegramForum,
     TargetTelegramCommon,
     register_sender,
     register_target_extractor,
     register_message_id_getter,
-    PlatformTarget,
 )
 
 if TYPE_CHECKING:
-    from nonebot.adapters import Event as BaseEvent, Bot as BaseBot
+    from nonebot.adapters import Bot as BaseBot
+    from nonebot.adapters import Event as BaseEvent
 
 try:
     from nonebot.adapters.telegram import Bot as BotTG
-    from nonebot.adapters.telegram.message import (
-        File as TGFile,
-        Entity as TGEntity,
-        Reply as TGReply,
-    )
+    from nonebot.adapters.telegram.message import File as TGFile
     from nonebot.adapters.telegram import Message, MessageSegment
+    from nonebot.adapters.telegram.message import Reply as TGReply
+    from nonebot.adapters.telegram.message import Entity as TGEntity
     from nonebot.adapters.telegram.model import Message as MessageModel
     from nonebot.adapters.telegram.event import (
         MessageEvent,
