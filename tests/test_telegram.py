@@ -160,8 +160,8 @@ async def test_extract_message_id(app: App):
     from nonebot.adapters.telegram.event import MessageEvent
     from nonebot.adapters.telegram.model import Message as ModelMessage
 
-    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
     from nonebot_plugin_saa.registries import get_message_id
+    from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
     from nonebot_plugin_saa.adapters.telegram import TelegramReceipt, TelegramMessageId
 
     message_rec = "114514"
