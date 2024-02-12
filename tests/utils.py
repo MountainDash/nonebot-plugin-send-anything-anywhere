@@ -301,6 +301,7 @@ def mock_telegram_message_event(
     message: "TGMessage",
     ev_type: Literal["private", "group", "forum", "channel"] = "private",
     has_username: bool = True,
+    **additional_kw,
 ) -> "TGMessageEvent":
     from nonebot.adapters.telegram.model import Chat, User
     from nonebot.adapters.telegram.event import (
@@ -316,11 +317,11 @@ def mock_telegram_message_event(
     )
     kwargs = {
         "message": message,
-        "message_id": 1145141919810,
-        "date": 1145141919810,
+        "message_id": 415411,
+        "date": 1451441541,
         "chat": Chat(id=1145141919810, type=chat_type),
         "from": User(
-            id=1145141919810,
+            id=114514,
             is_bot=False,
             first_name="homo",
             last_name="senpai",
@@ -336,13 +337,14 @@ def mock_telegram_message_event(
         "has_protected_content": None,
         "media_group_id": None,
         "author_signature": None,
+        **additional_kw,
     }
 
     if ev_type == "channel":
         del kwargs["from"]
         return ChannelPostEvent(**kwargs)
     if ev_type == "forum":
-        return ForumTopicMessageEvent(message_thread_id=1145141919810, **kwargs)
+        return ForumTopicMessageEvent(message_thread_id=1919081, **kwargs)
     if ev_type == "group":
         return GroupMessageEvent(**kwargs)
     return PrivateMessageEvent(**kwargs)

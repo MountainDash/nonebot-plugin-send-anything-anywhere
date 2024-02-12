@@ -2,10 +2,9 @@ import asyncio
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import List, Union, Literal, cast
+from typing import TYPE_CHECKING, List, Optional, Union, Literal, cast
 
 import anyio
-from nonebot.adapters import Event
 
 from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention
@@ -22,11 +21,19 @@ from ..registries import (
     register_sender,
     register_target_extractor,
     register_message_id_getter,
+    PlatformTarget,
 )
+
+if TYPE_CHECKING:
+    from nonebot.adapters import Event as BaseEvent, Bot as BaseBot
 
 try:
     from nonebot.adapters.telegram import Bot as BotTG
-    from nonebot.adapters.telegram.message import File, Entity
+    from nonebot.adapters.telegram.message import (
+        File as TGFile,
+        Entity as TGEntity,
+        Reply as TGReply,
+    )
     from nonebot.adapters.telegram import Message, MessageSegment
     from nonebot.adapters.telegram.model import Message as MessageModel
     from nonebot.adapters.telegram.event import (
@@ -45,10 +52,11 @@ try:
     class TelegramMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
         message_id: int
+        chat_id: Union[int, str, None] = None
 
     @register_telegram(Text)
     def _text(t: Text) -> MessageSegment:
-        return Entity.text(t.data["text"])
+        return TGEntity.text(t.data["text"])
 
     @register_telegram(Image)
     async def _image(i: Image) -> MessageSegment:
@@ -57,31 +65,31 @@ try:
             image = await anyio.Path(image).read_bytes()
         if isinstance(image, BytesIO):
             image = image.getvalue()
-        return File.photo(image)
+        return TGFile.photo(image)
 
     @register_telegram(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         user_id = m.data["user_id"]
         return (
-            Entity.mention(f"{user_id} ")
+            TGEntity.mention(f"{user_id} ")
             if user_id.startswith("@")
-            else Entity.text_link("用户 ", f"tg://user?id={user_id}")
+            else TGEntity.text_link("用户 ", f"tg://user?id={user_id}")
         )
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:
         assert isinstance(mid := r.data["message_id"], TelegramMessageId)
-        return MessageSegment("reply", {"message_id": str(mid.message_id)})
+        return TGReply.reply(mid.message_id, mid.chat_id)
 
     @register_target_extractor(PrivateMessageEvent)
     @register_target_extractor(GroupMessageEvent)
     @register_target_extractor(ChannelPostEvent)
-    def _extract_private_msg_event(event: Event) -> TargetTelegramCommon:
+    def _extract_private_msg_event(event: "BaseEvent") -> TargetTelegramCommon:
         assert isinstance(event, MessageEvent)
         return TargetTelegramCommon(chat_id=event.chat.id)
 
     @register_target_extractor(ForumTopicMessageEvent)
-    def _extract_forum_msg_event(event: Event) -> TargetTelegramForum:
+    def _extract_forum_msg_event(event: "BaseEvent") -> TargetTelegramForum:
         assert isinstance(event, ForumTopicMessageEvent)
         return TargetTelegramForum(
             chat_id=event.chat.id,
@@ -98,17 +106,17 @@ try:
 
             # has username
             if username := user.username:
-                return Entity.mention(f"@{username} ")
+                return TGEntity.mention(f"@{username} ")
 
             # no username
             last_name = f" {user.last_name}" if user.last_name else ""
-            return Entity.text_link(
+            return TGEntity.text_link(
                 f"{user.first_name}{last_name} ",
                 f"tg://user?id={user.id}",
             )
 
         # no user
-        return Entity.text("")
+        return TGEntity.text("")
 
     class TelegramReceipt(Receipt):
         chat_id: Union[int, str]
@@ -121,7 +129,7 @@ try:
                 *(
                     bot.delete_message(chat_id=self.chat_id, message_id=x.message_id)
                     for x in self.messages
-                )
+                ),
             )
 
         @property
@@ -134,19 +142,25 @@ try:
             Args:
                 index (int, optional): 默认为0, 即提取第一条消息的 MessageId.
             """
-            return TelegramMessageId(message_id=self.messages[index].message_id)
+            return TelegramMessageId(
+                message_id=self.messages[index].message_id,
+                chat_id=self.chat_id,
+            )
 
     @register_message_id_getter(MessageEvent)
-    def _(event: Event):
+    def _(event: "BaseEvent"):
         assert isinstance(event, MessageEvent)
-        return TelegramMessageId(message_id=event.message_id)
+        return TelegramMessageId(
+            message_id=event.message_id,
+            chat_id=event.chat.id,
+        )
 
     @register_sender(SupportedAdapters.telegram)
     async def send(
-        bot,
+        bot: "BaseBot",
         msg: MessageFactory,
-        target,
-        event,
+        target: "PlatformTarget",
+        event: Optional["BaseEvent"],
         at_sender: bool,
         reply: bool,
     ) -> TelegramReceipt:
@@ -162,32 +176,28 @@ try:
                     if isinstance(event, ChannelPostEvent)
                     else Mention(event.get_user_id())
                 ),
-                Reply(TelegramMessageId(message_id=event.message_id)),
+                Reply(
+                    TelegramMessageId(
+                        message_id=event.message_id,
+                        chat_id=event.chat.id,
+                    ),
+                ),
                 at_sender,
                 reply,
             )
         else:
             full_msg = msg
 
-        reply_to_message_id = None
         message_to_send = Message()
         for message_segment_factory in full_msg:
-            if isinstance(message_segment_factory, Reply):
-                assert isinstance(
-                    mid := message_segment_factory.data["message_id"], TelegramMessageId
-                )
-                reply_to_message_id = mid.message_id
-                continue
-
             if (
-                event
-                and isinstance(message_segment_factory, Mention)
+                isinstance(message_segment_factory, Mention)
+                and event
                 and message_segment_factory.data["user_id"] == event.get_user_id()
             ):
                 message_segment = build_mention_from_event(event)
             else:
                 message_segment = await message_segment_factory.build(bot)
-
             message_to_send += message_segment
 
         chat_id = target.chat_id
@@ -202,7 +212,6 @@ try:
                 chat_id,
                 message_to_send,
                 message_thread_id=message_thread_id,
-                reply_to_message_id=reply_to_message_id,
             ),
         )
         return TelegramReceipt(
