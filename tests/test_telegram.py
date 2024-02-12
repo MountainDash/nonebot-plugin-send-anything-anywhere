@@ -161,21 +161,28 @@ async def test_extract_message_id(app: App):
     from nonebot.adapters.telegram.model import Message as ModelMessage
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
+    from nonebot_plugin_saa.registries import get_message_id
     from nonebot_plugin_saa.adapters.telegram import TelegramReceipt, TelegramMessageId
 
     message_rec = "114514"
     message_send_pfx = "homo senpai "
+    message_id_recv = 114515
+    message_id_send = 114516
 
     matcher = on_message()
 
     @matcher.handle()
     async def _(ev: MessageEvent):
+        assert get_message_id(ev) == TelegramMessageId(
+            message_id=message_id_recv,
+            chat_id=CHAT_ID,
+        )
         receipt = await MessageFactory(
             [Text(f"{message_send_pfx}{ev.message.extract_plain_text()}")],
         ).send()
         assert isinstance(receipt, TelegramReceipt)
         assert receipt.extract_message_id() == TelegramMessageId(
-            message_id=MESSAGE_ID,
+            message_id=message_id_send,
             chat_id=CHAT_ID,
         )
 
@@ -183,12 +190,15 @@ async def test_extract_message_id(app: App):
         adapter_obj = get_driver()._adapters[str(SupportedAdapters.telegram)]
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, config=BOT_CONFIG)
 
-        msg_event = mock_telegram_message_event(Message(message_rec))
+        msg_event = mock_telegram_message_event(
+            Message(message_rec),
+            message_id=message_id_recv,
+        )
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "send_message",
             {**SEND_MESSAGE_PARAMS, "text": f"{message_send_pfx}{message_rec}"},
-            FAKE_MESSAGE_RETURN,
+            {**FAKE_MESSAGE_RETURN, "message_id": message_id_send},
         )
 
     mid1 = 111
