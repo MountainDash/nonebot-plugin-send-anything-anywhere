@@ -79,7 +79,7 @@ try:
 
     @register_kaiheila(Mention)
     def _mention(m: Mention) -> MessageSegment:
-        return MessageSegment.KMarkdown("(met)" + m.data["user_id"] + "(met)")
+        return MessageSegment.mention(m.data["user_id"])
 
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:

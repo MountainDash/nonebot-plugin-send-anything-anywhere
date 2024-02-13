@@ -59,6 +59,10 @@ def mock_kaiheila_message_event(channel=False):
                 type=9,
                 author=User(id="3344", username="3344", identify_num="3344"),
                 content="/abc",
+                mention=[],
+                mention_role=[],
+                mention_all=False,
+                mention_here=False,
                 kmarkdown={
                     "raw_content": "/abc",
                     "mention_part": [],
@@ -83,6 +87,10 @@ def mock_kaiheila_message_event(channel=False):
                 type=9,
                 author=User(id="3344", username="3344", identify_num="3344"),
                 content="/abc",
+                mention=[],
+                mention_role=[],
+                mention_all=False,
+                mention_here=False,
                 kmarkdown={
                     "raw_content": "/abc",
                     "mention_part": [],
@@ -140,9 +148,7 @@ async def test_mention(app: App, assert_kaiheila):
 
     from nonebot_plugin_saa import Mention
 
-    await assert_kaiheila(
-        app, Mention("123"), MessageSegment.KMarkdown("(met)123(met)")
-    )
+    await assert_kaiheila(app, Mention("123"), MessageSegment.mention("123"))
 
 
 async def test_reply(app: App, assert_kaiheila):
