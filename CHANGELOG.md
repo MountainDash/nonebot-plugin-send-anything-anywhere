@@ -2,7 +2,8 @@
 
 ## 最近更新
 
-- 更新feishu适配器版本至2.4.0，修改适配器返回值和单测 [@MeetWq](https://github.com/MeetWq) ([#141](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/141))
+### 新功能
+
 - 适配 telegram 适配器的 Reply Segment，向 TelegramMessageID 添加了 `chat_id` 参数 [@lgc2333](https://github.com/lgc2333) ([#145](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/145))
 
 ### Bug 修复
