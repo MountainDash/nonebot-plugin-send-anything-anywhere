@@ -888,22 +888,6 @@ typing-extensions = ">=4.4.0,<5.0.0"
 yarl = ">=1.9.0,<2.0.0"
 
 [[package]]
-name = "nonebot-adapter-qqguild"
-version = "0.4.0"
-description = "QQ Guild adapter for nonebot2"
-optional = false
-python-versions = ">=3.8,<4.0"
-files = [
-    {file = "nonebot_adapter_qqguild-0.4.0-py3-none-any.whl", hash = "sha256:991480cb8c931d540f4db439a9a0f71fc92d7585ecbab292e5d4643ef2535402"},
-    {file = "nonebot_adapter_qqguild-0.4.0.tar.gz", hash = "sha256:481802ad9dc5254ef555a47ed2737d9027ef5eb9743d28775052874b870ca15e"},
-]
-
-[package.dependencies]
-nonebot2 = ">=2.1.0,<3.0.0"
-pydantic = ">=1.9.0,<2.0.0"
-typing-extensions = ">=4.4.0,<5.0.0"
-
-[[package]]
 name = "nonebot-adapter-red"
 version = "0.8.0"
 description = "Red Protocol Adapter for Nonebot2"
@@ -1918,4 +1902,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7221dc715d4361d523076e1642bb43c495f6941534f5e47948a3cc3d0297f956"
+content-hash = "568bc6405656b4906e297a1370a651ca12e22207231d872c602b195fa151aabd"
