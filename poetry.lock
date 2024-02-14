@@ -824,18 +824,18 @@ nonebot2 = ">=2.0.0,<3.0.0"
 
 [[package]]
 name = "nonebot-adapter-feishu"
-version = "2.3.2"
+version = "2.4.0"
 description = "feishu(larksuite) adapter for nonebot2"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot_adapter_feishu-2.3.2-py3-none-any.whl", hash = "sha256:7f19b9067bb456ee7e815ea8c2e7daf2fb9bd4bffc87921bae1013839285ec5a"},
-    {file = "nonebot_adapter_feishu-2.3.2.tar.gz", hash = "sha256:d963b27f288db1f14c62020023626245ab50c514952d5f3c7693ff2a82fa10d8"},
+    {file = "nonebot_adapter_feishu-2.4.0-py3-none-any.whl", hash = "sha256:b7fdbecbf545231d106299df38617568f8ebf1094f545e4cce22ceaef71af89c"},
+    {file = "nonebot_adapter_feishu-2.4.0.tar.gz", hash = "sha256:ebfdd23257282f5717f6d42df28f4c44a2bb139ea1fefd61d49ea9c0975b0e9b"},
 ]
 
 [package.dependencies]
 cashews = ">=6.0.0,<7.0.0"
-nonebot2 = ">=2.1.0,<3.0.0"
+nonebot2 = ">=2.2.0,<3.0.0"
 pycryptodome = ">=3.18.0,<4.0.0"
 
 [[package]]
@@ -854,18 +854,19 @@ nonebot2 = ">=2.0.0,<3.0.0"
 
 [[package]]
 name = "nonebot-adapter-onebot"
-version = "2.3.1"
+version = "2.4.0"
 description = "OneBot(CQHTTP) adapter for nonebot2"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "nonebot_adapter_onebot-2.3.1-py3-none-any.whl", hash = "sha256:c4085f1fc1a62e46c737452b9ce3d6eb374812c78a419bb4fa378f48bd8e4088"},
-    {file = "nonebot_adapter_onebot-2.3.1.tar.gz", hash = "sha256:10cec3aee454700e6d2144748bd898772db7bd95247d51d3ccd3b31919e24689"},
+    {file = "nonebot_adapter_onebot-2.4.0-py3-none-any.whl", hash = "sha256:4a51da1913c8ab6008e8ef8a2877af7acc32eac82d6773ff443f743dda380e14"},
+    {file = "nonebot_adapter_onebot-2.4.0.tar.gz", hash = "sha256:27a29de8137ce60f0ea328c6fac63571ba7efef7619d0cc74c0dff42c3034b12"},
 ]
 
 [package.dependencies]
 msgpack = ">=1.0.3,<2.0.0"
-nonebot2 = ">=2.1.0,<3.0.0"
+nonebot2 = ">=2.2.0,<3.0.0"
+pydantic = ">=1.10.0,<2.5.0 || >2.5.0,<2.5.1 || >2.5.1,<3.0.0"
 typing-extensions = ">=4.0.0,<5.0.0"
 
 [[package]]
@@ -1927,4 +1928,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "90621be3be9b01a72ef0517e4b3597901cd6df54b87de37a1e06a550c5a1dbe0"
+content-hash = "1f7cf88cf5a004bb53331e0c1cf0023db0cd837f3f994edf14474e1cb105ce35"
