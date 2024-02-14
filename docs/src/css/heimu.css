@@ -55,13 +55,28 @@ a.extiw:visited:hover span.heimu {
 
 /* MoeGirl End */
 
+.heimu {
+  color: var(--ifm-color-primary-light);
+  background-color: var(--ifm-color-primary-light);
+  border: 1px solid var(--ifm-color-border);
+  border-radius: 0.1rem;
+  padding: 0.15em 0.1em 0.05em;
+  margin: 0 0.2em;
+  line-height: 1.6;
+  white-space: nowrap;
+  font-size: 90%;
+  vertical-align: middle;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 .alert--secondary .heimu {
-  background-color: var(--ifm-color-secondary-light);
-  color: var(--ifm-color-secondary-light);
+  background-color: var(--ifm-color-secondary-dark);
+  color: var(--ifm-color-secondary-dark);
 
   html.dark & {
-    background-color: var(--ifm-color-secondary-dark);
-    color: var(--ifm-color-secondary-dark);
+    background-color: var(--ifm-color-secondary-light);
+    color: var(--ifm-color-secondary-light);
   }
 }
 
