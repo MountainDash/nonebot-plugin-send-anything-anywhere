@@ -4,6 +4,7 @@ from functools import partial
 from typing import Any, Dict, Literal, cast
 
 from nonebot.adapters import Event
+from nonebot.drivers import Request
 from nonebot.adapters import Bot as BaseBot
 
 from ..utils import SupportedAdapters
@@ -24,7 +25,6 @@ from ..registries import (
 )
 
 try:
-    import httpx
     from nonebot.adapters.feishu.message import At
     from nonebot.adapters.feishu import (
         Bot,
@@ -55,10 +55,14 @@ try:
 
         image = i.data["image"]
         if isinstance(image, str):
-            async with httpx.AsyncClient() as client:
-                resp = await client.get(image, timeout=10, follow_redirects=True)
-                resp.raise_for_status()
-                image = resp.content
+            resp = await bot.adapter.request(Request("GET", image, timeout=10))
+            if resp.status_code != 200:
+                raise RuntimeError(
+                    f"Failed to download image: {resp.status_code}, url: {image}"
+                )
+            image = resp.content
+            if not isinstance(image, bytes):
+                raise TypeError(f"Unsupported type of file: {type(image)}, need bytes")
         elif isinstance(image, Path):
             image = image.read_bytes()
         elif isinstance(image, BytesIO):
@@ -68,7 +72,7 @@ try:
         files = {"image": ("file", image)}
         params = {"method": "POST", "data": data, "files": files}
         result = await bot.call_api("im/v1/images", **params)
-        file_key = result["image_key"]
+        file_key = result["data"]["image_key"]
         return MessageSegment.image(file_key)
 
     @register_feishu(Mention)
@@ -179,7 +183,7 @@ try:
             resp = await bot.call_api(
                 f"im/v1/messages/{reply_to_message_id}/reply", **params
             )
-        message_id = resp["message_id"]
+        message_id = resp["data"]["message_id"]
         return FeishuReceipt(bot_id=bot.self_id, message_id=message_id, data=resp)
 
 except ImportError:
