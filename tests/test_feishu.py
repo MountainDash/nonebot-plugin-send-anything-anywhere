@@ -2,9 +2,10 @@ from io import BytesIO
 from pathlib import Path
 from functools import partial
 
-import httpx
+import respx
 import pytest
 from nonebug import App
+from httpx import Response
 from nonebot import get_driver
 from nonebot.adapters.feishu import Bot, Message
 from nonebot.adapters.feishu.models import BotInfo
@@ -116,56 +117,55 @@ async def test_text(app: App, assert_feishu):
     await assert_feishu(app, Text("114514"), MessageSegment.text("114514"))
 
 
+@respx.mock
 async def test_image(app: App, tmp_path: Path):
     from nonebot.adapters.feishu import MessageSegment
 
     from nonebot_plugin_saa import Image, SupportedAdapters
 
+    url = "https://nonebot.dev/logo.png"
+    content = b"\x89PNG\r"
+    image_route = respx.get(url)
+    image_route.mock(return_value=Response(200, content=content))
     async with app.test_api() as ctx:
         adapter = get_driver()._adapters[str(SupportedAdapters.feishu)]
         bot = ctx.create_bot(base=Bot, adapter=adapter, **feishu_kwargs)
 
-        url = "https://nonebot.dev/logo.png"
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            data = resp.content
         ctx.should_call_api(
             "im/v1/images",
             {
                 "method": "POST",
                 "data": {"image_type": "message"},
-                "files": {"image": ("file", data)},
+                "files": {"image": ("file", content)},
             },
-            {"image_key": "114514"},
+            {"code": 0, "msg": "success", "data": {"image_key": "114514"}},
         )
         generated_ms = await Image(url).build(bot)
         assert generated_ms == MessageSegment.image("114514")
 
-        data = b"\x89PNG\r"
         ctx.should_call_api(
             "im/v1/images",
             {
                 "method": "POST",
                 "data": {"image_type": "message"},
-                "files": {"image": ("file", data)},
+                "files": {"image": ("file", content)},
             },
-            {"image_key": "114514"},
+            {"code": 0, "msg": "success", "data": {"image_key": "114514"}},
         )
-        generated_ms = await Image(data).build(bot)
+        generated_ms = await Image(content).build(bot)
         assert generated_ms == MessageSegment.image("114514")
 
         image_path = tmp_path / "test.png"
         with image_path.open("wb") as f:
-            f.write(data)
+            f.write(content)
         ctx.should_call_api(
             "im/v1/images",
             {
                 "method": "POST",
                 "data": {"image_type": "message"},
-                "files": {"image": ("file", data)},
+                "files": {"image": ("file", content)},
             },
-            {"image_key": "114514"},
+            {"code": 0, "msg": "success", "data": {"image_key": "114514"}},
         )
         generated_ms = await Image(image_path).build(bot)
         assert generated_ms == MessageSegment.image("114514")
@@ -175,11 +175,11 @@ async def test_image(app: App, tmp_path: Path):
             {
                 "method": "POST",
                 "data": {"image_type": "message"},
-                "files": {"image": ("file", data)},
+                "files": {"image": ("file", content)},
             },
-            {"image_key": "114514"},
+            {"code": 0, "msg": "success", "data": {"image_key": "114514"}},
         )
-        generated_ms = await Image(BytesIO(data)).build(bot)
+        generated_ms = await Image(BytesIO(content)).build(bot)
         assert generated_ms == MessageSegment.image("114514")
 
 
@@ -234,7 +234,7 @@ async def test_send(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
 
 
@@ -271,7 +271,7 @@ async def test_extract_message_id(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
 
 
@@ -306,7 +306,7 @@ async def test_send_revoke(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
         ctx.should_call_api("im/v1/messages/114514", {"method": "DELETE"}, {})
 
@@ -339,7 +339,7 @@ async def test_send_with_reply_and_revoke(app: App):
         ctx.should_call_api(
             "im/v1/messages/message_id/reply",
             {"method": "POST", "body": {"content": content, "msg_type": msg_type}},
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
         ctx.should_call_api("im/v1/messages/114514", {"method": "DELETE"}, {})
 
@@ -373,7 +373,7 @@ async def test_send_active(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
         await MessageFactory("114514").send_to(target_private, bot)
 
@@ -389,6 +389,6 @@ async def test_send_active(app: App):
                     "msg_type": msg_type,
                 },
             },
-            {"message_id": "114514"},
+            {"code": 0, "msg": "success", "data": {"message_id": "114514"}},
         )
         await MessageFactory("114514").send_to(target_group, bot)

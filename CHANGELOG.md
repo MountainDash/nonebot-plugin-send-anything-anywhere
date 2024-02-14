@@ -2,6 +2,14 @@
 
 ## 最近更新
 
+### 破坏性变更
+
+- 移除 qqguild 适配器 [@he0119](https://github.com/he0119) ([#148](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/148))
+
+### 新功能
+
+- 适配 telegram 适配器的 Reply Segment，向 TelegramMessageID 添加了 `chat_id` 参数 [@lgc2333](https://github.com/lgc2333) ([#145](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/145))
+
 ### Bug 修复
 
 - 放宽AggregatedMessageFactory.__init__的类型约束 [@AzideCupric](https://github.com/AzideCupric) ([#132](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/132))
