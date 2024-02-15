@@ -26,6 +26,10 @@ span.heimu a.mw-redirect {
 span.heimu:hover,
 span.heimu:active {
   color: white;
+
+  html[data-theme="dark"] & {
+    color: white;
+  }
 }
 
 span.heimu:hover a,
@@ -74,7 +78,7 @@ a.extiw:visited:hover span.heimu {
   background-color: var(--ifm-color-secondary-dark);
   color: var(--ifm-color-secondary-dark);
 
-  html.dark & {
+  html[data-theme="dark"] & {
     background-color: var(--ifm-color-secondary-light);
     color: var(--ifm-color-secondary-light);
   }
@@ -84,7 +88,7 @@ a.extiw:visited:hover span.heimu {
   background-color: var(--ifm-color-success-light);
   color: var(--ifm-color-success-light);
 
-  html.dark & {
+  html[data-theme="dark"] & {
     background-color: var(--ifm-color-success-dark);
     color: var(--ifm-color-success-dark);
   }
@@ -94,7 +98,7 @@ a.extiw:visited:hover span.heimu {
   background-color: var(--ifm-color-info-light);
   color: var(--ifm-color-info-light);
 
-  html.dark & {
+  html[data-theme="dark"] & {
     background-color: var(--ifm-color-info-dark);
     color: var(--ifm-color-info-dark);
   }
@@ -104,7 +108,7 @@ a.extiw:visited:hover span.heimu {
   background-color: var(--ifm-color-warning-light);
   color: var(--ifm-color-warning-light);
 
-  html.dark & {
+  html[data-theme="dark"] & {
     background-color: var(--ifm-color-warning-dark);
     color: var(--ifm-color-warning-dark);
   }
@@ -114,7 +118,7 @@ a.extiw:visited:hover span.heimu {
   background-color: var(--ifm-color-danger-light);
   color: var(--ifm-color-danger-light);
 
-  html.dark & {
+  html[data-theme="dark"] & {
     background-color: var(--ifm-color-danger-dark);
     color: var(--ifm-color-danger-dark);
   }
