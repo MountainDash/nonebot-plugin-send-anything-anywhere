@@ -16,6 +16,7 @@
 
 ### 文档
 
+- 移除 QQGuild 相关文档 [@he0119](https://github.com/he0119) ([#149](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/149))
 - 完善使用文档 [@AzideCupric](https://github.com/AzideCupric) ([#133](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/133))
 
 ## v0.5.0
