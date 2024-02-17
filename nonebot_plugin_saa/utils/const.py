@@ -4,7 +4,6 @@ from strenum import StrEnum
 class SupportedAdapters(StrEnum):
     onebot_v11 = "OneBot V11"
     onebot_v12 = "OneBot V12"
-    qqguild = "QQ Guild"
     kaiheila = "Kaiheila"
     telegram = "Telegram"
     feishu = "Feishu"
