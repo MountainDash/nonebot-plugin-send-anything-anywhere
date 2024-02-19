@@ -5,6 +5,7 @@ import respx
 import pytest
 from nonebug import App
 from httpx import Response
+from nonebot.compat import model_dump
 from pytest_mock import MockerFixture
 from nonebot.exception import ActionFailed
 from nonebot import get_driver, get_adapter
@@ -56,9 +57,9 @@ async def test_image(app: App):
     upload_route.mock(
         return_value=Response(
             200,
-            json=PictureInfo(
-                url="https://im.dodo.com/amiya.png", width=191, height=223
-            ).dict(),
+            json=model_dump(
+                PictureInfo(url="https://im.dodo.com/amiya.png", width=191, height=223)
+            ),
         )
     )
     async with app.test_api() as ctx:

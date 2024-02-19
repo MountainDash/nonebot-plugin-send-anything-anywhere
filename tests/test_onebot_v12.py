@@ -168,7 +168,7 @@ async def test_send(app: App):
                 "detail_type": "private",
                 "user_id": message_event.user_id,
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
 
     async with app.test_matcher(matcher) as ctx:
@@ -194,7 +194,7 @@ async def test_send(app: App):
                 "guild_id": "3333",
                 "event_id": "1111",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
 
         message_event = mock_obv12_message_event(message, detail_type="qqguild_channel")
@@ -207,7 +207,7 @@ async def test_send(app: App):
                 "channel_id": "6677",
                 "event_id": "1111",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
 
 
@@ -240,7 +240,7 @@ async def test_extract_message_id(app: App):
                 "detail_type": "private",
                 "user_id": message_event.user_id,
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
 
 
@@ -269,7 +269,7 @@ async def test_send_active(app: App):
                 "detail_type": "group",
                 "group_id": "2233",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -281,7 +281,7 @@ async def test_send_active(app: App):
                 "detail_type": "private",
                 "user_id": "1122",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -298,7 +298,7 @@ async def test_send_active(app: App):
                 "user_id": None,
                 "group_id": None,
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -319,7 +319,7 @@ async def test_send_active(app: App):
                 "guild_id": "3333",
                 "detail_type": "private",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
         await MessageFactory("123").send_to(target, bot)
 
@@ -331,7 +331,7 @@ async def test_send_active(app: App):
                 "detail_type": "channel",
                 "channel_id": "4444",
             },
-            result={"message_id": 12355223},
+            result={"message_id": "12355223"},
         )
         await MessageFactory("123").send_to(target, bot)
 

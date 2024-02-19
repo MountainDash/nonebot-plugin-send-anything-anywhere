@@ -4,6 +4,7 @@ from functools import partial
 from typing import List, Literal
 
 from nonebot.adapters import Event
+from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
@@ -105,7 +106,7 @@ try:
         if event.self.platform == "qq":
             return TargetQQPrivate(user_id=int(event.user_id))
         if event.self.platform == "qqguild":
-            event_dict = event.dict()
+            event_dict = model_dump(event)
             return TargetQQGuildDirect(
                 recipient_id=int(event.user_id),
                 source_guild_id=event_dict["qqguild"]["src_guild_id"],
@@ -240,7 +241,7 @@ try:
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_ob12)
     def _to_unknow(target: PlatformTarget):
         assert isinstance(target, TargetOB12Unknow)
-        return target.dict(exclude={"platform", "platform_type"})
+        return model_dump(target, exclude={"platform", "platform_type"})
 
     class OB12Receipt(Receipt):
         message_id: str

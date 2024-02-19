@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, cast
 from nonebot import logger
 from nonebot.adapters import Event
 from nonebot.drivers import Request
+from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
 from ..types import Text, Image, Reply, Mention
@@ -86,7 +87,7 @@ with suppress(ImportError):
             file=file, file_name=image.data["name"] + ".png"  # 上传是文件名必须携带有效后缀
         )
         logger.debug(f"Uploaded result: {upload_result}")
-        return MessageSegment.picture(**upload_result.dict())
+        return MessageSegment.picture(**model_dump(upload_result))
 
     @register_dodo(Reply)
     def _reply(reply: Reply) -> MessageSegment:
