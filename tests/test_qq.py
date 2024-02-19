@@ -5,6 +5,7 @@ from functools import partial
 import pytest
 from nonebug import App
 from nonebot import get_adapter
+from nonebot.compat import model_dump
 from pytest_mock import MockerFixture
 from nonebot.adapters.qq import Bot, Adapter
 from nonebot.adapters.qq.config import BotInfo
@@ -127,7 +128,9 @@ async def test_send(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+            result=model_dump(
+                MockQQGuildMessage(id="1234871", channel_id=event.channel_id)
+            ),
         )
 
         event = mock_qq_guild_message_event(Message("322"), direct=True)
@@ -135,7 +138,9 @@ async def test_send(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+            result=model_dump(
+                MockQQGuildMessage(id="1234871", channel_id=event.channel_id)
+            ),
         )
 
         event = mock_qq_message_event(Message("323"))
@@ -143,7 +148,7 @@ async def test_send(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQMessage(id="1234871", content="123"),
+            result=model_dump(MockQQMessage(id="1234871", content="123")),
         )
 
         event = mock_qq_message_event(Message("323"), direct=True)
@@ -151,7 +156,7 @@ async def test_send(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQMessage(id="1234871", content="123"),
+            result=model_dump(MockQQMessage(id="1234871", content="123")),
         )
 
 
@@ -184,7 +189,9 @@ async def test_extract_message_id(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+            result=model_dump(
+                MockQQGuildMessage(id="1234871", channel_id=event.channel_id)
+            ),
         )
 
 
@@ -216,7 +223,9 @@ async def test_send_revoke(app: App):
         ctx.should_call_send(
             event,
             Message("123"),
-            result=MockQQGuildMessage(id="1234871", channel_id=event.channel_id),
+            result=model_dump(
+                MockQQGuildMessage(id="1234871", channel_id=event.channel_id)
+            ),
         )
         ctx.should_call_api(
             "delete_message",
@@ -257,7 +266,7 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockQQGuildMessage(id="1234871", channel_id="2233"),
+            result=model_dump(MockQQGuildMessage(id="1234871", channel_id="2233")),
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
@@ -279,7 +288,7 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockQQGuildMessage(id="1234871", channel_id="12479234"),
+            result=model_dump(MockQQGuildMessage(id="1234871", channel_id="12479234")),
         )
         await MessageFactory("123").send_to(target, bot)
         # 再次发送，这次直接从缓存中获取 guild_id
@@ -291,7 +300,7 @@ async def test_send_active(app: App):
                 "event_id": None,
                 "content": "1234",
             },
-            result=MockQQGuildMessage(id="1234871", channel_id="12355131"),
+            result=model_dump(MockQQGuildMessage(id="1234871", channel_id="12355131")),
         )
         await MessageFactory("1234").send_to(target, bot)
 
@@ -306,7 +315,7 @@ async def test_send_active(app: App):
                 "msg_seq": None,
                 "event_id": None,
             },
-            result=MockQQMessage(id="1234871", content="123"),
+            result=model_dump(MockQQMessage(id="1234871", content="123")),
         )
         target = TargetQQGroupOpenId(bot_id="3344", group_openid="2233")
         await MessageFactory("123").send_to(target, bot)
@@ -322,7 +331,7 @@ async def test_send_active(app: App):
                 "msg_seq": None,
                 "event_id": None,
             },
-            result=MockQQMessage(id="1234871", content="123"),
+            result=model_dump(MockQQMessage(id="1234871", content="123")),
         )
         target = TargetQQPrivateOpenId(bot_id="3344", user_openid="2233")
         await MessageFactory("123").send_to(target, bot)
@@ -359,7 +368,7 @@ async def test_send_active_with_magic_msg_id(app: App, mocker: MockerFixture):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockQQGuildMessage(id="1234871", channel_id="2233"),
+            result=model_dump(MockQQGuildMessage(id="1234871", channel_id="2233")),
         )
         target = TargetQQGuildChannel(channel_id=2233)
         await MessageFactory("123").send_to(target, bot)
@@ -381,7 +390,7 @@ async def test_send_active_with_magic_msg_id(app: App, mocker: MockerFixture):
                 "event_id": None,
                 "content": "123",
             },
-            result=MockQQGuildMessage(id="1234871", channel_id="12479234"),
+            result=model_dump(MockQQGuildMessage(id="1234871", channel_id="12479234")),
         )
         await MessageFactory("123").send_to(target, bot)
 

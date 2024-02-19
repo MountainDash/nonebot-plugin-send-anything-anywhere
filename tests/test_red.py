@@ -6,6 +6,7 @@ import pytest
 from nonebug import App
 from respx import MockRouter
 from nonebot import get_adapter
+from nonebot.compat import model_dump
 from pytest_mock import MockerFixture
 from nonebot.adapters.red import Bot, Adapter
 from nonebot.adapters.red.config import BotInfo
@@ -95,7 +96,7 @@ async def test_send(app: App):
                 "target": "1234",
                 "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
             },
-            result=msg_event.dict(),
+            result=model_dump(msg_event),
         )
 
 
@@ -131,7 +132,7 @@ async def test_extract_message_id(app: App):
                 "target": "1234",
                 "elements": [{"elementType": 1, "textElement": {"content": "123"}}],
             },
-            result=msg_event.dict(),
+            result=model_dump(msg_event),
         )
 
 
@@ -307,7 +308,7 @@ async def test_send_with_reply(app: App):
                     {"elementType": 1, "textElement": {"content": "123"}},
                 ],
             },
-            result=msg_event.dict(),
+            result=model_dump(msg_event),
         )
 
 

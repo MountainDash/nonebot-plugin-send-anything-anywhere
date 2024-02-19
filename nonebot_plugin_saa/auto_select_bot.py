@@ -7,6 +7,7 @@ from typing import Set, Dict, List, Callable, Awaitable
 import nonebot
 from nonebot.adapters import Bot
 from nonebot import logger, get_bots
+from nonebot.compat import model_dump
 
 from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
 from .utils import (
@@ -133,5 +134,5 @@ def get_bot(target: PlatformTarget) -> Bot:
 def _info_current():
     log_info = {}
     for bot, platform_target_set in BOT_CACHE.items():
-        log_info[str(bot)] = [target.dict() for target in platform_target_set]
+        log_info[str(bot)] = [model_dump(target) for target in platform_target_set]
     logger.trace(f"current bot-platform_target: {json.dumps(log_info)}")

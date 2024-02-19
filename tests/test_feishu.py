@@ -7,6 +7,7 @@ import pytest
 from nonebug import App
 from httpx import Response
 from nonebot import get_driver
+from nonebot.compat import type_validate_python
 from nonebot.adapters.feishu import Bot, Message
 from nonebot.adapters.feishu.models import BotInfo
 from nonebot.adapters.feishu.config import BotConfig
@@ -14,14 +15,15 @@ from nonebot.adapters.feishu.config import BotConfig
 from .utils import assert_ms
 
 BOT_CONFIG = BotConfig(app_id="114", app_secret="514", verification_token="1919810")
-BOT_INFO = BotInfo.parse_obj(
+BOT_INFO = type_validate_python(
+    BotInfo,
     {
         "activate_status": 2,
         "app_name": "name",
         "avatar_url": "https://s1-imfile.feishucdn.com/test.jpg",
         "ip_white_list": [],
         "open_id": "ou_123456",
-    }
+    },
 )
 feishu_kwargs = {
     "self_id": "123456",

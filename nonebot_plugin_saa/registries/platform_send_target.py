@@ -17,6 +17,7 @@ from typing import (
 from pydantic import BaseModel
 from nonebot.params import Depends
 from nonebot.adapters import Bot, Event
+from nonebot.compat import PYDANTIC_V2, ConfigDict
 
 from .meta import SerializationMeta
 from ..utils import SupportedAdapters, SupportedPlatform, extract_adapter_type
@@ -31,9 +32,16 @@ class PlatformTarget(SerializationMeta):
 
     platform_type: SupportedPlatform
 
-    class Config:
-        frozen = True
-        orm_mode = True
+    if PYDANTIC_V2:
+        model_config = ConfigDict(
+            frozen=True,
+            from_attributes=True,
+        )
+    else:
+
+        class Config:
+            frozen = True
+            orm_mode = True
 
     def arg_dict(self, bot: Bot):
         adapter_type = extract_adapter_type(bot)

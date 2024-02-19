@@ -1,4 +1,4 @@
-from nonebot import get_driver
+from nonebot import get_plugin_config
 from pydantic import Field, BaseModel
 
 
@@ -17,4 +17,4 @@ class Config(BaseModel):
     """峯驰物流插件配置"""
 
 
-plugin_config = Config.parse_obj(get_driver().config).saa
+plugin_config = get_plugin_config(Config).saa

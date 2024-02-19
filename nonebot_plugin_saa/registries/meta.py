@@ -5,6 +5,7 @@ from typing_extensions import Self
 from typing import Any, Dict, ClassVar
 
 from pydantic import BaseModel
+from nonebot.compat import PYDANTIC_V2, ConfigDict, type_validate_python
 
 
 class Level(Enum):
@@ -18,23 +19,40 @@ class SerializationMeta(BaseModel, ABC):
     _deserializer_dict: ClassVar[Dict]
     _level: ClassVar[Level] = Level.MetaBase
 
-    class Config:
-        frozen = True
-        orm_mode = True
+    if PYDANTIC_V2:
+        model_config = ConfigDict(
+            frozen=True,
+            from_attributes=True,
+        )
 
-    def __init_subclass__(cls, *args, **kwargs) -> None:
+        @classmethod
+        def __pydantic_init_subclass__(cls, *args, **kwargs) -> None:
+            cls._register_subclass(cls.model_fields)
+
+    else:
+
+        class Config:
+            frozen = True
+            orm_mode = True
+
+        @classmethod
+        def __init_subclass__(cls, *args, **kwargs) -> None:
+            cls._register_subclass(cls.__fields__)
+
+            super().__init_subclass__(*args, **kwargs)
+
+    @classmethod
+    def _register_subclass(cls, fields) -> None:
         if cls._level == Level.MetaBase:
             cls._level = Level.Base
             cls._deserializer_dict = {}
         elif cls._level == Level.Base:
             cls._level = Level.Normal
-            cls._deserializer_dict[cls.__fields__[cls._index_key].default] = cls
+            cls._deserializer_dict[fields[cls._index_key].default] = cls
         elif cls._level == Level.Normal:
             pass
         else:
             raise RuntimeError("SerializationMeta init error")
-
-        super().__init_subclass__(*args, **kwargs)
 
     @classmethod
     def deserialize(cls, source: Any) -> Self:
@@ -45,4 +63,4 @@ class SerializationMeta(BaseModel, ABC):
 
         key = raw_obj.get(cls._index_key)
         assert key
-        return cls._deserializer_dict[key].parse_obj(raw_obj)
+        return type_validate_python(cls._deserializer_dict[key], raw_obj)

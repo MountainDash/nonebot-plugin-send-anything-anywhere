@@ -1,8 +1,10 @@
+import json
 from typing import Literal
 
 import pytest
 from nonebug import App
 from pydantic import BaseModel
+from nonebot.compat import model_dump, type_validate_python
 
 
 def test_register_deserializer():
@@ -14,13 +16,13 @@ def test_register_deserializer():
         my_field: int
 
     send_target = MySendTarget(my_field=123)
-    serialized_target = send_target.json()
+    serialized_target = json.dumps(model_dump(send_target))
     deserialized_target = PlatformTarget.deserialize(serialized_target)
 
     assert isinstance(deserialized_target, MySendTarget)
     assert deserialized_target == send_target
 
-    serialized_target = send_target.dict()
+    serialized_target = model_dump(send_target)
     deserialized_target = PlatformTarget.deserialize(serialized_target)
 
     assert isinstance(deserialized_target, MySendTarget)
@@ -38,13 +40,13 @@ def test_deserialize_nested_platform_target():
         data: AllSupportedPlatformTarget
 
     model = CustomModel(data=TargetQQGroup(group_id=123))
-    serialized_model = model.dict()
-    deserialized_model = CustomModel.parse_obj(serialized_model)
+    serialized_model = model_dump(model)
+    deserialized_model = type_validate_python(CustomModel, serialized_model)
     assert model == deserialized_model
 
     model = CustomModel(data=TargetQQPrivate(user_id=456))
-    serialized_model = model.dict()
-    deserialized_model = CustomModel.parse_obj(serialized_model)
+    serialized_model = model_dump(model)
+    deserialized_model = type_validate_python(CustomModel, serialized_model)
     assert model == deserialized_model
 
 
