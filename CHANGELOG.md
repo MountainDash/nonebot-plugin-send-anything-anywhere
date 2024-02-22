@@ -8,6 +8,7 @@
 
 ### 新功能
 
+- 兼容 Pydantic V2 [@he0119](https://github.com/he0119) ([#147](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/147))
 - 适配 telegram 适配器的 Reply Segment，向 TelegramMessageID 添加了 `chat_id` 参数 [@lgc2333](https://github.com/lgc2333) ([#145](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/145))
 
 ### Bug 修复
