@@ -3,6 +3,54 @@ from nonebug import App
 from .utils import ob12_kwargs, mock_obv12_message_event
 
 
+async def test_build(app: App):
+    from nonebot_plugin_alconna import File as AF
+    from nonebot_plugin_alconna import Text as AT
+    from nonebot_plugin_alconna import UniMessage
+    from nonebot_plugin_alconna import Image as AI
+
+    from nonebot_plugin_saa import Text as ST
+    from nonebot_plugin_saa import Image as SI
+    from nonebot_plugin_saa.ext.uniseg import (
+        UniMessageFactory,
+        AlcMessageSegmentFactory,
+    )
+
+    # single
+    assert UniMessageFactory() is not None
+    assert UniMessageFactory("#s0 str")
+    assert UniMessageFactory(AT("#s1 alc t1"))
+    assert UniMessageFactory(ST("#s2 saa t1"))
+    assert UniMessageFactory(AI(url="https://a.lc/i1#s3"))
+    assert UniMessageFactory(SI(b"#s4 saa t1"))
+    assert UniMessageFactory(AF(url="https://a.lc/f1#s5"))
+    # multi
+    assert UniMessageFactory([AT("#m1 alc t1"), AT("#m1 alc t2")])
+    assert UniMessageFactory([ST("#m2 saa t1"), ST("#m2 saa t2")])
+    assert UniMessageFactory([AI(url="https://a.lc/i1#m3"), SI("https://a.lc/i2#m3")])
+    assert UniMessageFactory([AF(url="https://a.lc/f1#m4"), ST("#m4 saa t1")])
+    assert UniMessageFactory(
+        ["#m5 str1", "#m5 str2", AF(url="https://a.lc/f1#m5"), SI("https://a.lc/i1#m5")]
+    )
+    # from
+    m1 = UniMessageFactory.from_unimsg(
+        UniMessage([AT("#f1 alc t1"), AI("#f1 alc i1"), AF("#f1 alc f1")])
+    )
+    assert len(m1) == 3
+
+    assert AlcMessageSegmentFactory(AT("#f1 alc t1"))
+    assert AlcMessageSegmentFactory.from_str("#f1 alc t1") == AlcMessageSegmentFactory(
+        AT("#f1 alc t1")
+    )
+    assert AlcMessageSegmentFactory.from_unimsg(
+        UniMessage([AT("#f1 alc t1"), AI("#f1 alc i1"), AF("#f1 alc f1")])
+    ) == [
+        AlcMessageSegmentFactory(AT("#f1 alc t1")),
+        AlcMessageSegmentFactory(AI("#f1 alc i1")),
+        AlcMessageSegmentFactory(AF("#f1 alc f1")),
+    ]
+
+
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot_plugin_alconna import File as AF

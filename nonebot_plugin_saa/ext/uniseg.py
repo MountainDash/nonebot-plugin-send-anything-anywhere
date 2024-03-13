@@ -111,8 +111,9 @@ class AlcMessageFactory(MessageFactory):
         fallback: bool = False,
     ):
         self.unimsg = UniMsg(message)
-        AMSFWithFallback = partial(AlcMessageSegmentFactory, fallback=fallback)
-        self.extend(map(AMSFWithFallback, self.unimsg))
+        self.extend(
+            map(partial(AlcMessageSegmentFactory, fallback=fallback), self.unimsg)
+        )
         super().__init__()
 
     @override
@@ -139,6 +140,9 @@ class UniMessageFactory(MessageFactory):
                     return m
 
             amessage = map(convert, message)
+
+        else:
+            amessage = message
 
         super().__init__(amessage)
 
