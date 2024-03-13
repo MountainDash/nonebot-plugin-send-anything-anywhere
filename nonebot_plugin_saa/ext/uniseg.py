@@ -11,10 +11,9 @@ except ImportError as e:
     ) from e
 
 from functools import partial
-from typing_extensions import override
-from typing import Union, TypeVar, Iterable, TypedDict
+from typing import TypeVar, Iterable, TypedDict
 
-from nonebot.adapters import Bot, Message, MessageSegment
+from nonebot.adapters import Bot, MessageSegment
 
 from ..utils import SupportedAdapters, extract_adapter_type
 from ..abstract_factories import MessageFactory, MessageSegmentFactory
@@ -104,23 +103,6 @@ class AlcMessageSegmentFactory(MessageSegmentFactory):
         return cls(Text(msg), fallback=fallback)
 
 
-class AlcMessageFactory(MessageFactory):
-    def __init__(
-        self,
-        message: Union[Iterable[Union[str, AMS]], str, AMS, None] = None,
-        fallback: bool = False,
-    ):
-        self.unimsg = UniMsg(message)
-        self.extend(
-            map(partial(AlcMessageSegmentFactory, fallback=fallback), self.unimsg)
-        )
-        super().__init__()
-
-    @override
-    async def build(self, bot: Bot) -> Message:
-        return await self.unimsg.export(bot)
-
-
 class UniMessageFactory(MessageFactory):
     def __init__(
         self,
@@ -129,8 +111,6 @@ class UniMessageFactory(MessageFactory):
     ):
         if isinstance(message, AlcSegment):
             amessage = AlcMessageSegmentFactory(message)
-        elif isinstance(message, UniMsg):
-            amessage = map(partial(AlcMessageSegmentFactory, fallback=fallback), message)  # type: ignore 已经在 UniMsg 内部全部转换为 uniseg 了  # noqa: E501
         elif isinstance(message, Iterable):
 
             def convert(m: "str | MessageSegmentFactory | AlcSegment"):
