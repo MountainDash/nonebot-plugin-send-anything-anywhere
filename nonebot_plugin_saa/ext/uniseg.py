@@ -10,7 +10,6 @@ except ImportError as e:
         "请使用 `pip install nonebot-plugin-send-anything-anywhere[alc]` 安装所需依赖"
     ) from e
 
-from functools import partial
 from typing import TypeVar, Iterable, TypedDict
 
 from nonebot.adapters import Bot, MessageSegment
@@ -96,7 +95,7 @@ class AlcMessageSegmentFactory(MessageSegmentFactory):
 
     @classmethod
     def from_unimsg(cls, msg: UniMsg, fallback: bool = False):
-        return [*map(partial(cls, fallback=fallback), msg)]
+        return [cls(m, fallback) for m in msg]
 
     @classmethod
     def from_str(cls, msg: str, fallback: bool = False):
@@ -119,7 +118,7 @@ class UniMessageFactory(MessageFactory):
                 else:
                     return m
 
-            amessage = map(convert, message)
+            amessage = [convert(m) for m in message]
 
         else:
             amessage = message
@@ -128,4 +127,4 @@ class UniMessageFactory(MessageFactory):
 
     @classmethod
     def from_unimsg(cls, msg: UniMsg, fallback: bool = False):
-        return cls(map(partial(AlcMessageSegmentFactory, fallback=fallback), msg))
+        return cls([AlcMessageSegmentFactory(m, fallback) for m in msg])
