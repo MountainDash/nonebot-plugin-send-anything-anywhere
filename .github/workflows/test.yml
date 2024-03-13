@@ -38,7 +38,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install prerequisites
-        run: poetry install --with adapters
+        run: poetry install --with=adapters,alc
 
       - name: Run Pytest
         run: poetry run pytest --cov-report xml --cov=./nonebot_plugin_saa
