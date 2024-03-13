@@ -49,18 +49,18 @@ files = [
 
 [[package]]
 name = "arclet-alconna"
-version = "1.7.44"
+version = "1.8.5"
 description = "A High-performance, Generality, Humane Command Line Arguments Parser Library."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "arclet_alconna-1.7.44-py3-none-any.whl", hash = "sha256:e5751a2aa854b7b2c01cac87986ad11b397986a725c9536d5f9ff81a84e85614"},
-    {file = "arclet_alconna-1.7.44.tar.gz", hash = "sha256:9c8a70a3f75e8358fa9c71befd3687c8c9781a19b1d28cb53cbe08fbc36cf720"},
+    {file = "arclet_alconna-1.8.5-py3-none-any.whl", hash = "sha256:b9f0309df53f957a16316155a3e61d1c3ffa33c2eb641b928ad27aa3effd9b2c"},
+    {file = "arclet_alconna-1.8.5.tar.gz", hash = "sha256:d8afc384b4481d6156302bd3e5b89bc511c66357ff49775d3f6d5b74cf6886c0"},
 ]
 
 [package.dependencies]
-nepattern = ">=0.5.14,<0.6.0"
-tarina = ">=0.4.1"
+nepattern = ">=0.6.4,<1.0.0"
+tarina = ">=0.4.4"
 typing-extensions = ">=4.5.0"
 
 [package.extras]
@@ -68,18 +68,18 @@ full = ["arclet-alconna-tools (>=0.2.0)"]
 
 [[package]]
 name = "arclet-alconna-tools"
-version = "0.6.11"
+version = "0.7.0"
 description = "Builtin Tools for Alconna"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "arclet-alconna-tools-0.6.11.tar.gz", hash = "sha256:079f1ccd84120c65288e50014de2117a0dc7c52e5c2d2d718ad9fd95afb40232"},
-    {file = "arclet_alconna_tools-0.6.11-py3-none-any.whl", hash = "sha256:d3bc7d70040fbc1c0b44a9b751089f87c6c487161d7c930dd4018d7ef468d91f"},
+    {file = "arclet-alconna-tools-0.7.0.tar.gz", hash = "sha256:361a193239555d243d8738c39e89f536847d49fa9d74c0a2706b58514c8d8a70"},
+    {file = "arclet_alconna_tools-0.7.0-py3-none-any.whl", hash = "sha256:c4835d277c5927a2d036fba44a710471496b8086575fe3699dfbf256ca72bda2"},
 ]
 
 [package.dependencies]
-arclet-alconna = ">=1.7.39"
-nepattern = ">=0.5.15"
+arclet-alconna = ">=1.8.1"
+nepattern = ">=0.6.5,<1.0.0"
 
 [[package]]
 name = "asgiref"
@@ -856,17 +856,17 @@ files = [
 
 [[package]]
 name = "nepattern"
-version = "0.5.15"
+version = "0.6.5"
 description = "a complex pattern, support typing"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "nepattern-0.5.15-py3-none-any.whl", hash = "sha256:c68fc7c0c9b7835c956a89e0f91fd380b8e07880e183414871e83ef4a9fa0dbd"},
-    {file = "nepattern-0.5.15.tar.gz", hash = "sha256:3b04b91b5856b9826b61737933911f570a75ba8116b9e2ff8fa83b4aa0211203"},
+    {file = "nepattern-0.6.5-py3-none-any.whl", hash = "sha256:6c06dc6b2e06b9b2d98c4dee024c63e10d1301dc90091548b94cf76c7dfbd8fb"},
+    {file = "nepattern-0.6.5.tar.gz", hash = "sha256:dc91ad72cfa907b270ac1e99b6589cddb576d1ae52948b9f9367c86a58ec0ea8"},
 ]
 
 [package.dependencies]
-tarina = ">=0.3.3"
+tarina = ">=0.4.1"
 typing-extensions = ">=4.5.0"
 
 [[package]]
@@ -988,20 +988,20 @@ resolved_reference = "befcfc676fed6b7b5474b5559f6f35a694c709a0"
 
 [[package]]
 name = "nonebot-plugin-alconna"
-version = "0.30.7"
+version = "0.40.1"
 description = "Alconna Adapter for Nonebot"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "nonebot_plugin_alconna-0.30.7-py3-none-any.whl", hash = "sha256:42ccef8a386438a3fd7c969aced7e6852f8bb849b8ddbc8a60c3511f90c17581"},
-    {file = "nonebot_plugin_alconna-0.30.7.tar.gz", hash = "sha256:5fd0980a814ecc07eacd4b97e5c4731a7e2af781c60848e6f030a9989cb84d37"},
+    {file = "nonebot_plugin_alconna-0.40.1-py3-none-any.whl", hash = "sha256:6f4bd7576e6df65710a7f920c93cb5400a8eef66abaff06189b532930b376330"},
+    {file = "nonebot_plugin_alconna-0.40.1.tar.gz", hash = "sha256:10b52ee800dd10ffa033208d2dbac6d459b3573dbfeaf53efadc50f62c1213f2"},
 ]
 
 [package.dependencies]
-arclet-alconna = ">=1.7.31,<2.0.0"
-arclet-alconna-tools = ">=0.6.7,<0.7.0"
-nepattern = ">=0.5.14,<0.6.0"
-nonebot2 = ">=2.1.0"
+arclet-alconna = ">=1.8.5"
+arclet-alconna-tools = ">=0.7.0"
+nepattern = ">=0.6.5"
+nonebot2 = ">=2.2.1"
 
 [[package]]
 name = "nonebot2"
@@ -2102,4 +2102,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "66adcb18427ba7329df198d781e4270ef6c9556879ead1fce1750809858b43f6"
+content-hash = "a24bcb7c059a657a0e40ae8007cb38edf7cd8a72c31e6727b747b6caaa73e8ab"
