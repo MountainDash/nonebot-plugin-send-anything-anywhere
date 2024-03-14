@@ -125,7 +125,7 @@ const config = {
               },
               {
                 label: "Q群",
-                href: "https://qm.qq.com/cgi-bin/qm/qr?k=pXYMGB_e8b6so3QTqgeV6lkKDtEeYE4f&jump_from=webapi",
+                href: "https://qm.qq.com/q/Eg3hlnWKUU",
               },
             ],
           },

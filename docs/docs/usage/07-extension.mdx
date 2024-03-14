@@ -1,0 +1,96 @@
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import Curtain from "@site/src/components/Curtain";
+
+# 插件扩展
+
+SAA 提供了一些插件扩展，可以用于扩展 SAA 的功能。
+
+## 使用
+
+SAA 的所有扩展都存在于 `ext` 包中，可以通过以下方式导入：
+
+```python
+from nonebot_plugin_saa.ext import <extension_name>
+```
+
+## uniseg-ext
+
+提供与 [plugin-alconna.uniseg](https://github.com/nonebot/plugin-alconna) 的兼容。允许同时使用 SAA 和 plugin-alconna.uniseg。
+
+SAA 提供了相关的 extras，可以通过以下方式安装：
+
+{/* prettier-ignore */}
+<Tabs>
+  <TabItem value="pip" label="Pip" default>
+    ```shell
+    pip install nonebot-plugin-saa[alc]
+    ```
+  </TabItem>
+  <TabItem value="poetry" label="Poetry">
+    ```shell
+    poetry add nonebot-plugin-saa --extras alc
+    # 或者
+    poetry add nonebot-plugin-saa[alc]
+    ```
+  </TabItem>
+  <TabItem value="pdm" label="Pdm">
+    ```shell
+    pdm add nonebot-plugin-saa[alc]
+    ```
+  </TabItem>
+</Tabs>
+{/* prettier-ignore */}
+
+`UniMessageFactory` 继承自 SAA 的 `MessageFactory`，与原有的 `MessageFactory` 用法基本一致，只是可以混合使用 `nonebot_plugin_alconna` 和 `nonebot_plugin_saa` 的消息段类型。
+
+```python
+from nonebot_plugin_alconna import Text as AlcText, Image as AlcImage, UniMessage
+from nonebot_plugin_saa import Text as SaaText, Image as SaaImage
+from nonebot_plugin_saa.ext.uniseg import UniMessageFactory
+
+@a_matcher.handle()
+async def some():
+    # 混合使用
+    umf = UniMessageFactory(
+        [
+            AlcText("alc"),
+            SaaText("saa"),
+            AlcImage(url="https://al.c/image.png"),
+            SaaImage(b"saa")
+        ]
+    )
+
+    await umf.send()
+
+    # 从 UniMessage 转换
+    um = UniMessage(
+        [
+            AlcText("alc"),
+            AlcImage(url="https://al.c/image.png"),
+        ]
+    )
+    umf = UniMessageFactory.from_unimsg(um)
+    await umf.send()
+```
+
+:::info
+
+- 对于 `UniMessageFactory` 的发送结果(`send/send_to/finish`)， 所产生的消息回执仍然是 SAA 的[消息回执](./02-message-build.md#receipt)。
+- 该扩展不会帮你添加 `nonebot-plugin-alconna` 的依赖，你需要自行声明依赖。
+- 同样的也不会自动 `require("nonebot_plugin_alconna")`，你需要自行添加。
+
+:::
+
+:::tip
+如果想在现有的 SAA 项目中使用 plugin-alconna.uniseg，可以直接导入 `UniMessageFactory` 来发送消息
+只需要这样做：
+
+```python
+from nonebot_plugin_saa.ext.uniseg import UniMessageFactory as MessageFactory
+```
+
+就可以基本无缝地替换原有的 `MessageFactory`。<Curtain>不保证，但你可以提 Issue 甚至 Pull Request 是吧</Curtain>
+
+:::
