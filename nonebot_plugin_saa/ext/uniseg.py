@@ -10,14 +10,21 @@ except ImportError as e:
         "请使用 `pip install nonebot-plugin-send-anything-anywhere[alc]` 安装所需依赖"
     ) from e
 
+from enum import Enum, auto
 from typing import TypeVar, Iterable, TypedDict
 
-from nonebot.adapters import Bot, MessageSegment
+from nonebot.adapters import Bot
 
 from ..utils import SupportedAdapters, extract_adapter_type
 from ..abstract_factories import MessageFactory, MessageSegmentFactory
 
 AMS = TypeVar("AMS", bound=AlcSegment)
+
+
+class Fallback(Enum):
+    Forbid = auto()
+    Permit = auto()
+    Already = auto()
 
 
 class UnisegExtException(Exception):
@@ -27,7 +34,7 @@ class UnisegExtException(Exception):
 class AlcSegmentBuildError(UnisegExtException):
     @classmethod
     def from_seg(cls, seg: AlcSegment, msg: str):
-        return cls(f"Alc Segment [{seg.__class__}] -> {seg} <-: {msg}")
+        return cls(f"Alc Segment [{seg.__class__}]>>|{seg}|<<: {msg}")
 
 
 class UniSegmentUnsupport(UnisegExtException):
@@ -36,15 +43,16 @@ class UniSegmentUnsupport(UnisegExtException):
 
 class UniMsgData(TypedDict):
     uniseg: AlcSegment
-    fallback: bool
+    fallback: Fallback
 
 
-async def alc_builder(data: UniMsgData, bot: Bot):
-    """抄自nonebot_plugin_alconna.uniseg.exporter.MessageExporter.export"""
-    seg = data["uniseg"]
-    fallback = data["fallback"]
+# alc_builder 借鉴自nonebot_plugin_alconna.uniseg.exporter.MessageExporter.export
+async def _alc_builder(seg: AlcSegment, bot: Bot):
     adapter_name = extract_adapter_type(bot)
     seg_type = seg.__class__
+
+    if isinstance(seg, Other):
+        return seg.origin
 
     if not (exportor := ALC_EXPORTER_MAPPING.get(adapter_name)):
         raise AlcSegmentBuildError.from_seg(seg, f"在 {adapter_name} 上找不到对应的 Exportor")
@@ -63,30 +71,39 @@ async def alc_builder(data: UniMsgData, bot: Bot):
         msg_type = exportor.get_message_type()
         return seg.export(msg_type)
 
-    elif isinstance(seg, Other):
-        return seg.origin
-
-    elif fallback:
-        if not isinstance(
-            res := alc_builder(UniMsgData(uniseg=Text(str(seg)), fallback=False), bot),
-            MessageSegment,
-        ):
-            raise AlcSegmentBuildError.from_seg(seg, "fallback 失败！")
-        else:
-            return res
     else:
         raise AlcSegmentBuildError.from_seg(seg, "不支持构建")
+
+
+async def alc_builder(data: UniMsgData, bot: Bot):
+    fallback = data["fallback"]
+    seg = data["uniseg"]
+    try:
+        res = await _alc_builder(seg, bot)
+    except AlcSegmentBuildError as e:
+        if fallback is Fallback.Permit:
+            return await alc_builder(
+                UniMsgData(uniseg=Text(str(seg)), fallback=Fallback.Already), bot
+            )
+        elif fallback is Fallback.Forbid:
+            raise AlcSegmentBuildError.from_seg(seg, "不允许 fallback") from e
+        else:
+            raise AlcSegmentBuildError.from_seg(seg, "fallback 失败") from e
+    else:
+        return res
 
 
 class AlcMessageSegmentFactory(MessageSegmentFactory):
     data: UniMsgData
 
     def __init__(self, uniseg: AlcSegment, fallback: bool = False) -> None:
-        self.data = UniMsgData(uniseg=uniseg, fallback=fallback)
-        self._init_alc_builder()
+        self.data = UniMsgData(
+            uniseg=uniseg, fallback=Fallback.Permit if fallback else Fallback.Forbid
+        )
+        self._register_alc_builder()
         super().__init__()
 
-    def _init_alc_builder(self):
+    def _register_alc_builder(self):
         def maker(msf: "AlcMessageSegmentFactory", bot: Bot):
             return alc_builder(data=msf.data, bot=bot)
 

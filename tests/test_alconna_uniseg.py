@@ -1,6 +1,60 @@
+from typing import Type
+from typing_extensions import override
+
 from nonebug import App
 
 from .utils import ob12_kwargs, mock_obv12_message_event
+
+
+async def test_alc_builder(app: App):
+    from nonebot import get_driver, get_adapter
+    from nonebot_plugin_alconna import Other, Custom
+    from nonebot.adapters.onebot.v12 import Bot, Adapter, Message, MessageSegment
+
+    from nonebot_plugin_saa.ext.uniseg import (
+        Fallback,
+        AlcSegmentBuildError,
+        alc_builder,
+    )
+
+    driver = get_driver()
+    driver.register_adapter(Adapter)
+
+    class OkCustom(Custom):
+        @override
+        def export(self, msg_type: Type[Message]) -> MessageSegment:
+            return MessageSegment.text("ok")
+
+    class ErrCustom(Custom):
+        @override
+        def export(self, msg_type: Type[Message]) -> MessageSegment:
+            raise AlcSegmentBuildError("err")
+
+    o = Other(MessageSegment.text("other"))
+
+    bot = Bot(
+        get_adapter(Adapter.get_name()), self_id="test", **ob12_kwargs()  # type: ignore
+    )
+
+    assert await alc_builder(
+        {
+            "uniseg": OkCustom(mstype="text", content="?"),
+            "fallback": Fallback.Forbid,
+        },
+        bot,
+    ) == MessageSegment.text("ok")
+
+    assert await alc_builder(
+        {"uniseg": o, "fallback": Fallback.Permit}, bot
+    ) == MessageSegment.text("other")
+
+    assert await alc_builder(
+        {
+            "uniseg": ErrCustom(mstype="text", content="?"),
+            "fallback": Fallback.Permit,
+        },
+        bot,
+    ) == MessageSegment.text(str(ErrCustom(mstype="text", content="?")))
 
 
 async def test_build(app: App):
