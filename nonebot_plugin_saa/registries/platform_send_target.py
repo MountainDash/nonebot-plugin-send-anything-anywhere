@@ -295,6 +295,7 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
+    TargetSatoriUnknown,
 ]
 
 

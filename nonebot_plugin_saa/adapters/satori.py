@@ -1,3 +1,5 @@
+from io import BytesIO
+from pathlib import Path
 from functools import partial
 from typing import (
     Any,
@@ -20,7 +22,6 @@ from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
 from ..abstract_factories import (
     MessageFactory,
-    MessageSegmentFactory,
     AggregatedMessageFactory,
     register_ms_adapter,
     assamble_message_factory,
@@ -74,8 +75,16 @@ try:
     async def _image(i: Image) -> MessageSegment:
         image = i.data["image"]
         if isinstance(image, str):
+            # URL
             return MessageSegment.image(image)
-        raise NotImplementedError("Satori does not support sending image by file")
+        elif isinstance(image, (bytes, BytesIO)):
+            # bytes
+            return MessageSegment.image(raw=image)
+        elif isinstance(image, Path):
+            # Path
+            return MessageSegment.image(path=image)
+        else:
+            raise ValueError(f"Unsupported image data type: {type(image)}")
 
     @register_satori(Mention)
     async def _mention(m: Mention) -> MessageSegment:
@@ -83,8 +92,8 @@ try:
 
     @register_satori(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(r.data, SatoriMessageId)
-        return MessageSegment.quote(r.data.message_id)
+        assert isinstance(mid := r.data["message_id"], SatoriMessageId)
+        return MessageSegment.quote(mid.message_id)
 
     @register_target_extractor(PrivateMessageCreatedEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
@@ -160,10 +169,18 @@ try:
         def raw(self) -> List[SatoriMessage]:
             return self.messages
 
+        def extract_message_id(self, index: int = 0) -> MessageId:
+            """从 Receipt 中提取 MessageId
+
+            Args:
+                index (int, optional): 默认为0, 即提取第一条消息的 MessageId.
+            """
+            return SatoriMessageId(message_id=self.messages[index].id)
+
     @register_sender(SupportedAdapters.satori)
     async def send(
         bot,
-        msg: MessageFactory[MessageSegmentFactory],
+        msg: MessageFactory,
         target: PlatformTarget,
         event: Optional[Event],
         at_sender: bool,
@@ -230,13 +247,17 @@ try:
 
     async def _fetch_all(paged_api: PagedAPI[T]) -> List[T]:
         results = []
-        token = None
+        # FIXME: 由于 Satori 的 `channel_list` API 的类型提示中虽然 next_token 为 Optional[str]，但实际上
+        # 在 next_token 为 None 时会返回 400，所以这里暂时不使用 None
+        token = ""
         while True:
             resp = await paged_api(next_token=token)
             results.extend(resp.data)
             if resp.next is None:
+                logger.debug("No more pages to fetch")
                 break
             token = resp.next
+            logger.debug(f"Fetching next page with token: {token}")
         return results
 
     @register_list_targets(SupportedAdapters.satori)
