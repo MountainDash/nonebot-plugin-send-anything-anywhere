@@ -247,9 +247,8 @@ try:
 
     async def _fetch_all(paged_api: PagedAPI[T]) -> List[T]:
         results = []
-        # FIXME: 由于 Satori 的 `channel_list` API 的类型提示中虽然 next_token 为 Optional[str]，但实际上
-        # 在 next_token 为 None 时会返回 400，所以这里暂时不使用 None
-        token = ""
+        # nonebor-adapter-satori < 0.10.2 的 `channel_list` API 会因为 next_token 为 None 而报错
+        token = None
         while True:
             resp = await paged_api(next_token=token)
             results.extend(resp.data)
