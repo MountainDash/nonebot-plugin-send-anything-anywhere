@@ -438,3 +438,62 @@ def mock_red_message_event(group=False):
             message=RedMessage("321"),
             original_message=RedMessage("321"),
         )
+
+
+def mock_satori_message_event(public: bool = False):
+    from nonebot.compat import type_validate_python
+    from nonebot.adapters.satori.event import (
+        PublicMessageCreatedEvent,
+        PrivateMessageCreatedEvent,
+    )
+
+    if public:
+        return type_validate_python(
+            PublicMessageCreatedEvent,
+            {
+                "id": 1,
+                "type": "message-created",
+                "platform": "test",
+                "self_id": "0",
+                "timestamp": 1000 * int(datetime.now().timestamp()),
+                "channel": {
+                    "id": "67890",
+                    "type": 0,
+                    "name": "test",
+                },
+                "user": {
+                    "id": "12345",
+                    "nick": "test",
+                },
+                "member": {
+                    "user": {
+                        "id": "12345",
+                        "nick": "test",
+                    },
+                    "nick": "test",
+                    "joined_at": 1000 * int(datetime.now().timestamp()),
+                },
+                "message": {"id": "abcde", "content": "/test"},
+            },
+        )
+    else:
+        return type_validate_python(
+            PrivateMessageCreatedEvent,
+            {
+                "id": 1,
+                "type": "message-created",
+                "platform": "test",
+                "self_id": "0",
+                "timestamp": 1000 * int(datetime.now().timestamp()),
+                "channel": {
+                    "id": "67890",
+                    "type": 0,
+                    "name": "test",
+                },
+                "user": {
+                    "id": "12345",
+                    "nick": "test",
+                },
+                "message": {"id": "abcde", "content": "/test"},
+            },
+        )

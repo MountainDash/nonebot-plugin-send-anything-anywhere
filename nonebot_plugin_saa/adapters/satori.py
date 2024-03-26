@@ -15,6 +15,7 @@ from typing import (
 )
 
 from nonebot import logger
+from filetype import guess_mime
 from nonebot.adapters import Bot, Event
 
 from ..types import Text, Image, Reply, Mention
@@ -44,15 +45,15 @@ from ..registries import (
 )
 
 try:
+    from nonebot.exception import ActionFailed
     from nonebot.adapters.satori import Bot as BotSatori
     from nonebot.adapters.satori.models import PageResult
     from nonebot.adapters.satori import Message, MessageSegment
-    from nonebot.adapters.satori.exception import ApiNotImplementedException
     from nonebot.adapters.satori.models import InnerMessage as SatoriMessage
     from nonebot.adapters.satori.event import (
         MessageEvent,
-        PublicMessageCreatedEvent,
-        PrivateMessageCreatedEvent,
+        PublicMessageEvent,
+        PrivateMessageEvent,
     )
 
     T = TypeVar("T")
@@ -77,11 +78,20 @@ try:
         if isinstance(image, str):
             # URL
             return MessageSegment.image(image)
-        elif isinstance(image, (bytes, BytesIO)):
-            # bytes
-            return MessageSegment.image(raw=image)
+        elif isinstance(image, bytes):
+            # raw
+            if img_format := guess_mime(image):
+                return MessageSegment.image(raw=image, mime=img_format)
+            else:
+                raise ValueError("Cannot determine image format")
+        elif isinstance(image, BytesIO):
+            # raw
+            if img_format := guess_mime(image):
+                return MessageSegment.image(raw=image, mime=img_format)
+            else:
+                raise ValueError("Cannot determine image format")
         elif isinstance(image, Path):
-            # Path
+            # path
             return MessageSegment.image(path=image)
         else:
             raise ValueError(f"Unsupported image data type: {type(image)}")
@@ -95,9 +105,9 @@ try:
         assert isinstance(mid := r.data["message_id"], SatoriMessageId)
         return MessageSegment.quote(mid.message_id)
 
-    @register_target_extractor(PrivateMessageCreatedEvent)
+    @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
-        assert isinstance(event, PrivateMessageCreatedEvent)
+        assert isinstance(event, PrivateMessageEvent)
         if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQPrivate(user_id=int(event.get_user_id()))
         elif event.platform == "kook":
@@ -108,9 +118,9 @@ try:
             return TargetFeishuPrivate(open_id=event.get_user_id())
         return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
-    @register_target_extractor(PublicMessageCreatedEvent)
+    @register_target_extractor(PublicMessageEvent)
     def _extract_group_msg_event(event: Event) -> PlatformTarget:
-        assert isinstance(event, PublicMessageCreatedEvent)
+        assert isinstance(event, PublicMessageEvent)
         if event.platform in ["qq", "red", "chronocat"]:
             return TargetQQGroup(group_id=int(event.channel.id))
         elif event.platform == "kook":
@@ -279,7 +289,7 @@ try:
                             platform=bot.platform, channel_id=channel.id
                         )
                     targets.append(target)
-        except ApiNotImplementedException as e:  # pragma: no cover
+        except ActionFailed as e:  # pragma: no cover
             logger.warning(
                 f"Satori({bot.platform}) does not support fetching channel list: {e}"
             )
@@ -293,7 +303,7 @@ try:
                 else:
                     target = TargetSatoriUnknown(platform=bot.platform, user_id=user.id)
                 targets.append(target)
-        except ApiNotImplementedException as e:  # pragma: no cover
+        except ActionFailed as e:  # pragma: no cover
             logger.warning(
                 f"Satori({bot.platform}) does not support fetching friend list: {e}"
             )
