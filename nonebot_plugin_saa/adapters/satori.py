@@ -1,3 +1,4 @@
+from enum import Enum
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -43,6 +44,16 @@ from ..registries import (
     register_convert_to_arg,
     register_target_extractor,
 )
+
+
+class SatoriPlatform(str, Enum):
+    QQ = "qq"
+    RED = "red"
+    CHRONOCAT = "chronocat"
+    KOOK = "kook"
+    TELEGRAM = "telegram"
+    FEISHU = "feishu"
+
 
 try:
     from nonebot.exception import ActionFailed
@@ -108,25 +119,34 @@ try:
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, PrivateMessageEvent)
-        if event.platform in ["qq", "red", "chronocat"]:
+        # if event.platform in ["qq", "red", "chronocat"]:
+        if event.platform in [
+            SatoriPlatform.QQ,
+            SatoriPlatform.RED,
+            SatoriPlatform.CHRONOCAT,
+        ]:
             return TargetQQPrivate(user_id=int(event.get_user_id()))
-        elif event.platform == "kook":
+        elif event.platform == SatoriPlatform.KOOK:
             return TargetKaiheilaPrivate(user_id=event.get_user_id())
-        elif event.platform == "telegram":
+        elif event.platform == SatoriPlatform.TELEGRAM:
             return TargetTelegramCommon(chat_id=event.get_user_id())
-        elif event.platform == "feishu":
+        elif event.platform == SatoriPlatform.FEISHU:
             return TargetFeishuPrivate(open_id=event.get_user_id())
         return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
     @register_target_extractor(PublicMessageEvent)
     def _extract_group_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, PublicMessageEvent)
-        if event.platform in ["qq", "red", "chronocat"]:
+        if event.platform in [
+            SatoriPlatform.QQ,
+            SatoriPlatform.RED,
+            SatoriPlatform.CHRONOCAT,
+        ]:
             return TargetQQGroup(group_id=int(event.channel.id))
-        elif event.platform == "kook":
+        elif event.platform == SatoriPlatform.KOOK:
             return TargetKaiheilaChannel(channel_id=event.channel.id)
         # TODO: support telegram forum
-        elif event.platform == "feishu":
+        elif event.platform == SatoriPlatform.TELEGRAM:
             return TargetFeishuGroup(chat_id=event.channel.id)
         return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
