@@ -145,7 +145,7 @@ try:
         elif event.platform == SatoriPlatform.KOOK:
             return TargetKaiheilaChannel(channel_id=event.channel.id)
         # TODO: support telegram forum
-        elif event.platform == SatoriPlatform.TELEGRAM:
+        elif event.platform == SatoriPlatform.FEISHU:
             return TargetFeishuGroup(chat_id=event.channel.id)
         return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
