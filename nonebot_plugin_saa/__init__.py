@@ -21,6 +21,7 @@ from .abstract_factories import MessageFactory as MessageFactory
 from .registries import TargetFeishuPrivate as TargetFeishuPrivate
 from .registries import TargetQQGroupOpenId as TargetQQGroupOpenId
 from .registries import TargetQQGuildDirect as TargetQQGuildDirect
+from .registries import TargetSatoriUnknown as TargetSatoriUnknown
 from .registries import TargetTelegramForum as TargetTelegramForum
 from .registries import TargetQQGuildChannel as TargetQQGuildChannel
 from .registries import TargetTelegramCommon as TargetTelegramCommon

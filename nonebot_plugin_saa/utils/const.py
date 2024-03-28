@@ -10,6 +10,7 @@ class SupportedAdapters(StrEnum):
     red = "RedProtocol"
     dodo = "DoDo"
     qq = "QQ"
+    satori = "Satori"
 
     fake = "fake"  # for nonebug
 
@@ -24,6 +25,7 @@ class SupportedPlatform(StrEnum):
     kaiheila_channel = "Kaiheila Channel"
     kaiheila_private = "Kaiheila Private"
     unknown_ob12 = "Unknow Onebot 12 Platform"
+    unknown_satori = "Unknown Satori Platform"
     telegram_common = "Telegram Common"
     telegram_forum = "Telegram Forum"
     feishu_private = "Feishu Private"
