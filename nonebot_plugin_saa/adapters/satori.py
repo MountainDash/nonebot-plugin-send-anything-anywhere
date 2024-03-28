@@ -119,7 +119,6 @@ try:
     @register_target_extractor(PrivateMessageEvent)
     def _extract_private_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, PrivateMessageEvent)
-        # if event.platform in ["qq", "red", "chronocat"]:
         if event.platform in [
             SatoriPlatform.QQ,
             SatoriPlatform.RED,
