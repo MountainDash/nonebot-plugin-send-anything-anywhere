@@ -39,6 +39,7 @@ try:
         MessageSegment,
     )
     from nonebot.adapters.qq.event import GuildMessageEvent
+    from nonebot.adapters.qq.exception import AuditException, QQAdapterException
     from nonebot.adapters.qq.models import Message as ApiMessage
     from nonebot.adapters.qq.models import (
         PostC2CFilesReturn,
@@ -51,6 +52,9 @@ try:
     register_qq = partial(register_ms_adapter, adapter)
 
     MessageFactory.register_adapter_message(adapter, Message)
+
+    class QQAuditRejectException(QQAdapterException):
+        ...
 
     class QQMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
@@ -190,39 +194,50 @@ try:
         message = await full_msg._build(bot)
         assert isinstance(message, Message)
 
-        if event:  # reply to user
-            msg_return = await bot.send(event, message)
-        else:
-            msg_id = (
-                plugin_config.qqguild_magic_msg_id
-                if plugin_config.use_qqguild_magic_msg_id
-                else None
-            )
-            if isinstance(target, TargetQQGuildDirect):
-                guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
-                msg_return = await bot.send_to_dms(
-                    guild_id=str(guild_id),
-                    message=message,
-                    msg_id=msg_id,
-                )
-            elif isinstance(target, TargetQQGuildChannel):
-                msg_return = await bot.send_to_channel(
-                    channel_id=str(target.channel_id),
-                    message=message,
-                    msg_id=msg_id,
-                )
-            elif isinstance(target, TargetQQPrivateOpenId):
-                msg_return = await bot.send_to_c2c(
-                    openid=target.user_openid,
-                    message=message,
-                )
-            elif isinstance(target, TargetQQGroupOpenId):
-                msg_return = await bot.send_to_group(
-                    group_openid=target.group_openid,
-                    message=message,
-                )
+        try:
+            if event:  # reply to user
+                msg_return = await bot.send(event, message)
             else:
-                raise ValueError(f"{type(event)} not supported")
+                msg_id = (
+                    plugin_config.qqguild_magic_msg_id
+                    if plugin_config.use_qqguild_magic_msg_id
+                    else None
+                )
+                if isinstance(target, TargetQQGuildDirect):
+                    guild_id = await QQGuildDMSManager.aget_guild_id(target, bot)
+                    msg_return = await bot.send_to_dms(
+                        guild_id=str(guild_id),
+                        message=message,
+                        msg_id=msg_id,
+                    )
+                elif isinstance(target, TargetQQGuildChannel):
+                    msg_return = await bot.send_to_channel(
+                        channel_id=str(target.channel_id),
+                        message=message,
+                        msg_id=msg_id,
+                    )
+                elif isinstance(target, TargetQQPrivateOpenId):
+                    msg_return = await bot.send_to_c2c(
+                        openid=target.user_openid,
+                        message=message,
+                    )
+                elif isinstance(target, TargetQQGroupOpenId):
+                    msg_return = await bot.send_to_group(
+                        group_openid=target.group_openid,
+                        message=message,
+                    )
+                else:
+                    raise ValueError(f"{type(event)} not supported")
+        except AuditException as e:
+            audit = await e.get_audit_result()
+            if type(audit) == "MESSAGE_AUDIT_REJECT":
+                raise QQAuditRejectException()
+            msg_return = ApiMessage(
+                id=audit.message_id or "",
+                channel_id=audit.channel_id,
+                guild_id=audit.guild_id,
+                author=bot.self_info
+            )
 
         return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
 
