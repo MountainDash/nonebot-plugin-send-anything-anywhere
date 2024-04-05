@@ -1,51 +1,51 @@
 from functools import partial
-from typing import List, Literal, Optional, Union
+from typing import List, Union, Literal, Optional
 
-from nonebot.adapters import Bot as BaseBot
 from nonebot.adapters import Event
+from nonebot.adapters import Bot as BaseBot
 
+from ..config import plugin_config
+from ..utils import SupportedAdapters
+from ..types import Text, Image, Reply, Mention
+from ..auto_select_bot import register_list_targets
 from ..abstract_factories import (
     MessageFactory,
-    assamble_message_factory,
     register_ms_adapter,
+    assamble_message_factory,
 )
-from ..auto_select_bot import register_list_targets
-from ..config import plugin_config
 from ..registries import (
+    Receipt,
     MessageId,
     PlatformTarget,
     QQGuildDMSManager,
-    Receipt,
     TargetQQGroupOpenId,
-    TargetQQGuildChannel,
     TargetQQGuildDirect,
+    TargetQQGuildChannel,
     TargetQQPrivateOpenId,
-    register_qqguild_dms,
     register_sender,
+    register_qqguild_dms,
     register_target_extractor,
 )
-from ..types import Image, Mention, Reply, Text
-from ..utils import SupportedAdapters
 
 try:
+    from nonebot.adapters.qq.event import GuildMessageEvent
+    from nonebot.adapters.qq.models import Message as ApiMessage
+    from nonebot.adapters.qq.exception import AuditException, QQAdapterException
+    from nonebot.adapters.qq.models import (
+        PostC2CFilesReturn,
+        PostGroupFilesReturn,
+        PostC2CMessagesReturn,
+        PostGroupMessagesReturn,
+    )
     from nonebot.adapters.qq import (
-        AtMessageCreateEvent,
         Bot,
+        Message,
+        MessageSegment,
+        MessageCreateEvent,
+        AtMessageCreateEvent,
         C2CMessageCreateEvent,
         DirectMessageCreateEvent,
         GroupAtMessageCreateEvent,
-        Message,
-        MessageCreateEvent,
-        MessageSegment,
-    )
-    from nonebot.adapters.qq.event import GuildMessageEvent
-    from nonebot.adapters.qq.exception import AuditException, QQAdapterException
-    from nonebot.adapters.qq.models import Message as ApiMessage
-    from nonebot.adapters.qq.models import (
-        PostC2CFilesReturn,
-        PostC2CMessagesReturn,
-        PostGroupFilesReturn,
-        PostGroupMessagesReturn,
     )
 
     adapter = SupportedAdapters.qq
@@ -236,7 +236,7 @@ try:
                 id=audit.message_id or "",
                 channel_id=audit.channel_id,
                 guild_id=audit.guild_id,
-                author=bot.self_info
+                author=bot.self_info,
             )
 
         return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
