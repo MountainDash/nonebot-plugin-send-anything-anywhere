@@ -1,50 +1,50 @@
 from functools import partial
-from typing import List, Union, Literal, Optional
+from typing import List, Literal, Optional, Union
 
-from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
+from nonebot.adapters import Event
 
-from ..config import plugin_config
-from ..utils import SupportedAdapters
-from ..types import Text, Image, Reply, Mention
-from ..auto_select_bot import register_list_targets
 from ..abstract_factories import (
     MessageFactory,
-    register_ms_adapter,
     assamble_message_factory,
+    register_ms_adapter,
 )
+from ..auto_select_bot import register_list_targets
+from ..config import plugin_config
 from ..registries import (
-    Receipt,
     MessageId,
     PlatformTarget,
     QQGuildDMSManager,
+    Receipt,
     TargetQQGroupOpenId,
-    TargetQQGuildDirect,
     TargetQQGuildChannel,
+    TargetQQGuildDirect,
     TargetQQPrivateOpenId,
-    register_sender,
     register_qqguild_dms,
+    register_sender,
     register_target_extractor,
 )
+from ..types import Image, Mention, Reply, Text
+from ..utils import SupportedAdapters
 
 try:
+    from nonebot.adapters.qq import (
+        AtMessageCreateEvent,
+        Bot,
+        C2CMessageCreateEvent,
+        DirectMessageCreateEvent,
+        GroupAtMessageCreateEvent,
+        Message,
+        MessageCreateEvent,
+        MessageSegment,
+    )
     from nonebot.adapters.qq.event import GuildMessageEvent
     from nonebot.adapters.qq.models import Message as ApiMessage
     from nonebot.adapters.qq.models import (
         PostC2CFilesReturn,
-        PostGroupFilesReturn,
         PostC2CMessagesReturn,
+        PostGroupFilesReturn,
         PostGroupMessagesReturn,
-    )
-    from nonebot.adapters.qq import (
-        Bot,
-        Message,
-        MessageSegment,
-        MessageCreateEvent,
-        AtMessageCreateEvent,
-        C2CMessageCreateEvent,
-        DirectMessageCreateEvent,
-        GroupAtMessageCreateEvent,
     )
 
     adapter = SupportedAdapters.qq
@@ -163,6 +163,12 @@ try:
                 TargetQQPrivateOpenId,
             ),
         )
+
+        if isinstance(event, (C2CMessageCreateEvent, GroupAtMessageCreateEvent)):
+            reply = False
+            at_sender = (
+                False  # qq doesnt support reply or at user in group or c2c at this time
+            )
 
         full_msg = msg
         if event:
