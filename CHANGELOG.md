@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 适配 satori 适配器 [@he0119](https://github.com/he0119) ([#118](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/118))
+
 ## v0.6.0
 
 ### 破坏性变更
