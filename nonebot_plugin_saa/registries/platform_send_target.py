@@ -151,6 +151,25 @@ class TargetOB12Unknow(PlatformTarget):
     channel_id: Optional[str] = None
 
 
+class TargetSatoriUnknown(PlatformTarget):
+    """暂未识别的 Satori 发送目标
+
+    参数
+        platform: 平台名
+        user_id: 用户 ID
+        guild_id: 群组 ID
+        channel_id: 频道 ID
+    """
+
+    platform_type: Literal[
+        SupportedPlatform.unknown_satori
+    ] = SupportedPlatform.unknown_satori
+    platform: str
+    user_id: Optional[str] = None
+    guild_id: Optional[str] = None
+    channel_id: Optional[str] = None
+
+
 class TargetKaiheilaChannel(PlatformTarget):
     """开黑啦频道
 
@@ -276,6 +295,7 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
+    TargetSatoriUnknown,
 ]
 
 

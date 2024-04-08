@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
-    from nonebot.adapters.qqguild import Message as QQGuildMessage
     from nonebot.adapters.dodo.models import MessageBody, MessageType
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
@@ -216,31 +215,6 @@ def mock_obv12_message_event(
             user_id="2233",
             guild_id="5566",
             channel_id="6677",
-        )
-
-
-def mock_qqguild_message_event(message: "QQGuildMessage", direct=False):
-    from nonebot.adapters.qqguild.api.model import User
-    from nonebot.adapters.qqguild.event import EventType
-    from nonebot.adapters.qqguild import MessageCreateEvent, DirectMessageCreateEvent
-
-    if not direct:
-        return MessageCreateEvent(
-            __type__=EventType.MESSAGE_CREATE,
-            id=str(random.randrange(0, 10000)),
-            guild_id=1122,
-            channel_id=2233,
-            content=message.extract_content(),
-            author=User(id=3344),
-        )
-    else:
-        return DirectMessageCreateEvent(
-            __type__=EventType.DIRECT_MESSAGE_CREATE,
-            id=str(random.randrange(0, 10000)),
-            guild_id=1122,
-            channel_id=2233,
-            content=message.extract_content(),
-            author=User(id=3344),
         )
 
 
@@ -463,4 +437,63 @@ def mock_red_message_event(group=False):
             avatarFlag=0,
             message=RedMessage("321"),
             original_message=RedMessage("321"),
+        )
+
+
+def mock_satori_message_event(public: bool = False):
+    from nonebot.compat import type_validate_python
+    from nonebot.adapters.satori.event import (
+        PublicMessageCreatedEvent,
+        PrivateMessageCreatedEvent,
+    )
+
+    if public:
+        return type_validate_python(
+            PublicMessageCreatedEvent,
+            {
+                "id": 1,
+                "type": "message-created",
+                "platform": "test",
+                "self_id": "0",
+                "timestamp": 1000 * int(datetime.now().timestamp()),
+                "channel": {
+                    "id": "67890",
+                    "type": 0,
+                    "name": "test",
+                },
+                "user": {
+                    "id": "12345",
+                    "nick": "test",
+                },
+                "member": {
+                    "user": {
+                        "id": "12345",
+                        "nick": "test",
+                    },
+                    "nick": "test",
+                    "joined_at": 1000 * int(datetime.now().timestamp()),
+                },
+                "message": {"id": "abcde", "content": "/test"},
+            },
+        )
+    else:
+        return type_validate_python(
+            PrivateMessageCreatedEvent,
+            {
+                "id": 1,
+                "type": "message-created",
+                "platform": "test",
+                "self_id": "0",
+                "timestamp": 1000 * int(datetime.now().timestamp()),
+                "channel": {
+                    "id": "67890",
+                    "type": 0,
+                    "name": "test",
+                },
+                "user": {
+                    "id": "12345",
+                    "nick": "test",
+                },
+                "message": {"id": "abcde", "content": "/test"},
+            },
         )

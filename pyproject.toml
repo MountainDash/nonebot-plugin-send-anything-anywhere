@@ -24,6 +24,7 @@ nonebot2 = "^2.0.0"
 strenum = "^0.4.8"
 pydantic = ">=1.10.0,<3.0.0,!=2.5.0,!=2.5.1"
 anyio = ">=3.3.0,<5.0.0"
+filetype = "^1.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest-asyncio = "^0.20.2"
@@ -51,6 +52,7 @@ nonebot-adapter-feishu = "^2.4.0"
 nonebot-adapter-red = "^0.9.0"
 nonebot-adapter-dodo = "^0.2.0"
 nonebot-adapter-qq = "^1.4.1"
+nonebot-adapter-satori = "^0.10.2"
 
 [tool.black]
 line-length = 88
@@ -86,3 +88,12 @@ exclude_also = [
   "except ImportError:",
   "except Exception as e:",
 ]
+
+[tool.nonebot]
+adapters = [
+  { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
+  {name = "Satori", module_name = "nonebot.adapters.satori"},
+]
+plugins = ["nonebot_plugin_saa"]
+plugin_dirs = ["extra_plugins"]
+builtin_plugins = ["echo"]
