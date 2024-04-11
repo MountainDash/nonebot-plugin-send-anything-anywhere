@@ -119,7 +119,7 @@ assert deserialized_target == target
 > [!NOTE]
 >
 > - 对于使用 Onebot v12，但是没有专门适配的发送目标，使用了 TargetOB12Unknow 来保证其可以正常使用
-> - 对于使用 Satori，但是没有专门适配对应 Platform 的发送目标，使用的 TargetSatoriUnKnown 来保证其可以正常使用
+> - 对于使用 Satori，但是没有专门适配对应 Platform 的发送目标，使用了 TargetSatoriUnKnown 来保证其可以正常使用
 
 ## 问题与例子
 
