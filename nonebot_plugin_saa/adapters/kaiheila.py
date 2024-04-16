@@ -5,7 +5,7 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -87,7 +87,7 @@ try:
 
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], KaiheilaMessageId)
+        mid = type_message_id_check(KaiheilaMessageId, r.data["message_id"])
         return MessageSegment.quote(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)

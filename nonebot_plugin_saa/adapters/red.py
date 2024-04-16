@@ -7,7 +7,7 @@ from nonebot.adapters import Bot, Event
 from nonebot.drivers import Request, HTTPClientMixin
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -75,7 +75,7 @@ try:
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], RedMessageId)
+        mid = type_message_id_check(RedMessageId, r.data["message_id"])
         return MessageSegment.reply(
             message_seq=mid.message_seq,
             message_id=mid.message_id,

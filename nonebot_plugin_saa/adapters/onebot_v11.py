@@ -4,7 +4,7 @@ from typing import Any, Union, Literal, Optional, cast
 from nonebot.adapters import Bot, Event
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -74,7 +74,7 @@ try:
 
     @register_onebot_v11(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], OB11MessageId)
+        mid = type_message_id_check(OB11MessageId, r.data["message_id"])
         return MessageSegment.reply(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)

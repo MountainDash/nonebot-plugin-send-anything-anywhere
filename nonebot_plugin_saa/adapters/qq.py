@@ -5,7 +5,7 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..config import plugin_config
-from ..utils import SupportedAdapters
+from ..utils import SupportedAdapters, type_message_id_check
 from ..auto_select_bot import register_list_targets
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
@@ -77,7 +77,7 @@ try:
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], QQMessageId)
+        mid = type_message_id_check(QQMessageId, r.data["message_id"])
         return MessageSegment.reference(mid.message_id)
 
     @register_target_extractor(GuildMessageEvent)

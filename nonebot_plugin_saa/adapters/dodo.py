@@ -9,7 +9,7 @@ from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -92,7 +92,7 @@ with suppress(ImportError):
 
     @register_dodo(Reply)
     def _reply(reply: Reply) -> MessageSegment:
-        assert isinstance(mid := reply.data["message_id"], DodoMessageId)
+        mid = type_message_id_check(DodoMessageId, reply.data["message_id"])
         return MessageSegment.reference(mid.message_id)
 
     @register_dodo(Mention)
@@ -102,7 +102,7 @@ with suppress(ImportError):
     @register_dodo(MentionAll)
     def _mention_all(m: MentionAll) -> MessageSegment:
         logger.warning(
-            "DODO does not support to send @all yet, ignore.\nsee: https://open.imdodo.com/dev/api/message.html#%E6%B6%88%E6%81%AF%E8%AF%AD%E6%B3%95"  # noqa: E501
+            "DODO does not support to send @all yet, ignore.\nsee: https://open.imdodo.com/dev/api/message.html#%E6%B6%88%E6%81%AF%E8%AF%AD%E6%B3%95"
         )
         if text := m.data.get("special_fallback", {}).get(adapter):
             return MessageSegment.text(text)

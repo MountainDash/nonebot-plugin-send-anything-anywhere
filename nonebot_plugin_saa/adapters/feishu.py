@@ -7,7 +7,7 @@ from nonebot.adapters import Event
 from nonebot.drivers import Request
 from nonebot.adapters import Bot as BaseBot
 
-from ..utils import SupportedAdapters
+from ..utils import SupportedAdapters, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -84,7 +84,7 @@ try:
 
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], FeishuMessageId)
+        mid = type_message_id_check(FeishuMessageId, r.data["message_id"])
         return MessageSegment("reply", {"message_id": mid.message_id})
 
     @register_target_extractor(PrivateMessageEvent)
@@ -151,8 +151,8 @@ try:
         message_to_send = Message()
         for message_segment_factory in full_msg:
             if isinstance(message_segment_factory, Reply):
-                assert isinstance(
-                    mid := message_segment_factory.data["message_id"], FeishuMessageId
+                mid = type_message_id_check(
+                    FeishuMessageId, message_segment_factory.data["message_id"]
                 )
                 reply_to_message_id = mid.message_id
                 continue

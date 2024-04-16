@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Union, Literal, Optional, cast
 import anyio
 from nonebot import logger
 
-from ..utils import SupportedAdapters
+from ..utils import SupportedAdapters, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
@@ -93,7 +93,7 @@ try:
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], TelegramMessageId)
+        mid = type_message_id_check(TelegramMessageId, r.data["message_id"])
         return TGReply.reply(mid.message_id, mid.chat_id)
 
     @register_target_extractor(PrivateMessageEvent)

@@ -1,6 +1,6 @@
 import random
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Type, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from nonebot import get_driver
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 async def assert_ms(
-    bot_base: "Type[Bot]",
+    bot_base: "type[Bot]",
     adapter: "SupportedAdapters",
     app: "App",
     ms_factory: "MessageSegmentFactory",
@@ -267,7 +267,7 @@ def mock_qq_message_event(message: "QQMessage", direct=False):
         )
 
 
-def ob12_kwargs(platform="qq", impl="walle") -> Dict[str, Any]:
+def ob12_kwargs(platform="qq", impl="walle") -> dict[str, Any]:
     return {"platform": platform, "impl": impl}
 
 
