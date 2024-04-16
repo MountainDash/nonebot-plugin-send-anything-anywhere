@@ -495,7 +495,7 @@ async def test_extract_target(app: App):
         message_type=MessageType(1),
         message_body=TextMessage(content="aa"),
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         extract_target(pme2)
 
     gse = GiftSendEvent(

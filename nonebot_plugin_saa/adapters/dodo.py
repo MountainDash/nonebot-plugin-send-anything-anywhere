@@ -1,6 +1,6 @@
 from functools import partial
 from contextlib import suppress
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 from nonebot import logger
 from nonebot.adapters import Event
@@ -158,7 +158,7 @@ with suppress(ImportError):
         )
 
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_channel)
-    def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetDoDoChannel)
         args = {
             "channel_id": target.channel_id,
@@ -168,7 +168,7 @@ with suppress(ImportError):
         return args
 
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetDoDoPrivate)
         return {
             "dodo_source_id": target.dodo_source_id,
@@ -248,7 +248,7 @@ with suppress(ImportError):
         return DodoReceipt(message_id=resp, bot_id=bot.self_id)
 
     @register_list_targets(adapter)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, BotDodo)
         targets = []
         for island in await bot.get_island_list():

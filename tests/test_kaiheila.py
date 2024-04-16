@@ -30,7 +30,7 @@ from .utils import assert_ms
 
 
 @pytest.fixture(scope="session", autouse=True)
-def load_adapters(nonebug_init: None):
+def load_adapters(nonebug_init: None):  # noqa: PT004
     driver = nonebot.get_driver()
     driver.register_adapter(Adapter)
 
@@ -58,17 +58,17 @@ def mock_kaiheila_message_event(channel=False):
             event=EventMessage(
                 type=9,
                 author=User(id="3344", username="3344", identify_num="3344"),
-                content="/abc",
+                content="/abc",  # type: ignore
                 mention=[],
-                mention_role=[],
+                mention_roles=[],
                 mention_all=False,
                 mention_here=False,
                 kmarkdown={
                     "raw_content": "/abc",
                     "mention_part": [],
                     "mention_role_part": [],
-                },
-            ),  # type: ignore
+                },  # type: ignore
+            ),
             message_type="private",
         )
     else:
@@ -86,17 +86,17 @@ def mock_kaiheila_message_event(channel=False):
             event=EventMessage(
                 type=9,
                 author=User(id="3344", username="3344", identify_num="3344"),
-                content="/abc",
+                content="/abc",  # type: ignore
                 mention=[],
-                mention_role=[],
+                mention_roles=[],
                 mention_all=False,
                 mention_here=False,
                 kmarkdown={
                     "raw_content": "/abc",
                     "mention_part": [],
                     "mention_role_part": [],
-                },
-            ),  # type: ignore
+                },  # type: ignore
+            ),
             message_type="group",
             group_id="1111",
         )

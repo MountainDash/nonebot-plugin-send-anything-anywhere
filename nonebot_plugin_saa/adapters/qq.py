@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List, Union, Literal, Optional
+from typing import Union, Literal, Optional
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
@@ -84,7 +84,8 @@ try:
     def extract_message_event(event: Event) -> PlatformTarget:
         if isinstance(event, DirectMessageCreateEvent):
             assert event.guild_id
-            assert event.author and event.author.id
+            assert event.author
+            assert event.author.id
             return TargetQQGuildDirect(
                 source_guild_id=int(event.guild_id),
                 recipient_id=int(event.author.id),
@@ -225,7 +226,7 @@ try:
         return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
 
     @register_list_targets(SupportedAdapters.qq)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []

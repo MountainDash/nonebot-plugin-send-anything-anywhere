@@ -56,8 +56,10 @@ class Image(MessageSegmentFactory):
         支持多种格式的数据
 
         参数:
-            image: str 为图片 URL，bytes 为图片数据，Path 为图片路径，BytesIO 为图片文件流
-            name: 图片名称，默认为 image
+            image:
+                str 为图片 URL，bytes 为图片数据，Path 为图片路径，BytesIO 为图片文件流
+            name:
+                图片名称，默认为 image
         """
         super().__init__()
         self.data = {"image": image, "name": name}
@@ -74,7 +76,7 @@ class Image(MessageSegmentFactory):
         else:
             image_str = format_template.format("image", repr(image))
 
-        kv_list = list(f"{k}={v!r}" for k, v in self.data.items() if k != "image")
+        kv_list = [f"{k}={v!r}" for k, v in self.data.items() if k != "image"]
         kv_list.append(image_str)
         return f"[SAA:{self.__class__.__name__}|{','.join(kv_list)}]"
 
@@ -85,11 +87,11 @@ class Image(MessageSegmentFactory):
             image_str = format_template.format("image", repr(image))
         elif isinstance(image, BytesIO):
             image_str = format_template.format(
-                "image", f"BytesIO({repr(image.getvalue())})"
+                "image", f"BytesIO({image.getvalue()!r})"
             )
         else:
             image_str = format_template.format("image", repr(image))
-        kv_list = list(f"{k}={v!r}" for k, v in self.data.items() if k != "image")
+        kv_list = [f"{k}={v!r}" for k, v in self.data.items() if k != "image"]
         kv_list.append(image_str)
         return f"{self.__class__.__name__}({', '.join(kv_list)})"
 

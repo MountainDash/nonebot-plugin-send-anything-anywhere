@@ -1,11 +1,8 @@
 import inspect
-from typing_extensions import Annotated
+from collections.abc import Awaitable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    Type,
-    Tuple,
     Union,
     Literal,
     Callable,
@@ -13,6 +10,7 @@ from typing import (
     Optional,
     Awaitable,
     cast,
+    Annotated,
 )
 
 from pydantic import BaseModel
@@ -308,8 +306,8 @@ AllSupportedPlatformTarget = Union[
 ]
 
 
-ConvertToArg = Callable[[PlatformTarget], Dict[str, Any]]
-convert_to_arg_map: Dict[Tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
+ConvertToArg = Callable[[PlatformTarget], dict[str, Any]]
+convert_to_arg_map: dict[tuple[SupportedPlatform, SupportedAdapters], ConvertToArg] = {}
 
 
 def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatform):
@@ -322,10 +320,10 @@ def register_convert_to_arg(adapter: SupportedAdapters, platform: SupportedPlatf
 
 Extractor = Callable[[Event], PlatformTarget]
 ExtractorWithBotSpecifier = Callable[[Event, Bot], PlatformTarget]
-extractor_map: Dict[Type[Event], Union[Extractor, ExtractorWithBotSpecifier]] = {}
+extractor_map: dict[type[Event], Union[Extractor, ExtractorWithBotSpecifier]] = {}
 
 
-def register_target_extractor(event: Type[Event]):
+def register_target_extractor(event: type[Event]):
     def wrapper(func: Union[Extractor, ExtractorWithBotSpecifier]):
         extractor_map[event] = func
         return func
@@ -364,7 +362,7 @@ Sender = Callable[
     Awaitable["Receipt"],
 ]
 
-sender_map: Dict[SupportedAdapters, Sender] = {}
+sender_map: dict[SupportedAdapters, Sender] = {}
 
 
 def register_sender(adapter: SupportedAdapters):
@@ -378,7 +376,7 @@ def register_sender(adapter: SupportedAdapters):
 SaaTarget = Annotated[PlatformTarget, Depends(get_target)]
 
 QQGuild_DMS = Callable[[TargetQQGuildDirect, Bot], Awaitable[int]]
-qqguild_dms_map: Dict[SupportedAdapters, QQGuild_DMS] = {}
+qqguild_dms_map: dict[SupportedAdapters, QQGuild_DMS] = {}
 
 
 def register_qqguild_dms(adapter: SupportedAdapters):
@@ -390,7 +388,7 @@ def register_qqguild_dms(adapter: SupportedAdapters):
 
 
 class QQGuildDMSManager:
-    _cache: ClassVar[Dict[TargetQQGuildDirect, int]] = {}
+    _cache: ClassVar[dict[TargetQQGuildDirect, int]] = {}
 
     @classmethod
     def get_guild_id(cls, target: TargetQQGuildDirect) -> int:

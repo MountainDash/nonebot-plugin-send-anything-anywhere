@@ -34,4 +34,4 @@ class SupportedPlatform(StrEnum):
     dodo_private = "DoDo Private"
 
 
-supported_adapter_names = set(SupportedAdapters._member_map_.values())  # noqa: SLF001
+supported_adapter_names = set(SupportedAdapters._member_map_.values())

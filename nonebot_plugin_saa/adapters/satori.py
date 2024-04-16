@@ -2,18 +2,8 @@ from enum import Enum
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import (
-    Any,
-    Dict,
-    List,
-    Generic,
-    Literal,
-    TypeVar,
-    Optional,
-    Protocol,
-    Awaitable,
-    cast,
-)
+from collections.abc import Awaitable
+from typing import Any, Generic, Literal, TypeVar, Optional, Protocol, cast
 
 from nonebot import logger
 from filetype import guess_mime
@@ -154,27 +144,27 @@ try:
         return TargetSatoriUnknown(platform=event.platform, channel_id=event.channel.id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
-    def _gen_qq_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_qq_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {"channel_id": f"private:{target.user_id}"}
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
-    def _gen_qq_group(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_qq_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
         return {"channel_id": str(target.group_id)}
 
     @register_convert_to_arg(adapter, SupportedPlatform.feishu_private)
-    def _gen_feishu_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_feishu_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetFeishuPrivate)
         return {"channel_id": target.open_id}
 
     @register_convert_to_arg(adapter, SupportedPlatform.feishu_group)
-    def _gen_feishu_group(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_feishu_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetFeishuGroup)
         return {"channel_id": target.chat_id}
 
     @register_convert_to_arg(adapter, SupportedPlatform.telegram_common)
-    def _gen_telegram_common(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_telegram_common(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetTelegramCommon)
         return {"channel_id": target.chat_id}
 
@@ -188,7 +178,7 @@ try:
 
     class SatoriReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
-        messages: List[SatoriMessage]
+        messages: list[SatoriMessage]
 
         async def revoke(self):
             for message in self.messages:
@@ -199,7 +189,7 @@ try:
                 )
 
         @property
-        def raw(self) -> List[SatoriMessage]:
+        def raw(self) -> list[SatoriMessage]:
             return self.messages
 
         def extract_message_id(self, index: int = 0) -> MessageId:
@@ -250,13 +240,13 @@ try:
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
         bot: Bot,
-        message_factories: List[MessageFactory],
+        message_factories: list[MessageFactory],
         target: PlatformTarget,
         event: Optional[Event],
     ):
         assert isinstance(bot, BotSatori)
 
-        msg_list: List[Message] = []
+        msg_list: list[Message] = []
         for msg_fac in message_factories:
             msg = await msg_fac.build(bot)
             assert isinstance(msg, Message)
@@ -278,9 +268,10 @@ try:
         ) -> Awaitable[PageResult[T]]:
             ...
 
-    async def _fetch_all(paged_api: PagedAPI[T]) -> List[T]:
+    async def _fetch_all(paged_api: PagedAPI[T]) -> list[T]:
         results = []
-        # nonebor-adapter-satori < 0.10.2 的 `channel_list` API 会因为 next_token 为 None 而报错
+        # nonebor-adapter-satori < 0.10.2 的 `channel_list` API
+        # 会因为 next_token 为 None 而报错
         token = None
         while True:
             resp = await paged_api(next_token=token)
@@ -293,7 +284,7 @@ try:
         return results
 
     @register_list_targets(SupportedAdapters.satori)
-    async def list_targets(bot: Bot) -> List[PlatformTarget]:
+    async def list_targets(bot: Bot) -> list[PlatformTarget]:
         assert isinstance(bot, BotSatori)
 
         targets = []

@@ -4,21 +4,16 @@ from copy import deepcopy
 from warnings import warn
 from inspect import signature
 from typing_extensions import Self
+from collections.abc import Iterable, Awaitable
 from dataclasses import field, asdict, dataclass
 from typing import (
     Any,
-    Dict,
-    List,
-    Type,
-    Tuple,
     Union,
     TypeVar,
     Callable,
     ClassVar,
-    Iterable,
     NoReturn,
     Optional,
-    Awaitable,
     SupportsIndex,
     cast,
     overload,
@@ -102,7 +97,7 @@ async def do_build_custom(builder: CustomBuildFunc, bot: Bot) -> MessageSegment:
 @dataclass
 class MessageSegmentFactory(ABC):
     _builders: ClassVar[
-        Dict[
+        dict[
             SupportedAdapters,
             Union[
                 Callable[[Self], Union[MessageSegment, Awaitable[MessageSegment]]],
@@ -111,8 +106,8 @@ class MessageSegmentFactory(ABC):
         ]
     ]
 
-    data: Dict[str, Any] = field(default_factory=dict)
-    _custom_builders: Dict[SupportedAdapters, CustomBuildFunc] = field(
+    data: dict[str, Any] = field(default_factory=dict)
+    _custom_builders: dict[SupportedAdapters, CustomBuildFunc] = field(
         init=False, default_factory=dict
     )
 
@@ -261,9 +256,9 @@ class MessageSegmentFactory(ABC):
         return MessageFactory(self).join(iterable)
 
 
-class MessageFactory(List[MessageSegmentFactory]):
+class MessageFactory(list[MessageSegmentFactory]):
     _text_factory: Callable[[str], MessageSegmentFactory]
-    _message_registry: Dict[SupportedAdapters, Type[Message]] = {}
+    _message_registry: ClassVar[dict[SupportedAdapters, type[Message]]] = {}
 
     @classmethod
     def register_text_ms(cls, factory: Callable[[str], MessageSegmentFactory]):
@@ -278,7 +273,7 @@ class MessageFactory(List[MessageSegmentFactory]):
     def register_adapter_message(
         cls,
         adapter: SupportedAdapters,
-        message_class: Type[Message],
+        message_class: type[Message],
     ):
         cls._message_registry[adapter] = message_class
 
@@ -289,7 +284,7 @@ class MessageFactory(List[MessageSegmentFactory]):
     async def _build(self, bot: Bot) -> Message:
         adapter_name = extract_adapter_type(bot)
         if message_type := self._message_registry.get(adapter_name):
-            ms: List[MessageSegment] = await asyncio.gather(
+            ms: list[MessageSegment] = await asyncio.gather(
                 *[ms_factory.build(bot) for ms_factory in self],
             )
             return message_type(ms)
@@ -326,7 +321,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         result = self.__class__(other)
         return result + self
 
-    def __iadd__(
+    def __iadd__(  # noqa: PYI034
         self: TMF,
         other: "str | MessageSegmentFactory | Iterable[str | MessageSegmentFactory]",
     ) -> TMF:
@@ -386,7 +381,9 @@ class MessageFactory(List[MessageSegmentFactory]):
             event = current_event.get()
             bot = current_bot.get()
         except LookupError as e:
-            raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
+            raise RuntimeError(
+                "send() 仅能在事件响应器中使用，主动发送消息请使用 send_to"
+            ) from e
 
         target = extract_target(event, bot)
         return await self._do_send(bot, target, event, at_sender, reply)
@@ -456,7 +453,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         return await sender(bot, self, target, event, at_sender, reply)
 
     @overload
-    def __getitem__(self, args: Type[MessageSegmentFactory]) -> Self:
+    def __getitem__(self, args: type[MessageSegmentFactory]) -> Self:
         """获取仅包含指定消息段类型的消息
 
         参数:
@@ -467,7 +464,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
 
     @overload
-    def __getitem__(self, args: Tuple[Type[TMSF], int]) -> TMSF:
+    def __getitem__(self, args: tuple[type[TMSF], int]) -> TMSF:
         """索引指定类型的消息段
 
         参数:
@@ -478,7 +475,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
 
     @overload
-    def __getitem__(self, args: Tuple[Type[TMSF], slice]) -> "MessageFactory":
+    def __getitem__(self, args: tuple[type[TMSF], slice]) -> "MessageFactory":
         """切片指定类型的消息段
 
         参数:
@@ -513,9 +510,9 @@ class MessageFactory(List[MessageSegmentFactory]):
     def __getitem__(
         self,
         args: Union[
-            Type[MessageSegmentFactory],
-            Tuple[Type[MessageSegmentFactory], int],
-            Tuple[Type[MessageSegmentFactory], slice],
+            type[MessageSegmentFactory],
+            tuple[type[MessageSegmentFactory], int],
+            tuple[type[MessageSegmentFactory], slice],
             int,
             slice,
         ],
@@ -535,7 +532,7 @@ class MessageFactory(List[MessageSegmentFactory]):
             raise ValueError("Incorrect arguments to slice")  # pragma: no cover
 
     def __contains__(
-        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+        self, value: Union[MessageSegmentFactory, type[MessageSegmentFactory]]
     ) -> bool:
         """检查消息段是否存在
 
@@ -549,14 +546,14 @@ class MessageFactory(List[MessageSegmentFactory]):
         return super().__contains__(value)
 
     def has(
-        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+        self, value: Union[MessageSegmentFactory, type[MessageSegmentFactory]]
     ) -> bool:
         """与 `__contains__` 相同"""
         return value in self
 
     def index(
         self,
-        value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]],
+        value: Union[MessageSegmentFactory, type[MessageSegmentFactory]],
         *args: SupportsIndex,
     ) -> int:
         """索引消息段
@@ -578,7 +575,7 @@ class MessageFactory(List[MessageSegmentFactory]):
             return super().index(first_segment, *args)
         return super().index(value, *args)
 
-    def get(self, type_: Type[MessageSegmentFactory], count: Optional[int] = None):
+    def get(self, type_: type[MessageSegmentFactory], count: Optional[int] = None):
         """获取指定类型的消息段
 
         参数:
@@ -591,7 +588,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         return self[type_] if count is None else self[type_, :count]
 
     def count(
-        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+        self, value: Union[MessageSegmentFactory, type[MessageSegmentFactory]]
     ) -> int:
         """计算指定消息段的个数
 
@@ -604,7 +601,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         return len(self[value]) if isinstance(value, type) else super().count(value)
 
     def only(
-        self, value: Union[MessageSegmentFactory, Type[MessageSegmentFactory]]
+        self, value: Union[MessageSegmentFactory, type[MessageSegmentFactory]]
     ) -> bool:
         """检查消息中是否仅包含指定消息段
 
@@ -618,7 +615,7 @@ class MessageFactory(List[MessageSegmentFactory]):
             return all(isinstance(seg, value) for seg in self)
         return all(seg == value for seg in self)
 
-    def include(self, *types: Type[MessageSegmentFactory]) -> Self:
+    def include(self, *types: type[MessageSegmentFactory]) -> Self:
         """过滤消息
 
         参数:
@@ -629,7 +626,7 @@ class MessageFactory(List[MessageSegmentFactory]):
         """
         return self.__class__(seg for seg in self if isinstance(seg, types))
 
-    def exclude(self, *types: Type[MessageSegmentFactory]) -> Self:
+    def exclude(self, *types: type[MessageSegmentFactory]) -> Self:
         """过滤消息
 
         参数:
@@ -642,14 +639,14 @@ class MessageFactory(List[MessageSegmentFactory]):
 
 
 AggregatedSender = Callable[
-    [Bot, List[MessageFactory], PlatformTarget, Optional[Event]],
+    [Bot, list[MessageFactory], PlatformTarget, Optional[Event]],
     Awaitable[None],
 ]
 
 
 class AggregatedMessageFactory:
-    message_factories: List[MessageFactory]
-    sender: ClassVar[Dict[SupportedAdapters, AggregatedSender]] = {}
+    message_factories: list[MessageFactory]
+    sender: ClassVar[dict[SupportedAdapters, AggregatedSender]] = {}
 
     def __init__(
         self,
@@ -680,7 +677,7 @@ class AggregatedMessageFactory:
         event: Optional[Event],
     ):
         for msg_fac in self.message_factories:
-            await msg_fac._do_send(bot, target, event, False, False)  # noqa: SLF001
+            await msg_fac._do_send(bot, target, event, False, False)
 
     async def _do_send(self, bot: Bot, target: PlatformTarget, event: Optional[Event]):
         adapter = extract_adapter_type(bot)
@@ -699,7 +696,9 @@ class AggregatedMessageFactory:
             event = current_event.get()
             bot = current_bot.get()
         except LookupError as e:
-            raise RuntimeError("send() 仅能在事件响应器中使用，主动发送消息请使用 send_to") from e
+            raise RuntimeError(
+                "send() 仅能在事件响应器中使用，主动发送消息请使用 send_to"
+            ) from e
 
         target = extract_target(event, bot)
         await self._do_send(bot, target, event)
@@ -750,10 +749,10 @@ class AggregatedMessageFactory:
 
 def register_ms_adapter(
     adapter: SupportedAdapters,
-    ms_factory: Type[TMSF],
+    ms_factory: type[TMSF],
 ) -> Callable[[BuildFunc], BuildFunc]:
     def decorator(builder: BuildFunc) -> BuildFunc:
-        ms_factory._builders[adapter] = builder  # noqa: SLF001
+        ms_factory._builders[adapter] = builder
         return builder
 
     return decorator

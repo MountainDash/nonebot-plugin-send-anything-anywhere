@@ -7,7 +7,7 @@ ci:
   autoupdate_commit_msg: ":arrow_up: auto update by pre-commit hooks"
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.253"
+    rev: "v0.3.7"
     hooks:
       - id: ruff
         stages: [commit]

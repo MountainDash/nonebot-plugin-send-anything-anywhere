@@ -136,10 +136,10 @@ def test_message_add(app: App):
         [Text("123"), Image("http://example.com/abc.png"), Text("abc")]
     )
     assert sit == MessageFactory([s, i, t])
-    assert sit == [s, i] + t
+    assert sit == [s, i] + t  # noqa: RUF005
 
     tit = t + i + t
-    t_it = t + [i, t]
+    t_it = t + [i, t]  # noqa: RUF005
     assert tit == MessageFactory(
         [Text("abc"), Image("http://example.com/abc.png"), Text("abc")]
     )
@@ -147,7 +147,7 @@ def test_message_add(app: App):
     assert tit == t_it
 
     tir = t + i + r
-    assert tir == t + [i, r]
+    assert tir == t + [i, r]  # noqa: RUF005
     assert tir == MessageFactory([t, i, r])
     ir = i + r
     assert ti + r == t + ir

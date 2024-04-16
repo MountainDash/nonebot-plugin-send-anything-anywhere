@@ -1,7 +1,7 @@
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import Any, Dict, Literal, cast
+from typing import Any, Literal, cast
 
 from nonebot.adapters import Event
 from nonebot.drivers import Request
@@ -100,7 +100,7 @@ try:
     class FeishuReceipt(Receipt):
         message_id: str
         adapter_name: Literal[adapter] = adapter
-        data: Dict[str, Any]
+        data: dict[str, Any]
 
         async def revoke(self):
             bot = cast(Bot, self._get_bot())

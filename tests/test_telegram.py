@@ -1,6 +1,7 @@
 import time
 from functools import partial
-from typing import TYPE_CHECKING, Callable, Awaitable
+from collections.abc import Awaitable
+from typing import TYPE_CHECKING, Callable
 
 import pytest
 from nonebug import App
@@ -9,7 +10,7 @@ from nonebot.adapters.telegram.config import BotConfig
 
 from .utils import assert_ms, mock_telegram_message_event
 
-BOT_CONFIG = BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11")  # noqa: S106
+BOT_CONFIG = BotConfig(token="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11")
 
 if TYPE_CHECKING:
     from nonebot.adapters import MessageSegment
@@ -23,7 +24,7 @@ AssertTelegramFuncType = Callable[
 ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def assert_telegram(app: App):
     from nonebot_plugin_saa import SupportedAdapters
 

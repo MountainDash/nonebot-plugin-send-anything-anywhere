@@ -1,8 +1,8 @@
 import json
 from abc import ABC
 from enum import Enum
+from typing import Any, ClassVar
 from typing_extensions import Self
-from typing import Any, Dict, ClassVar
 
 from pydantic import BaseModel
 from nonebot.compat import PYDANTIC_V2, ConfigDict, type_validate_python
@@ -16,7 +16,7 @@ class Level(Enum):
 
 class SerializationMeta(BaseModel, ABC):
     _index_key: ClassVar[str]
-    _deserializer_dict: ClassVar[Dict]
+    _deserializer_dict: ClassVar[dict]
     _level: ClassVar[Level] = Level.MetaBase
 
     if PYDANTIC_V2:

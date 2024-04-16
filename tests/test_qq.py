@@ -4,6 +4,7 @@ from functools import partial
 
 import pytest
 from nonebug import App
+from anyio import open_file
 from nonebot import get_adapter
 from nonebot.compat import model_dump
 from pytest_mock import MockerFixture
@@ -89,9 +90,10 @@ async def test_image(app: App, tmp_path: Path, assert_qq):
     await assert_qq(app, Image(data), MessageSegment.file_image(data))
 
     image_path = tmp_path / "image.png"
-    with open(image_path, "wb") as f:
-        f.write(data)
+    f = await open_file(image_path, "wb")
+    await f.write(data)
     await assert_qq(app, Image(image_path), MessageSegment.file_image(image_path))
+    await f.aclose()
 
 
 async def test_mention_user(app: App, assert_qq):

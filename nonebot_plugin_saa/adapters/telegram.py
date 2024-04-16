@@ -2,7 +2,7 @@ import asyncio
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import TYPE_CHECKING, List, Union, Literal, Optional, cast
+from typing import TYPE_CHECKING, Union, Literal, Optional, cast
 
 import anyio
 from nonebot import logger
@@ -135,7 +135,7 @@ try:
 
     class TelegramReceipt(Receipt):
         chat_id: Union[int, str]
-        messages: List[MessageModel]
+        messages: list[MessageModel]
         adapter_name: Literal[adapter] = adapter
 
         async def revoke(self):
@@ -222,7 +222,7 @@ try:
             else None
         )
         message_sent = cast(
-            Union[MessageModel, List[MessageModel]],
+            Union[MessageModel, list[MessageModel]],
             await bot.send_to(
                 chat_id,
                 message_to_send,

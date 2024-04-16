@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Union, Literal, Optional, cast
+from typing import Any, Union, Literal, Optional, cast
 
 from nonebot.adapters import Bot, Event
 
@@ -145,7 +145,7 @@ try:
         return OB11MessageId(message_id=event.message_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {
             "message_type": "private",
@@ -153,7 +153,7 @@ try:
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
-    def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
         return {
             "message_type": "group",
@@ -210,14 +210,14 @@ try:
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
         bot: Bot,
-        message_factories: List[MessageFactory],
+        message_factories: list[MessageFactory],
         target: PlatformTarget,
         event: Optional[Event],
     ):
         assert isinstance(bot, BotOB11)
         login_info = await bot.get_login_info()
 
-        msg_list: List[Message] = []
+        msg_list: list[Message] = []
         for msg_fac in message_factories:
             msg = await msg_fac.build(bot)
             assert isinstance(msg, Message)
@@ -245,7 +245,7 @@ try:
             raise RuntimeError(f"{target.__class__.__name__} not supported")
 
     @register_list_targets(SupportedAdapters.onebot_v11)
-    async def list_targets(bot: Bot) -> List[PlatformTarget]:
+    async def list_targets(bot: Bot) -> list[PlatformTarget]:
         assert isinstance(bot, BotOB11)
 
         targets = []

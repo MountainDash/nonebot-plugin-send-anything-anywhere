@@ -1,7 +1,7 @@
 from io import BytesIO
 from pathlib import Path
+from typing import Literal
 from functools import partial
-from typing import List, Literal
 
 from nonebot.adapters import Event
 from nonebot.compat import model_dump
@@ -314,7 +314,7 @@ try:
         return OB12Receipt(bot_id=bot.self_id, message_id=message_id)
 
     @register_list_targets(SupportedAdapters.onebot_v12)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []
