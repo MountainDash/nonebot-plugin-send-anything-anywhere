@@ -265,8 +265,7 @@ try:
     class PagedAPI(Generic[T], Protocol):
         def __call__(
             self, *, next_token: Optional[str] = None
-        ) -> Awaitable[PageResult[T]]:
-            ...
+        ) -> Awaitable[PageResult[T]]: ...
 
     async def _fetch_all(paged_api: PagedAPI[T]) -> list[T]:
         results = []

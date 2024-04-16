@@ -90,9 +90,9 @@ class TargetQQGroupOpenId(PlatformTarget, BotSpecifier):
         group_openid: 群 open_id
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.qq_group_openid] = (
         SupportedPlatform.qq_group_openid
-    ] = SupportedPlatform.qq_group_openid
+    )
     group_openid: str
 
 
@@ -103,9 +103,9 @@ class TargetQQPrivateOpenId(PlatformTarget, BotSpecifier):
         user_openid: 用户 open_id
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.qq_private_openid] = (
         SupportedPlatform.qq_private_openid
-    ] = SupportedPlatform.qq_private_openid
+    )
     user_openid: str
 
 
@@ -116,9 +116,9 @@ class TargetQQGuildChannel(PlatformTarget):
         channel_id: 子频道号
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.qq_guild_channel] = (
         SupportedPlatform.qq_guild_channel
-    ] = SupportedPlatform.qq_guild_channel
+    )
     channel_id: int
 
 
@@ -130,9 +130,9 @@ class TargetQQGuildDirect(PlatformTarget):
         source_guild_id: 来自的频道号
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.qq_guild_direct] = (
         SupportedPlatform.qq_guild_direct
-    ] = SupportedPlatform.qq_guild_direct
+    )
     recipient_id: int
     source_guild_id: int
 
@@ -145,9 +145,9 @@ class TargetOB12Unknow(PlatformTarget):
         user_id, group_id, channel_id, guild_id: 同 ob12 定义
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.unknown_ob12] = (
         SupportedPlatform.unknown_ob12
-    ] = SupportedPlatform.unknown_ob12
+    )
     platform: str
     detail_type: Literal["private", "group", "channel"]
     user_id: Optional[str] = None
@@ -166,9 +166,9 @@ class TargetSatoriUnknown(PlatformTarget):
         channel_id: 频道 ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.unknown_satori] = (
         SupportedPlatform.unknown_satori
-    ] = SupportedPlatform.unknown_satori
+    )
     platform: str
     user_id: Optional[str] = None
     guild_id: Optional[str] = None
@@ -182,9 +182,9 @@ class TargetKaiheilaChannel(PlatformTarget):
         channel_id: 频道ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.kaiheila_channel] = (
         SupportedPlatform.kaiheila_channel
-    ] = SupportedPlatform.kaiheila_channel
+    )
     channel_id: str
 
 
@@ -195,9 +195,9 @@ class TargetKaiheilaPrivate(PlatformTarget):
         user_id: 接收人ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.kaiheila_private] = (
         SupportedPlatform.kaiheila_private
-    ] = SupportedPlatform.kaiheila_private
+    )
     user_id: str
 
 
@@ -208,9 +208,9 @@ class TargetTelegramCommon(PlatformTarget):
         user_id: 对话ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.telegram_common] = (
         SupportedPlatform.telegram_common
-    ] = SupportedPlatform.telegram_common
+    )
     chat_id: Union[int, str]
 
 
@@ -222,9 +222,9 @@ class TargetTelegramForum(PlatformTarget):
         message_thread_id: 板块ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.telegram_forum] = (
         SupportedPlatform.telegram_forum
-    ] = SupportedPlatform.telegram_forum
+    )
     chat_id: int
     message_thread_id: int
 
@@ -236,9 +236,9 @@ class TargetFeishuPrivate(PlatformTarget):
         open_id: 用户 Open ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.feishu_private] = (
         SupportedPlatform.feishu_private
-    ] = SupportedPlatform.feishu_private
+    )
     open_id: str
 
 
@@ -249,9 +249,9 @@ class TargetFeishuGroup(PlatformTarget):
         chat_id: 群 ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.feishu_group] = (
         SupportedPlatform.feishu_group
-    ] = SupportedPlatform.feishu_group
+    )
     chat_id: str
 
 
@@ -263,9 +263,9 @@ class TargetDoDoChannel(PlatformTarget):
         dodo_source_id: 用户 ID(可选)
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.dodo_channel] = (
         SupportedPlatform.dodo_channel
-    ] = SupportedPlatform.dodo_channel
+    )
     channel_id: str
     dodo_source_id: Optional[str] = None
 
@@ -278,9 +278,9 @@ class TargetDoDoPrivate(PlatformTarget):
         island_source_id: 群 ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.dodo_private] = (
         SupportedPlatform.dodo_private
-    ] = SupportedPlatform.dodo_private
+    )
     island_source_id: str
     dodo_source_id: str
 
