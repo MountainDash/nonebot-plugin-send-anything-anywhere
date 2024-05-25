@@ -12,6 +12,7 @@ from typing import (
     ClassVar,
     Optional,
     Awaitable,
+    cast,
 )
 
 from pydantic import BaseModel
@@ -50,6 +51,12 @@ class PlatformTarget(SerializationMeta):
                 f"PlatformTarget {self.platform_type} not support {adapter_type}",
             )
         return convert_to_arg_map[(self.platform_type, adapter_type)](self)
+
+    @classmethod
+    def deserialize(cls, source: Any) -> "AllSupportedPlatformTarget":
+        """反序列化后的对象一定是 AllSupportedPlatformTarget 类型"""
+        obj = super().deserialize(source)
+        return cast("AllSupportedPlatformTarget", obj)
 
 
 class BotSpecifier(BaseModel):
@@ -295,6 +302,8 @@ AllSupportedPlatformTarget = Union[
     TargetTelegramForum,
     TargetFeishuPrivate,
     TargetFeishuGroup,
+    TargetDoDoChannel,
+    TargetDoDoPrivate,
     TargetSatoriUnknown,
 ]
 
