@@ -78,6 +78,18 @@ async def test_mention(app: App, assert_satori):
     await assert_satori(app, Mention("123"), MessageSegment.at("123"))
 
 
+async def test_mention_all(app: App, assert_satori):
+    from nonebot.adapters.satori import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_satori(app, MentionAll(), MessageSegment.at_all())
+
+    await assert_satori(
+        app, MentionAll(onlines_only=True), MessageSegment.at_all(here=True)
+    )
+
+
 async def test_reply(app: App, assert_satori):
     from nonebot.adapters.satori import MessageSegment
 

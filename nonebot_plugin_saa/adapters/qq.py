@@ -6,8 +6,8 @@ from nonebot.adapters import Bot as BaseBot
 
 from ..config import plugin_config
 from ..utils import SupportedAdapters
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -70,6 +70,10 @@ try:
     @register_qq(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention_user(m.data["user_id"])
+
+    @register_qq(MentionAll)
+    def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.mention_everyone()
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:

@@ -5,9 +5,10 @@ from functools import partial
 from typing import TYPE_CHECKING, List, Union, Literal, Optional, cast
 
 import anyio
+from nonebot import logger
 
 from ..utils import SupportedAdapters
-from ..types import Text, Image, Reply, Mention
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -74,6 +75,11 @@ try:
             if user_id.startswith("@")
             else TGEntity.text_link("用户 ", f"tg://user?id={user_id}")
         )
+
+    @register_telegram(MentionAll)
+    def _mention_all(m: MentionAll) -> MessageSegment:
+        logger.warning("Telegram does not support @all members yet, ignored.")
+        return TGEntity.text("")
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:

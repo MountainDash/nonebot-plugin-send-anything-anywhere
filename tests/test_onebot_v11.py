@@ -40,6 +40,14 @@ async def test_mention(app: App, assert_onebot_v11):
     await assert_onebot_v11(app, Mention("123"), MessageSegment.at("123"))
 
 
+async def test_mention_all(app: App, assert_onebot_v11):
+    from nonebot.adapters.onebot.v11 import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_onebot_v11(app, MentionAll(), MessageSegment.at("all"))
+
+
 async def test_reply(app: App, assert_onebot_v11):
     from nonebot.adapters.onebot.v11 import MessageSegment
 

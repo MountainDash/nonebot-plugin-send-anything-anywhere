@@ -151,6 +151,14 @@ async def test_mention(app: App, assert_kaiheila):
     await assert_kaiheila(app, Mention("123"), MessageSegment.mention("123"))
 
 
+async def test_mention_all(app: App, assert_kaiheila):
+    from nonebot.adapters.kaiheila import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_kaiheila(app, MentionAll(), MessageSegment.mention_all())
+
+
 async def test_reply(app: App, assert_kaiheila):
     from nonebot.adapters.kaiheila import MessageSegment
 

@@ -58,6 +58,14 @@ async def test_mention(app: App, assert_red):
     await assert_red(app, Mention("123"), MessageSegment.at("123"))
 
 
+async def test_mention_all(app: App, assert_red):
+    from nonebot.adapters.red import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_red(app, MentionAll(), MessageSegment.at_all())
+
+
 async def test_reply(app: App, assert_red):
     from nonebot.adapters.red import MessageSegment
 

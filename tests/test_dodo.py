@@ -99,6 +99,14 @@ async def test_mention(app: App, assert_dodo):
     await assert_dodo(app, Mention("123456"), MessageSegment.at_user("123456"))
 
 
+async def test_mention_all(app: App, assert_dodo):
+    from nonebot.adapters.dodo import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_dodo(app, MentionAll(), MessageSegment.text(""))
+
+
 async def test_reply(app: App, assert_dodo):
     from nonebot.adapters.dodo import MessageSegment
 

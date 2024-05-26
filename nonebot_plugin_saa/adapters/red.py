@@ -6,9 +6,9 @@ from nonebot import get_driver
 from nonebot.adapters import Bot, Event
 from nonebot.drivers import Request, HTTPClientMixin
 
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     AggregatedMessageFactory,
@@ -68,6 +68,10 @@ try:
     @register_red(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
+
+    @register_red(MentionAll)
+    async def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.at_all()
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:

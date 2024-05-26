@@ -6,6 +6,7 @@ from .types import Reply as Reply
 from . import adapters as adapters
 from .types import Custom as Custom
 from .types import Mention as Mention
+from .types import MentionAll as MentionAll
 from .registries import SaaTarget as SaaTarget
 from .registries import get_target as get_target
 from .registries import TargetQQGroup as TargetQQGroup

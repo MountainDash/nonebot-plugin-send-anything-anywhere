@@ -109,6 +109,14 @@ async def test_mention(app: App, assert_telegram: AssertTelegramFuncType):
     )
 
 
+async def test_mention_all(app: App, assert_telegram: AssertTelegramFuncType):
+    from nonebot.adapters.telegram.message import Entity
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_telegram(app, MentionAll(), Entity.text(""))
+
+
 async def test_reply(app: App, assert_telegram: AssertTelegramFuncType):
     from nonebot.adapters.telegram.message import Reply as TGReply
 

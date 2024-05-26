@@ -112,6 +112,27 @@ class Mention(MessageSegmentFactory):
         self.data = {"user_id": user_id}
 
 
+class MentionAllData(TypedDict):
+    onlines_only: bool
+
+
+class MentionAll(MessageSegmentFactory):
+    """提到所有人"""
+
+    data: MentionAllData
+
+    def __init__(self, onlines_only: bool = False):
+        """提到所有人的消息段
+
+        参数:
+            onlines_only: 是否只提到当前在线用户，默认为 False
+            不支持的平台会忽略该参数
+        """
+
+        super().__init__()
+        self.data = {"onlines_only": onlines_only}
+
+
 class ReplyData(TypedDict):
     message_id: MessageId
 
