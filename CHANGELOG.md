@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 新功能
+
+- 明确PlatformTarget的deserialize类方法返回`AllSupportedPlatformTarget`类型 [@AzideCupric](https://github.com/AzideCupric) ([#160](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/160))
+
 ## v0.6.1
 
 ### 新功能
