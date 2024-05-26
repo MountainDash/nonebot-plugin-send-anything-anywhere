@@ -8,6 +8,7 @@ SAA 内置的消息段类型有：
 - `Image`：图片消息段
 - `Reply`：回复消息段
 - `Mention`：提及消息段
+- `MentionAll`：提及全体消息段
 
 上述消息段类型都是 `MessageSegmentFactory` 的子类。
 
@@ -111,6 +112,23 @@ async def handle(event: Event):
     ...
 ```
 
+:::
+
+### MentionAll
+
+`MentionAll` 用于包装提及全体消息，可以认为是 `Mention` 的特例。
+其中某些 Adapter 通过在 `Mention` 中使用特别的 `user_id` 来实现提及全体消息（比如飞书、Onebot V11），另一些 Adapter 则通过独立的 `MentionAll` 来实现（比如 Onebot V12、Satori）。
+
+因此为了统一提及全体消息的行为，SAA 提供了 `MentionAll` 消息段。
+
+```python
+from nonebot_plugin_saa import MentionAll
+
+mention_all = MentionAll()
+```
+
+:::warning[不支持提及全体消息时的行为]
+目前并不是所有 Adapter 都支持提及全体消息，如果将提及全体消息发送给不支持的 Adapter，将会 **fallback** 到普通的空 `Text` 消息段，即`Text("")`。（比如DoDo、Telegram）
 :::
 
 ## MessageId
