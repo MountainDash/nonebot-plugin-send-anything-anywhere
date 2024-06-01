@@ -102,9 +102,19 @@ async def test_mention(app: App, assert_dodo):
 async def test_mention_all(app: App, assert_dodo):
     from nonebot.adapters.dodo import MessageSegment
 
-    from nonebot_plugin_saa import MentionAll
+    from nonebot_plugin_saa import MentionAll, SupportedAdapters
 
-    await assert_dodo(app, MentionAll(), MessageSegment.text(""))
+    await assert_dodo(app, MentionAll(), MessageSegment.text("@全体成员 "))
+    await assert_dodo(app, MentionAll(online_only=True), MessageSegment.text("@在线成员 "))
+    await assert_dodo(app, MentionAll("amiya"), MessageSegment.text("amiya"))
+    await assert_dodo(
+        app, MentionAll("@amiya", online_only=True), MessageSegment.text("@amiya"))
+    await assert_dodo(
+        app, MentionAll("amiya", online_only=True), MessageSegment.text("amiya"))
+
+    ma = MentionAll()
+    ma.set_special_fallback(SupportedAdapters.dodo, "amiya")
+    await assert_dodo(app, ma, MessageSegment.text("amiya"))
 
 
 async def test_reply(app: App, assert_dodo):

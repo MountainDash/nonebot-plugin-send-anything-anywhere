@@ -113,7 +113,7 @@ try:
 
     @register_satori(MentionAll)
     async def _mention_all(m: MentionAll) -> MessageSegment:
-        return MessageSegment.at_all(m.data["onlines_only"])
+        return MessageSegment.at_all(m.data["online_only"])
 
     @register_satori(Reply)
     async def _reply(r: Reply) -> MessageSegment:

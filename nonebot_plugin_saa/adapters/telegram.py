@@ -78,8 +78,18 @@ try:
 
     @register_telegram(MentionAll)
     def _mention_all(m: MentionAll) -> MessageSegment:
-        logger.warning("Telegram does not support @all members yet, ignored.")
-        return TGEntity.text("")
+        logger.warning("Telegram does not support @everyone members yet, ignored.")
+        if text := m.data.get("special_fallback", {}).get(adapter):
+            return TGEntity.text(text)
+
+        if text := m.data["fallback"]:
+            return TGEntity.text(text)
+
+        # tg 一般是国外平台，所以默认英文
+        if m.data["online_only"]:
+            return TGEntity.text("@online ")
+
+        return TGEntity.text("@everyone ")
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:

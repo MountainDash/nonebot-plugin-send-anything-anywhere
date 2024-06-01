@@ -86,7 +86,7 @@ async def test_mention_all(app: App, assert_satori):
     await assert_satori(app, MentionAll(), MessageSegment.at_all())
 
     await assert_satori(
-        app, MentionAll(onlines_only=True), MessageSegment.at_all(here=True)
+        app, MentionAll(online_only=True), MessageSegment.at_all(here=True)
     )
 
 

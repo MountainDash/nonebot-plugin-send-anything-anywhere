@@ -1,10 +1,11 @@
 from io import BytesIO
 from pathlib import Path
-from typing import Union, TypedDict
+from typing import Union, TypedDict, overload, Dict
+from typing_extensions import NotRequired
 
 from ..registries import MessageId
 from ..abstract_factories import MessageFactory, MessageSegmentFactory
-
+from ..utils import SupportedAdapters
 
 class TextData(TypedDict):
     text: str
@@ -113,25 +114,68 @@ class Mention(MessageSegmentFactory):
 
 
 class MentionAllData(TypedDict):
-    onlines_only: bool
-
+    online_only: bool
+    fallback: Union[str, None]
+    special_fallback: NotRequired[Dict[SupportedAdapters, str]]
 
 class MentionAll(MessageSegmentFactory):
     """提到所有人"""
 
     data: MentionAllData
 
-    def __init__(self, onlines_only: bool = False):
+    @overload
+    def __init__(self):
+        ...
+
+    # * 之后的参数只能通过关键字传递，方便 IDE 提示
+    @overload
+    def __init__(self, *, online_only: bool = False) -> None:
+        ...
+
+    # fallback 参数可以通过位置传递
+    @overload
+    def __init__(self, fallback: Union[str, None] = None) -> None:
+        ...
+
+    @overload
+    def __init__(
+        self,
+        fallback: Union[str, None] = None,
+        online_only: bool = False,
+    ) -> None:
+        ...
+
+    def __init__(
+        self,
+        fallback: Union[str, None] = None,
+        online_only: bool = False,
+    ) -> None:
         """提到所有人的消息段
 
         参数:
-            onlines_only: 是否只提到当前在线用户，默认为 False
-            不支持的平台会忽略该参数
+            fallback: 当不支持提到所有人时的默认回退消息。
+            手动指定的回退消息不会附带 `@` 字符，
+            为 None 时使用平台中具体实现的回退消息段。
+
+            online_only: 是否只提到当前在线用户，默认为 False。
+            不支持的平台或者指定了回退消息时，会忽略此参数。
         """
 
         super().__init__()
-        self.data = {"onlines_only": onlines_only}
+        self.data = {"online_only": online_only, "fallback": fallback}
 
+    def set_special_fallback(self, adapter: SupportedAdapters, fallback: str):
+        """设置指定适配器的回退消息段，仅在不支持提到所有人时生效。
+
+        在此设置的回退消息优先级高于默认回退消息。
+
+        参数:
+            adapter: 适配器
+            fallback: 回退消息
+        """
+        if "special_fallback" not in self.data:
+            self.data["special_fallback"] = {}
+        self.data["special_fallback"][adapter] = fallback
 
 class ReplyData(TypedDict):
     message_id: MessageId
