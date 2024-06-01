@@ -37,7 +37,7 @@ nonebot2 = { extras = [
   "httpx",
   "websockets",
 ], version = "^2.0.0rc4" }
-ruff = "^0.0.253"
+ruff = ">=0.4.0"
 pytest-mock = "^3.10.0"
 respx = "^0.20.2"
 
