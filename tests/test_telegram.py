@@ -117,7 +117,9 @@ async def test_mention_all(app: App, assert_telegram: AssertTelegramFuncType):
     await assert_telegram(app, MentionAll(), Entity.text("@everyone "))
     await assert_telegram(app, MentionAll(online_only=True), Entity.text("@online "))
     await assert_telegram(app, MentionAll("114514"), Entity.text("114514"))
-    await assert_telegram(app, MentionAll(fallback="@1919810", online_only=True), Entity.text("@1919810"))
+    await assert_telegram(
+        app, MentionAll(fallback="@1919810", online_only=True), Entity.text("@1919810")
+    )
 
     ma = MentionAll()
     ma.set_special_fallback(SupportedAdapters.telegram, "1919810")

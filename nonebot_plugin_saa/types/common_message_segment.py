@@ -1,11 +1,12 @@
 from io import BytesIO
 from pathlib import Path
-from typing import Union, TypedDict, overload, Dict
 from typing_extensions import NotRequired
+from typing import Dict, Union, TypedDict, overload
 
 from ..registries import MessageId
-from ..abstract_factories import MessageFactory, MessageSegmentFactory
 from ..utils import SupportedAdapters
+from ..abstract_factories import MessageFactory, MessageSegmentFactory
+
 
 class TextData(TypedDict):
     text: str
@@ -118,6 +119,7 @@ class MentionAllData(TypedDict):
     fallback: Union[str, None]
     special_fallback: NotRequired[Dict[SupportedAdapters, str]]
 
+
 class MentionAll(MessageSegmentFactory):
     """提到所有人"""
 
@@ -176,6 +178,7 @@ class MentionAll(MessageSegmentFactory):
         if "special_fallback" not in self.data:
             self.data["special_fallback"] = {}
         self.data["special_fallback"][adapter] = fallback
+
 
 class ReplyData(TypedDict):
     message_id: MessageId
