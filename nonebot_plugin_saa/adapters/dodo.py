@@ -8,9 +8,9 @@ from nonebot.drivers import Request
 from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -84,7 +84,8 @@ with suppress(ImportError):
                 raise TypeError(f"Unsupported type of file: {type(file)}, need bytes")
 
         upload_result = await bot.set_resouce_picture_upload(
-            file=file, file_name=image.data["name"] + ".png"  # 上传是文件名必须携带有效后缀
+            file=file,
+            file_name=image.data["name"] + ".png",  # 上传是文件名必须携带有效后缀
         )
         logger.debug(f"Uploaded result: {upload_result}")
         return MessageSegment.picture(**model_dump(upload_result))
@@ -97,6 +98,23 @@ with suppress(ImportError):
     @register_dodo(Mention)
     def _mention(mention: Mention) -> MessageSegment:
         return MessageSegment.at_user(dodo_id=mention.data["user_id"])
+
+    @register_dodo(MentionAll)
+    def _mention_all(m: MentionAll) -> MessageSegment:
+        logger.warning(
+            "DODO does not support to send @all yet, ignore.\nsee: https://open.imdodo.com/dev/api/message.html#%E6%B6%88%E6%81%AF%E8%AF%AD%E6%B3%95"  # noqa: E501
+        )
+        if text := m.data.get("special_fallback", {}).get(adapter):
+            return MessageSegment.text(text)
+
+        if text := m.data["fallback"]:
+            return MessageSegment.text(text)
+
+        # DoDo 是国内的平台，所以默认使用中文
+        if m.data["online_only"]:
+            return MessageSegment.text("@在线成员 ")
+
+        return MessageSegment.text("@全体成员 ")
 
     @register_target_extractor(ChannelMessageEvent)
     def _extract_channel_msg_event(event: Event) -> TargetDoDoChannel:

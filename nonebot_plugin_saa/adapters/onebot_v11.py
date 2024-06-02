@@ -3,9 +3,9 @@ from typing import Any, Dict, List, Union, Literal, Optional, cast
 
 from nonebot.adapters import Bot, Event
 
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     AggregatedMessageFactory,
@@ -67,6 +67,10 @@ try:
     @register_onebot_v11(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.at(m.data["user_id"])
+
+    @register_onebot_v11(MentionAll)
+    async def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.at("all")
 
     @register_onebot_v11(Reply)
     async def _reply(r: Reply) -> MessageSegment:

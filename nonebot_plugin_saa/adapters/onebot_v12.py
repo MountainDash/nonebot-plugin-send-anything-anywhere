@@ -7,9 +7,9 @@ from nonebot.adapters import Event
 from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -94,6 +94,10 @@ try:
     @register_onebot_v12(Mention)
     async def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention(m.data["user_id"])
+
+    @register_onebot_v12(MentionAll)
+    async def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.mention_all()
 
     @register_onebot_v12(Reply)
     async def _reply(r: Reply) -> MessageSegment:

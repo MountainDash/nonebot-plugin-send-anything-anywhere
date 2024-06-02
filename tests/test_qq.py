@@ -102,6 +102,14 @@ async def test_mention_user(app: App, assert_qq):
     await assert_qq(app, Mention("314159"), MessageSegment.mention_user("314159"))
 
 
+async def test_mention_all(app: App, assert_qq):
+    from nonebot.adapters.qq import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_qq(app, MentionAll(), MessageSegment.mention_everyone())
+
+
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.qq import Bot, Message

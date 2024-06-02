@@ -4,9 +4,9 @@ from typing import Any, Dict, List, Literal, cast
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
-from ..types import Text, Image, Reply, Mention
 from ..auto_select_bot import register_list_targets
 from ..utils import SupportedAdapters, SupportedPlatform
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -80,6 +80,10 @@ try:
     @register_kaiheila(Mention)
     def _mention(m: Mention) -> MessageSegment:
         return MessageSegment.mention(m.data["user_id"])
+
+    @register_kaiheila(MentionAll)
+    def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.mention_all()
 
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:

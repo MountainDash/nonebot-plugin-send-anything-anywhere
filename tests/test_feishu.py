@@ -193,6 +193,14 @@ async def test_mention(app: App, assert_feishu):
     await assert_feishu(app, Mention("114514"), At("at", {"user_id": "114514"}))
 
 
+async def test_mention_all(app: App, assert_feishu):
+    from nonebot.adapters.feishu.message import MessageSegment
+
+    from nonebot_plugin_saa import MentionAll
+
+    await assert_feishu(app, MentionAll(), MessageSegment.at("all"))
+
+
 async def test_reply(app: App, assert_feishu):
     from nonebot.adapters.feishu import MessageSegment
 

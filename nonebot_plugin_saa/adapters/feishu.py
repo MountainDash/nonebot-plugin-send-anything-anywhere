@@ -8,7 +8,7 @@ from nonebot.drivers import Request
 from nonebot.adapters import Bot as BaseBot
 
 from ..utils import SupportedAdapters
-from ..types import Text, Image, Reply, Mention
+from ..types import Text, Image, Reply, Mention, MentionAll
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -25,7 +25,6 @@ from ..registries import (
 )
 
 try:
-    from nonebot.adapters.feishu.message import At
     from nonebot.adapters.feishu import (
         Bot,
         Message,
@@ -77,7 +76,11 @@ try:
 
     @register_feishu(Mention)
     def _mention(m: Mention) -> MessageSegment:
-        return At("at", {"user_id": m.data["user_id"]})
+        return MessageSegment.at(m.data["user_id"])
+
+    @register_feishu(MentionAll)
+    def _mention_all(m: MentionAll) -> MessageSegment:
+        return MessageSegment.at("all")
 
     @register_feishu(Reply)
     def _reply(r: Reply) -> MessageSegment:

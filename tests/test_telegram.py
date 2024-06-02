@@ -109,6 +109,23 @@ async def test_mention(app: App, assert_telegram: AssertTelegramFuncType):
     )
 
 
+async def test_mention_all(app: App, assert_telegram: AssertTelegramFuncType):
+    from nonebot.adapters.telegram.message import Entity
+
+    from nonebot_plugin_saa import MentionAll, SupportedAdapters
+
+    await assert_telegram(app, MentionAll(), Entity.text("@everyone "))
+    await assert_telegram(app, MentionAll(online_only=True), Entity.text("@online "))
+    await assert_telegram(app, MentionAll("114514"), Entity.text("114514"))
+    await assert_telegram(
+        app, MentionAll(fallback="@1919810", online_only=True), Entity.text("@1919810")
+    )
+
+    ma = MentionAll()
+    ma.set_special_fallback(SupportedAdapters.telegram, "1919810")
+    await assert_telegram(app, ma, Entity.text("1919810"))
+
+
 async def test_reply(app: App, assert_telegram: AssertTelegramFuncType):
     from nonebot.adapters.telegram.message import Reply as TGReply
 
