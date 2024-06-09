@@ -28,6 +28,7 @@ from .registries import TargetQQGuildChannel as TargetQQGuildChannel
 from .registries import TargetTelegramCommon as TargetTelegramCommon
 from .registries import TargetKaiheilaChannel as TargetKaiheilaChannel
 from .registries import TargetKaiheilaPrivate as TargetKaiheilaPrivate
+from .registries import TargetDiscordChannel as TargetDiscordChannel
 from .registries import TargetQQPrivateOpenId as TargetQQPrivateOpenId
 from .auto_select_bot import enable_auto_select_bot as enable_auto_select_bot
 from .abstract_factories import MessageSegmentFactory as MessageSegmentFactory

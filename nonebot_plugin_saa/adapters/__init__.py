@@ -3,6 +3,7 @@ from . import red as red
 from . import dodo as dodo
 from . import feishu as feishu
 from . import satori as satori
+from . import discord as discord
 from . import kaiheila as kaiheila
 from . import telegram as telegram
 from . import onebot_v11 as onebot_v11

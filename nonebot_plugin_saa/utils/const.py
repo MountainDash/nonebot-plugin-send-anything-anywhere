@@ -11,6 +11,7 @@ class SupportedAdapters(StrEnum):
     dodo = "DoDo"
     qq = "QQ"
     satori = "Satori"
+    discord = "Discord"
 
     fake = "fake"  # for nonebug
 
@@ -32,6 +33,7 @@ class SupportedPlatform(StrEnum):
     feishu_group = "Feishu Group"
     dodo_channel = "DoDo Channel"
     dodo_private = "DoDo Private"
+    discord_channel = "Discord Channel"
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())
