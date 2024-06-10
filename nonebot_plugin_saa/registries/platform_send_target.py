@@ -8,9 +8,8 @@ from typing import (
     Callable,
     ClassVar,
     Optional,
-    Awaitable,
-    cast,
     Annotated,
+    cast,
 )
 
 from pydantic import BaseModel

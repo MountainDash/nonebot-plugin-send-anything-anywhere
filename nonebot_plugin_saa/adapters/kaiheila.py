@@ -5,8 +5,8 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,

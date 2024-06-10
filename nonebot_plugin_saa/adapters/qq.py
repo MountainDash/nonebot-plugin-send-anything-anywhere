@@ -5,9 +5,9 @@ from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..config import plugin_config
-from ..utils import SupportedAdapters, type_message_id_check
 from ..auto_select_bot import register_list_targets
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,

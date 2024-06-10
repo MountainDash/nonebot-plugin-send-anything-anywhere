@@ -7,8 +7,8 @@ from nonebot.adapters import Event
 from nonebot.drivers import Request
 from nonebot.adapters import Bot as BaseBot
 
-from ..utils import SupportedAdapters, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,

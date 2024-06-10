@@ -4,8 +4,8 @@ from typing import Any, Union, Literal, Optional, cast
 from nonebot.adapters import Bot, Event
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     AggregatedMessageFactory,

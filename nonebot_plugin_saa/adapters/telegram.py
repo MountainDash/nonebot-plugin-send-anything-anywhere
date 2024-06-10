@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Union, Literal, Optional, cast
 import anyio
 from nonebot import logger
 
-from ..utils import SupportedAdapters, type_message_id_check
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
