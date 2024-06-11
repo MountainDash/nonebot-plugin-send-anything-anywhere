@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Union
 
 from nonebot.adapters import Bot, MessageSegment
 
@@ -17,7 +17,7 @@ class Custom(MessageSegmentFactory):
 
     def __init__(
         self,
-        ms_dict: Dict[SupportedAdapters, Union[MessageSegment, CustomBuildFunc]],
+        ms_dict: dict[SupportedAdapters, Union[MessageSegment, CustomBuildFunc]],
     ):
         """
         自定义 MessageSegment

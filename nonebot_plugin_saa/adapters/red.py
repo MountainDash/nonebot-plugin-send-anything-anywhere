@@ -1,14 +1,14 @@
 from datetime import datetime
 from functools import partial
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 from nonebot import get_driver
 from nonebot.adapters import Bot, Event
 from nonebot.drivers import Request, HTTPClientMixin
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     AggregatedMessageFactory,
@@ -75,7 +75,7 @@ try:
 
     @register_red(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], RedMessageId)
+        mid = type_message_id_check(RedMessageId, r.data["message_id"])
         return MessageSegment.reply(
             message_seq=mid.message_seq,
             message_id=mid.message_id,
@@ -95,7 +95,7 @@ try:
         return TargetQQGroup(group_id=int(event.peerUin))
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
         return {
             "chat_type": ChatType.FRIEND,
@@ -103,7 +103,7 @@ try:
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
-    def _gen_group(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
         return {
             "chat_type": ChatType.GROUP,
@@ -172,13 +172,13 @@ try:
     @AggregatedMessageFactory.register_aggregated_sender(adapter)
     async def aggregate_send(
         bot: Bot,
-        message_factories: List[MessageFactory],
+        message_factories: list[MessageFactory],
         target: PlatformTarget,
         event: Optional[Event],
     ):
         assert isinstance(bot, BotRed)
 
-        msg_list: List[Message] = []
+        msg_list: list[Message] = []
         for msg_fac in message_factories:
             msg = await msg_fac.build(bot)
             assert isinstance(msg, Message)
@@ -205,7 +205,7 @@ try:
             raise RuntimeError(f"{target.__class__.__name__} not supported")
 
     @register_list_targets(SupportedAdapters.red)
-    async def list_targets(bot: Bot) -> List[PlatformTarget]:
+    async def list_targets(bot: Bot) -> list[PlatformTarget]:
         assert isinstance(bot, BotRed)
 
         targets = []

@@ -1,13 +1,13 @@
 from functools import partial
-from typing import List, Union, Literal, Optional
+from typing import Union, Literal, Optional
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..config import plugin_config
-from ..utils import SupportedAdapters
 from ..auto_select_bot import register_list_targets
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -77,14 +77,15 @@ try:
 
     @register_qq(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], QQMessageId)
+        mid = type_message_id_check(QQMessageId, r.data["message_id"])
         return MessageSegment.reference(mid.message_id)
 
     @register_target_extractor(GuildMessageEvent)
     def extract_message_event(event: Event) -> PlatformTarget:
         if isinstance(event, DirectMessageCreateEvent):
             assert event.guild_id
-            assert event.author and event.author.id
+            assert event.author
+            assert event.author.id
             return TargetQQGuildDirect(
                 source_guild_id=int(event.guild_id),
                 recipient_id=int(event.author.id),
@@ -225,7 +226,7 @@ try:
         return QQReceipt(bot_id=bot.self_id, msg_return=msg_return)
 
     @register_list_targets(SupportedAdapters.qq)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []

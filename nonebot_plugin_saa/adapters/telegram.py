@@ -2,13 +2,13 @@ import asyncio
 from io import BytesIO
 from pathlib import Path
 from functools import partial
-from typing import TYPE_CHECKING, List, Union, Literal, Optional, cast
+from typing import TYPE_CHECKING, Union, Literal, Optional, cast
 
 import anyio
 from nonebot import logger
 
-from ..utils import SupportedAdapters
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -93,7 +93,7 @@ try:
 
     @register_telegram(Reply)
     async def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], TelegramMessageId)
+        mid = type_message_id_check(TelegramMessageId, r.data["message_id"])
         return TGReply.reply(mid.message_id, mid.chat_id)
 
     @register_target_extractor(PrivateMessageEvent)
@@ -135,7 +135,7 @@ try:
 
     class TelegramReceipt(Receipt):
         chat_id: Union[int, str]
-        messages: List[MessageModel]
+        messages: list[MessageModel]
         adapter_name: Literal[adapter] = adapter
 
         async def revoke(self):
@@ -222,7 +222,7 @@ try:
             else None
         )
         message_sent = cast(
-            Union[MessageModel, List[MessageModel]],
+            Union[MessageModel, list[MessageModel]],
             await bot.send_to(
                 chat_id,
                 message_to_send,

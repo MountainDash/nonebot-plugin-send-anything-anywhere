@@ -1,7 +1,7 @@
 from io import BytesIO
 from pathlib import Path
 from typing_extensions import NotRequired
-from typing import Dict, Union, TypedDict, overload
+from typing import Union, TypedDict, overload
 
 from ..registries import MessageId
 from ..utils import SupportedAdapters
@@ -56,8 +56,10 @@ class Image(MessageSegmentFactory):
         支持多种格式的数据
 
         参数:
-            image: str 为图片 URL，bytes 为图片数据，Path 为图片路径，BytesIO 为图片文件流
-            name: 图片名称，默认为 image
+            image:
+                str 为图片 URL，bytes 为图片数据，Path 为图片路径，BytesIO 为图片文件流
+            name:
+                图片名称，默认为 image
         """
         super().__init__()
         self.data = {"image": image, "name": name}
@@ -74,7 +76,7 @@ class Image(MessageSegmentFactory):
         else:
             image_str = format_template.format("image", repr(image))
 
-        kv_list = list(f"{k}={v!r}" for k, v in self.data.items() if k != "image")
+        kv_list = [f"{k}={v!r}" for k, v in self.data.items() if k != "image"]
         kv_list.append(image_str)
         return f"[SAA:{self.__class__.__name__}|{','.join(kv_list)}]"
 
@@ -85,11 +87,11 @@ class Image(MessageSegmentFactory):
             image_str = format_template.format("image", repr(image))
         elif isinstance(image, BytesIO):
             image_str = format_template.format(
-                "image", f"BytesIO({repr(image.getvalue())})"
+                "image", f"BytesIO({image.getvalue()!r})"
             )
         else:
             image_str = format_template.format("image", repr(image))
-        kv_list = list(f"{k}={v!r}" for k, v in self.data.items() if k != "image")
+        kv_list = [f"{k}={v!r}" for k, v in self.data.items() if k != "image"]
         kv_list.append(image_str)
         return f"{self.__class__.__name__}({', '.join(kv_list)})"
 
@@ -117,7 +119,7 @@ class Mention(MessageSegmentFactory):
 class MentionAllData(TypedDict):
     online_only: bool
     fallback: Union[str, None]
-    special_fallback: NotRequired[Dict[SupportedAdapters, str]]
+    special_fallback: NotRequired[dict[SupportedAdapters, str]]
 
 
 class MentionAll(MessageSegmentFactory):
@@ -126,26 +128,22 @@ class MentionAll(MessageSegmentFactory):
     data: MentionAllData
 
     @overload
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     # * 之后的参数只能通过关键字传递，方便 IDE 提示
     @overload
-    def __init__(self, *, online_only: bool = False) -> None:
-        ...
+    def __init__(self, *, online_only: bool = False) -> None: ...
 
     # fallback 参数可以通过位置传递
     @overload
-    def __init__(self, fallback: Union[str, None] = None) -> None:
-        ...
+    def __init__(self, fallback: Union[str, None] = None) -> None: ...
 
     @overload
     def __init__(
         self,
         fallback: Union[str, None] = None,
         online_only: bool = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,

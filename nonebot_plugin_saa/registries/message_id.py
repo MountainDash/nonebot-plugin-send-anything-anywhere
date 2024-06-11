@@ -1,6 +1,5 @@
 from abc import ABC
-from typing_extensions import Annotated
-from typing import Dict, Type, Callable, Optional
+from typing import Callable, Optional, Annotated
 
 from nonebot.adapters import Event
 from nonebot.params import Depends
@@ -17,10 +16,10 @@ class MessageId(SerializationMeta, ABC):
 
 MessageIdGetter = Callable[[Event], MessageId]
 
-_get_message_id_dict: Dict[Type[Event], MessageIdGetter] = {}
+_get_message_id_dict: dict[type[Event], MessageIdGetter] = {}
 
 
-def register_message_id_getter(event_type: Type[Event]):
+def register_message_id_getter(event_type: type[Event]):
     def register(getter: MessageIdGetter):
         _get_message_id_dict[event_type] = getter
         return getter

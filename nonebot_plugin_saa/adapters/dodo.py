@@ -1,6 +1,6 @@
 from functools import partial
 from contextlib import suppress
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 from nonebot import logger
 from nonebot.adapters import Event
@@ -9,8 +9,8 @@ from nonebot.compat import model_dump
 from nonebot.adapters import Bot as BaseBot
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -92,7 +92,7 @@ with suppress(ImportError):
 
     @register_dodo(Reply)
     def _reply(reply: Reply) -> MessageSegment:
-        assert isinstance(mid := reply.data["message_id"], DodoMessageId)
+        mid = type_message_id_check(DodoMessageId, reply.data["message_id"])
         return MessageSegment.reference(mid.message_id)
 
     @register_dodo(Mention)
@@ -102,7 +102,7 @@ with suppress(ImportError):
     @register_dodo(MentionAll)
     def _mention_all(m: MentionAll) -> MessageSegment:
         logger.warning(
-            "DODO does not support to send @all yet, ignore.\nsee: https://open.imdodo.com/dev/api/message.html#%E6%B6%88%E6%81%AF%E8%AF%AD%E6%B3%95"  # noqa: E501
+            "DODO does not support to send @all yet, ignore.\nsee: https://open.imdodo.com/dev/api/message.html#%E6%B6%88%E6%81%AF%E8%AF%AD%E6%B3%95"
         )
         if text := m.data.get("special_fallback", {}).get(adapter):
             return MessageSegment.text(text)
@@ -158,7 +158,7 @@ with suppress(ImportError):
         )
 
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_channel)
-    def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetDoDoChannel)
         args = {
             "channel_id": target.channel_id,
@@ -168,7 +168,7 @@ with suppress(ImportError):
         return args
 
     @register_convert_to_arg(adapter, SupportedPlatform.dodo_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetDoDoPrivate)
         return {
             "dodo_source_id": target.dodo_source_id,
@@ -248,7 +248,7 @@ with suppress(ImportError):
         return DodoReceipt(message_id=resp, bot_id=bot.self_id)
 
     @register_list_targets(adapter)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, BotDodo)
         targets = []
         for island in await bot.get_island_list():

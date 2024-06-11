@@ -1,8 +1,10 @@
-""" 提供获取 Bot 的方法 """
+"""提供获取 Bot 的方法"""
+
 import json
 import random
 import asyncio
-from typing import Set, Dict, List, Callable, Awaitable
+from typing import Callable
+from collections.abc import Awaitable
 
 import nonebot
 from nonebot.adapters import Bot
@@ -17,12 +19,12 @@ from .utils import (
     extract_adapter_type,
 )
 
-BOT_CACHE: Dict[Bot, Set[PlatformTarget]] = {}
+BOT_CACHE: dict[Bot, set[PlatformTarget]] = {}
 BOT_CACHE_LOCK = asyncio.Lock()
 
-ListTargetsFunc = Callable[[Bot], Awaitable[List[PlatformTarget]]]
+ListTargetsFunc = Callable[[Bot], Awaitable[list[PlatformTarget]]]
 
-list_targets_map: Dict[str, ListTargetsFunc] = {}
+list_targets_map: dict[str, ListTargetsFunc] = {}
 
 inited = False
 

@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from datetime import datetime
 from functools import partial
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 import pytest
 from nonebug import App
@@ -14,7 +14,7 @@ from nonebot.adapters.satori.config import ClientInfo
 
 from .utils import assert_ms, mock_satori_message_event
 
-satori_kwargs: Dict[Literal["platform", "info"], Any] = {
+satori_kwargs: dict[Literal["platform", "info"], Any] = {
     "platform": "qq",
     "info": ClientInfo(port=12345),
 }

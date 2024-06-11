@@ -18,12 +18,10 @@ class Receipt(SerializationMeta):
     def _get_bot(self) -> Bot:
         return get_bot(self.bot_id)
 
-    async def revoke(self):
-        ...
+    async def revoke(self): ...
 
     @property
-    def raw(self) -> Any:
-        ...
+    def raw(self) -> Any: ...
 
     @abstractmethod
     def extract_message_id(self) -> MessageId:

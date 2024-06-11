@@ -26,7 +26,7 @@ def app(app: App):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def load_adapters(nonebug_init: None):
+def load_adapters(nonebug_init: None):  # noqa: PT004
     driver = nonebot.get_driver()
     driver.register_adapter(OnebotV11Adapter)
     driver.register_adapter(OnebotV12Adapter)

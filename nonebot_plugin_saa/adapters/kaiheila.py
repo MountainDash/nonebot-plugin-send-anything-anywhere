@@ -1,12 +1,12 @@
 from functools import partial
-from typing import Any, Dict, List, Literal, cast
+from typing import Any, Literal, cast
 
 from nonebot.adapters import Event
 from nonebot.adapters import Bot as BaseBot
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -87,7 +87,7 @@ try:
 
     @register_kaiheila(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], KaiheilaMessageId)
+        mid = type_message_id_check(KaiheilaMessageId, r.data["message_id"])
         return MessageSegment.quote(mid.message_id)
 
     @register_target_extractor(PrivateMessageEvent)
@@ -101,14 +101,14 @@ try:
         return TargetKaiheilaChannel(channel_id=event.target_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_private)
-    def _gen_private(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetKaiheilaPrivate)
         return {
             "user_id": target.user_id,
         }
 
     @register_convert_to_arg(adapter, SupportedPlatform.kaiheila_channel)
-    def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetKaiheilaChannel)
         return {
             "channel_id": target.channel_id,
@@ -170,7 +170,7 @@ try:
         return KaiheilaReceipt(bot_id=bot.self_id, data=resp)
 
     @register_list_targets(SupportedAdapters.kaiheila)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, Bot)
 
         targets = []
@@ -187,7 +187,8 @@ try:
 
         async for user_chat in _unwrap_paging_api("user_chats")(bot.userChat_list)():
             user_chat: UserChat
-            assert user_chat.target_info and user_chat.target_info.id_
+            assert user_chat.target_info
+            assert user_chat.target_info.id_
             target = TargetKaiheilaPrivate(user_id=user_chat.target_info.id_)
             targets.append(target)
 

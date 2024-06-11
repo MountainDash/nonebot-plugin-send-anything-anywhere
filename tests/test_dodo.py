@@ -105,7 +105,9 @@ async def test_mention_all(app: App, assert_dodo):
     from nonebot_plugin_saa import MentionAll, SupportedAdapters
 
     await assert_dodo(app, MentionAll(), MessageSegment.text("@全体成员 "))
-    await assert_dodo(app, MentionAll(online_only=True), MessageSegment.text("@在线成员 "))
+    await assert_dodo(
+        app, MentionAll(online_only=True), MessageSegment.text("@在线成员 ")
+    )
     await assert_dodo(app, MentionAll("amiya"), MessageSegment.text("amiya"))
     await assert_dodo(
         app, MentionAll("@amiya", online_only=True), MessageSegment.text("@amiya")
@@ -495,7 +497,7 @@ async def test_extract_target(app: App):
         message_type=MessageType(1),
         message_body=TextMessage(content="aa"),
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         extract_target(pme2)
 
     gse = GiftSendEvent(
