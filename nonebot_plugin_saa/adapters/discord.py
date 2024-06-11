@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from functools import partial
 from contextlib import suppress
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Optional, cast
 
 from nonebot.adapters import Event
 from nonebot.drivers import Request
@@ -17,8 +17,8 @@ from nonebot.adapters.discord.api.model import (
 )
 
 from ..auto_select_bot import register_list_targets
-from ..utils import SupportedAdapters, SupportedPlatform
 from ..types import Text, Image, Reply, Mention, MentionAll
+from ..utils import SupportedAdapters, SupportedPlatform, type_message_id_check
 from ..abstract_factories import (
     MessageFactory,
     register_ms_adapter,
@@ -114,7 +114,7 @@ with suppress(ImportError):
 
     @register_discord(Reply)
     def _reply(r: Reply) -> MessageSegment:
-        assert isinstance(mid := r.data["message_id"], DiscordMessageId)
+        mid = type_message_id_check(DiscordMessageId, r.data["message_id"])
         return MessageSegment.reference(reference=mid.message_id)
 
     @register_discord(Mention)
@@ -134,7 +134,7 @@ with suppress(ImportError):
         return TargetDiscordChannel(channel_id=event.channel_id)
 
     @register_convert_to_arg(adapter, SupportedPlatform.discord_channel)
-    def _gen_channel(target: PlatformTarget) -> Dict[str, Any]:
+    def _gen_channel(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetDiscordChannel)
         return {
             "channel_id": target.channel_id,
@@ -154,12 +154,12 @@ with suppress(ImportError):
         async def edit(
             self,
             content: Optional[str] = None,
-            embeds: Optional[List[Embed]] = None,
+            embeds: Optional[list[Embed]] = None,
             flags: Optional[MessageFlag] = None,
             allowed_mentions: Optional[AllowedMention] = None,
-            components: Optional[List[DirectComponent]] = None,
-            files: Optional[List[File]] = None,
-            attachments: Optional[List[AttachmentSend]] = None,
+            components: Optional[list[DirectComponent]] = None,
+            files: Optional[list[File]] = None,
+            attachments: Optional[list[AttachmentSend]] = None,
         ) -> "DiscordReceipt":
             mg = await cast(BotDiscord, self._get_bot()).edit_message(
                 channel_id=self.message_get.channel_id,
@@ -238,9 +238,9 @@ with suppress(ImportError):
         return DiscordReceipt(message_get=resp, bot_id=bot.self_id)
 
     @register_list_targets(adapter)
-    async def list_targets(bot: BaseBot) -> List[PlatformTarget]:
+    async def list_targets(bot: BaseBot) -> list[PlatformTarget]:
         assert isinstance(bot, BotDiscord)
-        channel_ids: List[Snowflake] = []
+        channel_ids: list[Snowflake] = []
         guild_list = await bot.get_current_user_guilds()
         for guild in guild_list:
             channels = await bot.get_guild_channels(guild_id=guild.id)
