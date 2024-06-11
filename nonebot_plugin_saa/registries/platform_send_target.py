@@ -291,9 +291,9 @@ class TargetDiscordChannel(PlatformTarget):
         channel_id: 频道 ID
     """
 
-    platform_type: Literal[
+    platform_type: Literal[SupportedPlatform.discord_channel] = (
         SupportedPlatform.discord_channel
-    ] = SupportedPlatform.discord_channel
+    )
     channel_id: int
 
 
