@@ -2,6 +2,10 @@
 
 ## 最近更新
 
+### 破坏性变更
+
+- 不再支持 Python 3.8 [@AzideCupric](https://github.com/AzideCupric) ([#156](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/156))
+
 ### 新功能
 
 - 添加MentionAll [@AzideCupric](https://github.com/AzideCupric) ([#161](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/161))
