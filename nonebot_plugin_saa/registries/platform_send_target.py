@@ -284,6 +284,19 @@ class TargetDoDoPrivate(PlatformTarget):
     dodo_source_id: str
 
 
+class TargetDiscordChannel(PlatformTarget):
+    """Discord频道,包括群聊和私聊
+
+    参数
+        channel_id: 频道 ID
+    """
+
+    platform_type: Literal[SupportedPlatform.discord_channel] = (
+        SupportedPlatform.discord_channel
+    )
+    channel_id: int
+
+
 # this union type is for deserialize pydantic model with nested PlatformTarget
 AllSupportedPlatformTarget = Union[
     TargetQQGroup,
@@ -302,6 +315,7 @@ AllSupportedPlatformTarget = Union[
     TargetDoDoChannel,
     TargetDoDoPrivate,
     TargetSatoriUnknown,
+    TargetDiscordChannel,
 ]
 
 

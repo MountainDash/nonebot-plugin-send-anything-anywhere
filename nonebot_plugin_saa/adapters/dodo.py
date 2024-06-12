@@ -50,6 +50,8 @@ with suppress(ImportError):
     adapter = SupportedAdapters.dodo
     register_dodo = partial(register_ms_adapter, adapter)
 
+    MessageFactory.register_adapter_message(adapter, Message)
+
     class DodoMessageId(MessageId):
         adapter_name: Literal[adapter] = adapter
 

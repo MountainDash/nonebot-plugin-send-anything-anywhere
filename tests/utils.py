@@ -12,7 +12,8 @@ if TYPE_CHECKING:
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
     from nonebot.adapters.onebot.v12 import Message as OB12Message
-    from nonebot.adapters.dodo.models import MessageBody, MessageType
+    from nonebot.adapters.dodo.models import MessageBody as DodoMessageBody
+    from nonebot.adapters.dodo.models import MessageType as DodoMessageType
     from nonebot.adapters.telegram.event import MessageEvent as TGMessageEvent
 
     from nonebot_plugin_saa.abstract_factories import (
@@ -39,7 +40,67 @@ async def assert_ms(
         assert generated_ms.data == ms.data
 
 
-def mock_dodo_message_event(message: "MessageBody", type: "MessageType", private=False):
+def mock_discord_message_event(create: bool = True):
+    from nonebot.adapters.discord.event import EventType
+    from nonebot.adapters.discord.api import User, Snowflake, MessageType
+    from nonebot.adapters.discord.event import MessageEvent as DiscordMessageEvent
+    from nonebot.adapters.discord.event import (
+        MessageCreateEvent as DiscordMessageCreateEvent,
+    )
+
+    if not create:
+        return DiscordMessageEvent(
+            __type__=EventType.MESSAGE_CREATE,
+            id=Snowflake(1234),
+            channel_id=Snowflake(4321),
+            author=User(
+                id=Snowflake(1234),
+                username="canxin121",
+                discriminator="0",
+                avatar=None,
+                global_name=None,
+            ),
+            content="/test",
+            timestamp=datetime(year=1999, month=9, day=9),
+            edited_timestamp=None,
+            tts=False,
+            mention_everyone=False,
+            mentions=[],
+            mention_roles=[],
+            attachments=[],
+            embeds=[],
+            pinned=False,
+            type=MessageType(0),
+        )
+    else:
+        return DiscordMessageCreateEvent(
+            __type__=EventType.MESSAGE_CREATE,
+            id=Snowflake(1234),
+            channel_id=Snowflake(4321),
+            author=User(
+                id=Snowflake(1234),
+                username="canxin121",
+                discriminator="0",
+                avatar=None,
+                global_name=None,
+            ),
+            content="/test",
+            timestamp=datetime(year=1999, month=9, day=9),
+            edited_timestamp=None,
+            tts=False,
+            mention_everyone=False,
+            mentions=[],
+            mention_roles=[],
+            attachments=[],
+            embeds=[],
+            pinned=False,
+            type=MessageType(0),
+        )
+
+
+def mock_dodo_message_event(
+    message: "DodoMessageBody", type: "DodoMessageType", private=False
+):
     from nonebot.adapters.dodo.models import Sex, Member, Personal
     from nonebot.adapters.dodo.event import (
         EventType,
