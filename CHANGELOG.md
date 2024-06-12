@@ -8,6 +8,7 @@
 
 ### 新功能
 
+- 适配 Discord 适配器 [@AzideCupric](https://github.com/AzideCupric) ([#162](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/162))
 - 添加MentionAll [@AzideCupric](https://github.com/AzideCupric) ([#161](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/161))
 - 明确PlatformTarget的deserialize类方法返回`AllSupportedPlatformTarget`类型 [@AzideCupric](https://github.com/AzideCupric) ([#160](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/160))
 
