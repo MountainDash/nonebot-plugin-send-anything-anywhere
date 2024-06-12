@@ -128,7 +128,15 @@ mention_all = MentionAll()
 ```
 
 :::warning[不支持提及全体消息时的行为]
-目前并不是所有 Adapter 都支持提及全体消息，如果将提及全体消息发送给不支持的 Adapter，将会 **fallback** 到普通的空 `Text` 消息段，即`Text("")`。（比如DoDo、Telegram）
+目前并不是所有 Adapter 都支持提及全体消息，如果将提及全体消息发送给不支持的 Adapter，将会进行 **fallback**。
+
+fallback 的默认行为是将 `MentionAll` 替换为 `Text`，用文本消息 `@全体成员` 替代。（取决于 Adapter 的适配实现）。
+
+如果在 `MentionAll` 消息段中指定了 `fallback` 参数，将会使用该参数**原样**作为 fallback 的文本。
+
+有时可能对不同的 Adapter 需要不同的 fallback 文本，这时可以使用 `MentionAll` 实例的`set_specific_fallback` 方法来设置特定适配器的 fallback 文本。
+
+fallback文本的应用优先级为：`set_specific_fallback` > `fallback` > 默认fallback文本。
 :::
 
 ## MessageId
