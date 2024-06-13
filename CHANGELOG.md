@@ -12,6 +12,10 @@
 - 添加MentionAll [@AzideCupric](https://github.com/AzideCupric) ([#161](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/161))
 - 明确PlatformTarget的deserialize类方法返回`AllSupportedPlatformTarget`类型 [@AzideCupric](https://github.com/AzideCupric) ([#160](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/160))
 
+### 文档
+
+- 补充主页 Readme 的文档说明 [@AzideCupric](https://github.com/AzideCupric) ([#154](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/154))
+
 ## v0.6.1
 
 ### 新功能
