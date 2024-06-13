@@ -118,6 +118,7 @@ class TargetQQGuildChannel(PlatformTarget):
     platform_type: Literal[SupportedPlatform.qq_guild_channel] = (
         SupportedPlatform.qq_guild_channel
     )
+    guild_id: Optional[str] = None  # 为了兼容 Kritor
     channel_id: int
 
 
@@ -134,6 +135,20 @@ class TargetQQGuildDirect(PlatformTarget):
     )
     recipient_id: int
     source_guild_id: int
+
+
+class TargetKritorUnknown(PlatformTarget):
+    """暂未支持的 Kritor 发送目标
+
+    如QQ非好友临时会话、QQ群非好友临时会话、QQ附近的人
+    """
+
+    platform_type: Literal[SupportedPlatform.kritor_unknown] = (
+        SupportedPlatform.kritor_unknown
+    )
+    type: str
+    primary_id: str
+    secondary_id: Optional[str] = None
 
 
 class TargetOB12Unknow(PlatformTarget):

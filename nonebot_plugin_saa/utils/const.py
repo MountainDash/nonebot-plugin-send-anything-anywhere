@@ -12,6 +12,7 @@ class SupportedAdapters(StrEnum):
     qq = "QQ"
     satori = "Satori"
     discord = "Discord"
+    kritor = "Kritor"
 
     fake = "fake"  # for nonebug
 
@@ -34,6 +35,7 @@ class SupportedPlatform(StrEnum):
     dodo_channel = "DoDo Channel"
     dodo_private = "DoDo Private"
     discord_channel = "Discord Channel"
+    kritor_unknown = "Kritor Unknown"
 
 
 supported_adapter_names = set(SupportedAdapters._member_map_.values())

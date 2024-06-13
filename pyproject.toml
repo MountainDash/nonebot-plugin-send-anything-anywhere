@@ -54,6 +54,7 @@ nonebot-adapter-dodo = "^0.2.0"
 nonebot-adapter-qq = "^1.4.1"
 nonebot-adapter-satori = "^0.10.2"
 nonebot-adapter-discord = "^0.1.7"
+nonebot-adapter-kritor = "^0.2.0"
 
 [tool.black]
 line-length = 88

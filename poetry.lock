@@ -83,6 +83,24 @@ multidict = ">=4.0,<7.0"
 requests = ">=2.21,<3.0"
 
 [[package]]
+name = "betterproto"
+version = "2.0.0b6"
+description = "A better Protobuf / gRPC generator & library"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "betterproto-2.0.0b6-py3-none-any.whl", hash = "sha256:a0839ec165d110a69d0d116f4d0e2bec8d186af4db826257931f0831dab73fcf"},
+    {file = "betterproto-2.0.0b6.tar.gz", hash = "sha256:720ae92697000f6fcf049c69267d957f0871654c8b0d7458906607685daee784"},
+]
+
+[package.dependencies]
+grpclib = ">=0.4.1,<0.5.0"
+python-dateutil = ">=2.8,<3.0"
+
+[package.extras]
+compiler = ["black (>=19.3b0)", "isort (>=5.11.5,<6.0.0)", "jinja2 (>=3.0.3)"]
+
+[[package]]
 name = "cashews"
 version = "7.1.0"
 description = "cache tools with async power"
@@ -431,6 +449,23 @@ files = [
     {file = "filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25"},
     {file = "filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb"},
 ]
+
+[[package]]
+name = "grpclib"
+version = "0.4.7"
+description = "Pure-Python gRPC implementation for asyncio"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "grpclib-0.4.7.tar.gz", hash = "sha256:2988ef57c02b22b7a2e8e961792c41ccf97efc2ace91ae7a5b0de03c363823c3"},
+]
+
+[package.dependencies]
+h2 = ">=3.1.0,<5"
+multidict = "*"
+
+[package.extras]
+protobuf = ["protobuf (>=3.20.0)"]
 
 [[package]]
 name = "h11"
@@ -1045,6 +1080,21 @@ nonebot2 = ">=2.2.0,<3.0.0"
 typing-extensions = ">=4.8.0,<5.0.0"
 
 [[package]]
+name = "nonebot-adapter-kritor"
+version = "0.2.0"
+description = "Nonebot Adapter for Kritor Protocol"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "nonebot_adapter_kritor-0.2.0-py3-none-any.whl", hash = "sha256:52d07c61e87e884af803f151436854dc3ec25da016924dd63f20c1f33520b61b"},
+    {file = "nonebot_adapter_kritor-0.2.0.tar.gz", hash = "sha256:a6ef0368c5d357d954eac2d8eb24fbf065cada9e60b5b23de4dd7aac3da66e10"},
+]
+
+[package.dependencies]
+betterproto = ">=2.0.0b6"
+nonebot2 = ">=2.2.1"
+
+[[package]]
 name = "nonebot-adapter-onebot"
 version = "2.4.3"
 description = "OneBot(CQHTTP) adapter for nonebot2"
@@ -1383,13 +1433,13 @@ files = [
 
 [[package]]
 name = "pydantic"
-version = "2.7.3"
+version = "2.7.4"
 description = "Data validation using Python type hints"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pydantic-2.7.3-py3-none-any.whl", hash = "sha256:ea91b002777bf643bb20dd717c028ec43216b24a6001a280f83877fd2655d0b4"},
-    {file = "pydantic-2.7.3.tar.gz", hash = "sha256:c46c76a40bb1296728d7a8b99aa73dd70a48c3510111ff290034f860c99c419e"},
+    {file = "pydantic-2.7.4-py3-none-any.whl", hash = "sha256:ee8538d41ccb9c0a9ad3e0e5f07bf15ed8015b481ced539a1759d8cc89ae90d0"},
+    {file = "pydantic-2.7.4.tar.gz", hash = "sha256:0c84efd9548d545f63ac0060c1e4d39bb9b14db8b3c0652338aecc07b5adec52"},
 ]
 
 [package.dependencies]
@@ -1590,6 +1640,20 @@ pytest = ">=6.2.5"
 
 [package.extras]
 dev = ["pre-commit", "pytest-asyncio", "tox"]
+
+[[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+description = "Extensions to the standard Python datetime module"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
+]
+
+[package.dependencies]
+six = ">=1.5"
 
 [[package]]
 name = "python-dotenv"
@@ -2371,4 +2435,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <4.0"
-content-hash = "ae79edad9a45d287f75e06dc56ae16e4518f3868366337a7352113cf0304bfba"
+content-hash = "5f1b24cb535d5bbf779f7c549f4feecf38f1d8b846eac5a4e1b0e5f92a11f366"
