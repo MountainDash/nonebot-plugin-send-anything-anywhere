@@ -94,7 +94,7 @@ with suppress(ImportError):
         if isinstance(file, str):
             if (uri := URL(file)).is_absolute() and uri.scheme in ("http", "https"):
                 return MessageSegment.image(url=file)
-            elif path := Path(file):
+            elif (path := Path(file)) and path.exists():
                 return MessageSegment.image(path=path)
             else:
                 raise TypeError(f"Invalid image str value: {file}")

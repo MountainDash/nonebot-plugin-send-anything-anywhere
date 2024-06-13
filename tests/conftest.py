@@ -5,6 +5,7 @@ from nonebot.adapters.qq import Adapter as QQAdapter
 from nonebot.adapters.red import Adapter as RedAdapter
 from nonebot.adapters.dodo import Adapter as DoDoAdapter
 from nonebot.adapters.feishu import Adapter as FeishuAdapter
+from nonebot.adapters.kritor import Adapter as KritorAdapter
 from nonebot.adapters.satori import Adapter as SatoriAdapter
 from nonebot.adapters.discord import Adapter as DiscordAdpter
 from nonebot.adapters.telegram import Adapter as TelegramAdapter
@@ -38,3 +39,4 @@ def load_adapters(nonebug_init: None):  # noqa: PT004
     driver.register_adapter(QQAdapter)
     driver.register_adapter(SatoriAdapter)
     driver.register_adapter(DiscordAdpter)
+    driver.register_adapter(KritorAdapter)
