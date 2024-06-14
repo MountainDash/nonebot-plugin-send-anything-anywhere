@@ -1,5 +1,9 @@
 # Change Log
 
+## 最近更新
+
+* No changes
+
 ## v0.6.0
 
 ### 破坏性变更
