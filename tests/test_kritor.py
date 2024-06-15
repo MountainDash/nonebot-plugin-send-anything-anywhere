@@ -137,27 +137,24 @@ async def test_send(app: App):
     from nonebot_plugin_saa.adapters.kritor import KritorMessageId
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
-    matcher = on_message()
+    adapter_obj = get_driver()._adapters[str(SupportedAdapters.kritor)]
 
-    @matcher.handle()
+    # FIXME: 当前Kritor适配器在nonebug中在一个matcher里
+    # 定义两个处理不同消息事件的业务函数会出现问题，暂时分开测试
+
+    matcher1 = on_message()
+
+    @matcher1.handle()
     async def fprocess(msg: FriendMessage, mid: SaaMessageId):
         assert mid == KritorMessageId(message_id=msg.message_id)
         await MessageFactory(Text("Hello, Friend!")).send()
 
-    @matcher.handle()
-    async def gprocess(msg: GroupMessage):
-        await MessageFactory(Text("Hello, Group!")).send()
-
-    @matcher.handle()
-    async def cprocess(msg: GuildMessage):
-        await MessageFactory(Text("Hello, Guild!")).send()
-
-    async with app.test_matcher(matcher) as ctx:
-        adapter_obj = get_driver()._adapters[str(SupportedAdapters.kritor)]
+    async with app.test_matcher(matcher1) as ctx:
         bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kritor_kwargs)
         msg_event = mock_kritor_message_event(
-            Friend(peer="111", sub_peer=None), Message("Hello, World!")
+            Friend(peer="111", sub_peer=None), Message("Hello, Friend!")
         )
+        assert msg_event
         ctx.receive_event(bot, msg_event)
         ctx.should_call_api(
             "send_message",
@@ -168,6 +165,15 @@ async def test_send(app: App):
             },
             result=SendMessageResponse(message_id="1234", message_time=1234567890),
         )
+
+    matcher2 = on_message()
+
+    @matcher2.handle()
+    async def gprocess(msg: GroupMessage):
+        await MessageFactory(Text("Hello, Group!")).send()
+
+    async with app.test_matcher(matcher2) as ctx:
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kritor_kwargs)
 
         msg_event2 = mock_kritor_message_event(
             Group(peer="222", sub_peer=None), Message("Hello, World!")
@@ -182,6 +188,15 @@ async def test_send(app: App):
             },
             result=SendMessageResponse(message_id="1234", message_time=1234567890),
         )
+
+    matcher3 = on_message()
+
+    @matcher3.handle()
+    async def cprocess(msg: GuildMessage):
+        await MessageFactory(Text("Hello, Guild!")).send()
+
+    async with app.test_matcher(matcher3) as ctx:
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kritor_kwargs)
 
         msg_event3 = mock_kritor_message_event(
             Guild(peer="333", sub_peer="444"), Message("Hello, World!")

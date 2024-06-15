@@ -594,10 +594,7 @@ def mock_kritor_message_event(contact: "ContactType", message: "Message"):
             contact=contact,
             sender=Sender(uid="54088"),
             to_me=False,
-            message=message,
             elements=elements,  # type: ignore
-            original_message=message,
-            _replied_message=None,  # type: ignore
         )
     elif contact.type == SceneType.GUILD:
         return GuildMessage(
@@ -607,10 +604,7 @@ def mock_kritor_message_event(contact: "ContactType", message: "Message"):
             contact=contact,
             sender=Sender(uid="54088"),
             to_me=False,
-            message=message,
             elements=elements,  # type: ignore
-            original_message=message,
-            _replied_message=None,  # type: ignore
         )
     elif contact.type == SceneType.STRANGER:
         return StrangerMessage(
@@ -620,10 +614,7 @@ def mock_kritor_message_event(contact: "ContactType", message: "Message"):
             contact=contact,
             sender=Sender(uid="54088"),
             to_me=False,
-            message=message,
             elements=elements,  # type: ignore
-            original_message=message,
-            _replied_message=None,  # type: ignore
         )
     else:
         raise ValueError("Invalid contact type")
