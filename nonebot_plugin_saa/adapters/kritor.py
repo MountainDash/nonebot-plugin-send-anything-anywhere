@@ -388,6 +388,7 @@ with suppress(ImportError):
             assert isinstance(event, MessageEvent)
             contact = event.contact
         else:
+            # FIXME: 目前ContactType的type字段的alias被丢失了，先用Contact代替
             contact = type_validate_python(Contact, target.arg_dict(bot))
 
         await bot.upload_forward_message(

@@ -441,6 +441,75 @@ async def test_send_aggreted(app: App):
         )
 
 
+async def test_send_aggreted_active(app: App):
+    from nonebot import get_driver
+    from nonebot.adapters.kritor import Bot, Message
+    from nonebot.adapters.kritor.model import Contact
+    from nonebot.adapters.kritor.protos.kritor.common import (
+        Sender,
+        PushMessageBody,
+        ForwardMessageBody,
+    )
+
+    from nonebot_plugin_saa import (
+        Text,
+        TargetQQPrivate,
+        SupportedAdapters,
+        AggregatedMessageFactory,
+    )
+
+    forward_msg_list = []
+    ms = [
+        Message("111"),
+        Message("222"),
+        Message("333"),
+    ]
+    for m in ms:
+        forward_msg_list.append(
+            ForwardMessageBody(
+                message=PushMessageBody(
+                    time=int(datetime.now().timestamp()),
+                    sender=Sender(
+                        uid="1919810",
+                        uin=1919810,
+                        nick="NoneBot",
+                    ),
+                    elements=m.to_elements(),
+                )
+            )
+        )
+
+    async with app.test_api() as ctx:
+        adapter_obj = get_driver()._adapters[str(SupportedAdapters.kritor)]
+        bot = ctx.create_bot(base=Bot, adapter=adapter_obj, **kritor_kwargs)
+        send_target = TargetQQPrivate(user_id=111)
+
+        @dataclass
+        class FakeInfo:
+            nickname: str = "NoneBot"
+
+        ctx.should_call_api(
+            "get_bot_info",
+            data={},
+            result=FakeInfo(),
+        )
+
+        ctx.should_call_api(
+            "upload_forward_message",
+            data={
+                "contact": type_validate_python(Contact, send_target.arg_dict(bot)),
+                "messages": forward_msg_list,
+            },
+        )
+        await AggregatedMessageFactory(
+            [
+                Text("111"),
+                Text("222"),
+                Text("333"),
+            ]
+        ).send_to(send_target, bot)
+
+
 async def test_list_targets(app: App, mocker: MockerFixture):
     from nonebot import get_driver
     from nonebot.adapters.kritor.protos.kritor.group import GroupInfo
