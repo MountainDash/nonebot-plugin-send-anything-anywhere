@@ -92,7 +92,9 @@ try:
             )
         elif isinstance(event, (MessageCreateEvent, AtMessageCreateEvent)):
             assert event.channel_id
-            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+            return TargetQQGuildChannel(
+                channel_id=int(event.channel_id), guild_id=event.guild_id
+            )
         else:
             raise ValueError(f"{type(event)} not supported")
 
@@ -240,6 +242,7 @@ try:
                 targets.append(
                     TargetQQGuildChannel(
                         channel_id=int(channel.id),
+                        guild_id=guild.id,
                     )
                 )
 
