@@ -110,7 +110,6 @@ class TargetQQPrivateOpenId(PlatformTarget, BotSpecifier):
 
 class TargetQQGuildChannel(PlatformTarget):
     """QQ频道子频道
-
     参数
         channel_id: 子频道号
     """
