@@ -133,3 +133,18 @@ def test_get_target(app: App):
         interval=10,
     )
     assert get_target(heartbeat_meta_event) is None
+
+
+async def test_all_supported_target_completely(app: App):
+    """检查AllSupportedPlatformTarget是否遗漏了某个平台的 Target"""
+
+    from nonebot_plugin_saa.registries import PlatformTarget, AllSupportedPlatformTarget
+
+    target_clses = PlatformTarget._deserializer_dict.values()
+
+    target_clses_in_all_supported = AllSupportedPlatformTarget.__args__  # type: ignore
+
+    for target_cls in target_clses:
+        assert (
+            target_cls in target_clses_in_all_supported
+        ), f"Target {target_cls} is not in AllSupportedPlatformTarget"

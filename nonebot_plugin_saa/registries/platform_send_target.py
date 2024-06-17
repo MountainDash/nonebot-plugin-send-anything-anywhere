@@ -330,6 +330,7 @@ AllSupportedPlatformTarget = Union[
     TargetDoDoPrivate,
     TargetSatoriUnknown,
     TargetDiscordChannel,
+    TargetKritorUnknown,
 ]
 
 
