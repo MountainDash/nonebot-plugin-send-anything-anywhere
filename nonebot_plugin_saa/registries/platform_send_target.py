@@ -136,6 +136,20 @@ class TargetQQGuildDirect(PlatformTarget):
     source_guild_id: int
 
 
+class TargetKritorUnknown(PlatformTarget):
+    """暂未支持的 Kritor 发送目标
+
+    如QQ非好友临时会话、QQ群非好友临时会话、QQ附近的人
+    """
+
+    platform_type: Literal[SupportedPlatform.kritor_unknown] = (
+        SupportedPlatform.kritor_unknown
+    )
+    type: str
+    primary_id: str
+    secondary_id: Optional[str] = None
+
+
 class TargetOB12Unknow(PlatformTarget):
     """暂未识别的 Onebot v12 发送目标
 
@@ -316,6 +330,7 @@ AllSupportedPlatformTarget = Union[
     TargetDoDoPrivate,
     TargetSatoriUnknown,
     TargetDiscordChannel,
+    TargetKritorUnknown,
 ]
 
 

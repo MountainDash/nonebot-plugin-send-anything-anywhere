@@ -30,6 +30,7 @@ repos:
     hooks:
       - id: prettier
         stages: [commit]
+        types_or: [css, javascript]
 
   - repo: https://github.com/nonebot/nonemoji
     rev: v0.1.4

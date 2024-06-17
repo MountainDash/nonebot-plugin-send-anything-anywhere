@@ -17,6 +17,7 @@ from .platform_send_target import TargetDoDoChannel as TargetDoDoChannel
 from .platform_send_target import TargetDoDoPrivate as TargetDoDoPrivate
 from .platform_send_target import TargetFeishuGroup as TargetFeishuGroup
 from .platform_send_target import TargetFeishuPrivate as TargetFeishuPrivate
+from .platform_send_target import TargetKritorUnknown as TargetKritorUnknown
 from .platform_send_target import TargetQQGroupOpenId as TargetQQGroupOpenId
 from .platform_send_target import TargetQQGuildDirect as TargetQQGuildDirect
 from .platform_send_target import TargetSatoriUnknown as TargetSatoriUnknown

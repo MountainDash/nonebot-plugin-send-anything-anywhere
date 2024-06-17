@@ -7,7 +7,9 @@ from nonebot import get_driver
 if TYPE_CHECKING:
     from nonebug import App
     from nonebot.internal.adapter.bot import Bot
+    from nonebot.adapters.kritor.message import Message
     from nonebot.adapters.qq import Message as QQMessage
+    from nonebot.adapters.kritor.model import ContactType
     from nonebot.adapters.telegram import Message as TGMessage
     from nonebot.internal.adapter.message import MessageSegment
     from nonebot.adapters.onebot.v11 import Message as OB11Message
@@ -558,3 +560,61 @@ def mock_satori_message_event(public: bool = False):
                 "message": {"id": "abcde", "content": "/test"},
             },
         )
+
+
+def mock_kritor_message_event(contact: "ContactType", message: "Message"):
+    from nonebot.adapters.kritor.model import Sender, SceneType
+    from nonebot.adapters.kritor.event import (
+        GroupMessage,
+        GuildMessage,
+        FriendMessage,
+        StrangerMessage,
+    )
+
+    elements = message.to_elements()
+
+    if contact.type == SceneType.FRIEND:
+        return FriendMessage(
+            time=1234567890,
+            message_id="1234",
+            message_seq=1,
+            contact=contact,
+            sender=Sender(uid="54088"),
+            to_me=False,
+            message=message,
+            elements=elements,  # type: ignore
+            original_message=message,
+            _replied_message=None,  # type: ignore
+        )
+    elif contact.type == SceneType.GROUP:
+        return GroupMessage(
+            time=1234567890,
+            message_id="1234",
+            message_seq=1,
+            contact=contact,
+            sender=Sender(uid="54088"),
+            to_me=False,
+            elements=elements,  # type: ignore
+        )
+    elif contact.type == SceneType.GUILD:
+        return GuildMessage(
+            time=1234567890,
+            message_id="1234",
+            message_seq=1,
+            contact=contact,
+            sender=Sender(uid="54088"),
+            to_me=False,
+            elements=elements,  # type: ignore
+        )
+    elif contact.type == SceneType.STRANGER:
+        return StrangerMessage(
+            time=1234567890,
+            message_id="1234",
+            message_seq=1,
+            contact=contact,
+            sender=Sender(uid="54088"),
+            to_me=False,
+            elements=elements,  # type: ignore
+        )
+    else:
+        raise ValueError("Invalid contact type")
