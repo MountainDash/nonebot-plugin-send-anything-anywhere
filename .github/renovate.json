@@ -4,5 +4,12 @@
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "ignoreDeps": ["python"],
-  "commitMessagePrefix": ":arrow_up:"
+  "commitMessagePrefix": ":arrow_up:",
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"]
+    }
+  ]
 }
