@@ -204,7 +204,7 @@ class TargetTelegramCommon(PlatformTarget):
     """Telegram 普通对话
 
     参数
-        user_id: 对话ID
+        chat_id: 对话ID
     """
 
     platform_type: Literal[SupportedPlatform.telegram_common] = (
