@@ -50,7 +50,7 @@ try:
     from nonebot.adapters.satori import Bot as BotSatori
     from nonebot.adapters.satori.models import PageResult
     from nonebot.adapters.satori import Message, MessageSegment
-    from nonebot.adapters.satori.models import InnerMessage as SatoriMessage
+    from nonebot.adapters.satori.models import MessageObject as SatoriMessage
     from nonebot.adapters.satori.event import (
         MessageEvent,
         PublicMessageEvent,
@@ -146,27 +146,27 @@ try:
     @register_convert_to_arg(adapter, SupportedPlatform.qq_private)
     def _gen_qq_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQPrivate)
-        return {"channel_id": f"private:{target.user_id}"}
+        return {"channel": f"private:{target.user_id}"}
 
     @register_convert_to_arg(adapter, SupportedPlatform.qq_group)
     def _gen_qq_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetQQGroup)
-        return {"channel_id": str(target.group_id)}
+        return {"channel": str(target.group_id)}
 
     @register_convert_to_arg(adapter, SupportedPlatform.feishu_private)
     def _gen_feishu_private(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetFeishuPrivate)
-        return {"channel_id": target.open_id}
+        return {"channel": target.open_id}
 
     @register_convert_to_arg(adapter, SupportedPlatform.feishu_group)
     def _gen_feishu_group(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetFeishuGroup)
-        return {"channel_id": target.chat_id}
+        return {"channel": target.chat_id}
 
     @register_convert_to_arg(adapter, SupportedPlatform.telegram_common)
     def _gen_telegram_common(target: PlatformTarget) -> dict[str, Any]:
         assert isinstance(target, TargetTelegramCommon)
-        return {"channel_id": target.chat_id}
+        return {"channel": target.chat_id}
 
     @register_convert_to_arg(adapter, SupportedPlatform.unknown_satori)
     def _to_unknow(target: PlatformTarget):
@@ -174,7 +174,7 @@ try:
         # TODO: 如果是私聊，需要先创建私聊会话
         if target.channel_id is None:
             raise NotImplementedError
-        return {"channel_id": target.channel_id}
+        return {"channel": target.channel_id}
 
     class SatoriReceipt(Receipt):
         adapter_name: Literal[adapter] = adapter
@@ -228,7 +228,7 @@ try:
 
         if event:
             resp = await bot.send_message(
-                message=message_to_send, channel_id=event.channel.id
+                message=message_to_send, channel=event.channel
             )
         else:
             resp = await bot.send_message(
@@ -258,7 +258,7 @@ try:
 
         if event:
             assert isinstance(event, MessageEvent)
-            await bot.send_message(message=message_to_send, channel_id=event.channel.id)
+            await bot.send_message(message=message_to_send, channel=event.channel)
         else:
             await bot.send_message(message=message_to_send, **target.arg_dict(bot))
 
