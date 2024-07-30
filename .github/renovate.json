@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base", "schedule:weekly", "group:allNonMajor"],
   "labels": ["dependencies"],
-  "rangeStrategy": "widen",
+  "rangeStrategy": "update-lockfile",
   "ignoreDeps": ["python"],
   "commitMessagePrefix": ":arrow_up:",
   "packageRules": [
