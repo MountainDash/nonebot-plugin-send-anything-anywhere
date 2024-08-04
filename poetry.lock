@@ -1098,17 +1098,17 @@ auto-detect = ["PyYAML"]
 
 [[package]]
 name = "nonebot-adapter-satori"
-version = "0.10.5"
+version = "0.12.3"
 description = "Satori Protocol Adapter for Nonebot2"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "nonebot_adapter_satori-0.10.5-py3-none-any.whl", hash = "sha256:3646a79634ef3e6c01d133b41b7c2511f330500e5ca91db35c0fc769a08e9486"},
-    {file = "nonebot_adapter_satori-0.10.5.tar.gz", hash = "sha256:3acfd2790b7fde2f9495ffb09c057207c709e5130566b8cb8724461c58b587ed"},
+    {file = "nonebot_adapter_satori-0.12.3-py3-none-any.whl", hash = "sha256:94670f6a558cee185b42470dbd928d747c3ba72bea4f98f391ab2c41e3b79e27"},
+    {file = "nonebot_adapter_satori-0.12.3.tar.gz", hash = "sha256:5c2bd09fde92b36d863ba7cd85d5ca0fe8680ec2489d657f7ad8b0958cb9d9d8"},
 ]
 
 [package.dependencies]
-nonebot2 = ">=2.2.0"
+nonebot2 = ">=2.3.0"
 
 [[package]]
 name = "nonebot-adapter-telegram"
@@ -2371,4 +2371,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <4.0"
-content-hash = "ae79edad9a45d287f75e06dc56ae16e4518f3868366337a7352113cf0304bfba"
+content-hash = "6291afdc0da354e7f7bda48c17e775220de94089d21a62502057374e684e539d"

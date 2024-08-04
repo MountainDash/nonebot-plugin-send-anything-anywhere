@@ -11,11 +11,12 @@ from pytest_mock import MockerFixture
 from nonebot.compat import type_validate_python
 from nonebot.adapters.satori import Bot, Adapter
 from nonebot.adapters.satori.config import ClientInfo
+from nonebot.adapters.satori.models import Login, LoginStatus
 
 from .utils import assert_ms, mock_satori_message_event
 
-satori_kwargs: dict[Literal["platform", "info"], Any] = {
-    "platform": "qq",
+satori_kwargs: dict[Literal["login", "info"], Any] = {
+    "login": Login(status=LoginStatus.ONLINE, platform="qq"),
     "info": ClientInfo(port=12345),
 }
 
@@ -104,7 +105,7 @@ async def test_reply(app: App, assert_satori):
 async def test_send(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.satori import Bot, MessageEvent
-    from nonebot.adapters.satori.models import InnerMessage
+    from nonebot.adapters.satori.models import MessageObject
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -125,14 +126,14 @@ async def test_send(app: App):
                 "channel_id": "67890",
                 "content": "123",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
 
 
 async def test_extract_message_id(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.satori import Bot, MessageEvent
-    from nonebot.adapters.satori.models import InnerMessage
+    from nonebot.adapters.satori.models import MessageObject
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
     from nonebot_plugin_saa.adapters.satori import SatoriReceipt, SatoriMessageId
@@ -156,14 +157,14 @@ async def test_extract_message_id(app: App):
                 "channel_id": "67890",
                 "content": "123",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
 
 
 async def test_send_with_reply_and_revoke(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.satori import Bot, MessageEvent
-    from nonebot.adapters.satori.models import Channel, ChannelType, InnerMessage
+    from nonebot.adapters.satori.models import Channel, ChannelType, MessageObject
 
     from nonebot_plugin_saa import Text, MessageFactory, SupportedAdapters
 
@@ -186,7 +187,7 @@ async def test_send_with_reply_and_revoke(app: App):
                 "content": "123",
             },
             [
-                InnerMessage(
+                MessageObject(
                     id="321",
                     content="321",
                     channel=Channel(id="67890", type=ChannelType.TEXT),
@@ -202,7 +203,7 @@ async def test_send_with_reply_and_revoke(app: App):
 async def test_send_active(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.satori import Bot, MessageEvent
-    from nonebot.adapters.satori.models import InnerMessage
+    from nonebot.adapters.satori.models import MessageObject
 
     from nonebot_plugin_saa import (
         Text,
@@ -234,7 +235,7 @@ async def test_send_active(app: App):
                 "channel_id": "12345",
                 "content": "123",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
         await MessageFactory(Text("123")).send_to(send_target_qq_group, bot)
 
@@ -244,7 +245,7 @@ async def test_send_active(app: App):
                 "channel_id": "private:12345",
                 "content": "123",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
         await MessageFactory(Text("123")).send_to(send_target_qq_private, bot)
 
@@ -254,7 +255,7 @@ async def test_send_active(app: App):
                 "channel_id": "67890",
                 "content": "123",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
         await MessageFactory(Text("123")).send_to(send_target_satori_unknown, bot)
 
@@ -262,7 +263,7 @@ async def test_send_active(app: App):
 async def test_send_aggreted_satori(app: App):
     from nonebot import get_driver, on_message
     from nonebot.adapters.satori import Bot, MessageEvent
-    from nonebot.adapters.satori.models import InnerMessage
+    from nonebot.adapters.satori.models import MessageObject
 
     from nonebot_plugin_saa import Text, SupportedAdapters, AggregatedMessageFactory
 
@@ -282,7 +283,7 @@ async def test_send_aggreted_satori(app: App):
                 "channel_id": "67890",
                 "content": "<message>123</message><message>456</message>",
             },
-            [InnerMessage(id="321", content="321").model_dump()],
+            [MessageObject(id="321", content="321").model_dump()],
         )
         ctx.receive_event(bot, msg_event)
 
