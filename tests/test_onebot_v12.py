@@ -573,7 +573,7 @@ def test_extract_target(app: App):
     )
 
     assert extract_target(qqguild_channel_message_event) == TargetQQGuildChannel(
-        channel_id=6677
+        channel_id=6677, guild_id="5566"
     )
 
     friend_decrease_event = FriendDecreaseEvent(
@@ -747,7 +747,9 @@ def test_extract_target(app: App):
         channel_id="7788",
         operator_id="8899",
     )
-    assert extract_target(channel_create_event) == TargetQQGuildChannel(channel_id=7788)
+    assert extract_target(channel_create_event) == TargetQQGuildChannel(
+        channel_id=7788, guild_id="6677"
+    )
 
     channel_create_event = ChannelCreateEvent(
         id="1122",
@@ -775,7 +777,9 @@ def test_extract_target(app: App):
         channel_id="7788",
         operator_id="8899",
     )
-    assert extract_target(channel_delete_event) == TargetQQGuildChannel(channel_id=7788)
+    assert extract_target(channel_delete_event) == TargetQQGuildChannel(
+        channel_id=7788, guild_id="6677"
+    )
 
     channel_delete_event = ChannelDeleteEvent(
         id="1122",
@@ -806,7 +810,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_message_delete_event) == TargetQQGuildChannel(
-        channel_id=7788
+        channel_id=7788, guild_id="6677"
     )
 
     channel_message_delete_event = ChannelMessageDeleteEvent(
@@ -839,7 +843,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_member_decrease_event) == TargetQQGuildChannel(
-        channel_id=7788
+        channel_id=7788, guild_id="6677"
     )
 
     channel_member_decrease_event = ChannelMemberDecreaseEvent(
@@ -871,7 +875,7 @@ def test_extract_target(app: App):
         operator_id="8899",
     )
     assert extract_target(channel_member_increase_event) == TargetQQGuildChannel(
-        channel_id=7788
+        channel_id=7788, guild_id="6677"
     )
 
     channel_member_increase_event = ChannelMemberIncreaseEvent(

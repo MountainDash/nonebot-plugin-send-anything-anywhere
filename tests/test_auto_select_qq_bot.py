@@ -88,7 +88,7 @@ async def test_enable(app: App, mocker: MockerFixture):
         )
         await asyncio.sleep(0.1)
 
-        target = TargetQQGuildChannel(channel_id=2233)
+        target = TargetQQGuildChannel(channel_id=2233, guild_id="1")
         assert bot is get_bot(target)
 
         target = TargetQQGroupOpenId(bot_id="3344", group_openid="GROUP")
