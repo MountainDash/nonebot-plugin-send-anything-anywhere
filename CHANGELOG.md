@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### Bug 修复
+
+- nonebot.adapters.discord 应在 try 块内导入 [@AzideCupric](https://github.com/AzideCupric) ([#171](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/171))
+
 ## v0.7.0
 
 ### 破坏性变更
