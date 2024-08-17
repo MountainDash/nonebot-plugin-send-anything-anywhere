@@ -7,14 +7,6 @@ from typing import Any, Optional, cast
 from nonebot.adapters import Event
 from nonebot.drivers import Request
 from nonebot.adapters import Bot as BaseBot
-from nonebot.adapters.discord.api.model import (
-    File,
-    Embed,
-    MessageFlag,
-    AllowedMention,
-    AttachmentSend,
-    DirectComponent,
-)
 
 from ..auto_select_bot import register_list_targets
 from ..types import Text, Image, Reply, Mention, MentionAll
@@ -38,11 +30,21 @@ from ..registries import (
 with suppress(ImportError):
     from nonebot.adapters.discord import Bot as BotDiscord
     from nonebot.adapters.discord.message import Message, MessageSegment
-    from nonebot.adapters.discord.api.model import Snowflake, MessageGet, SnowflakeType
     from nonebot.adapters.discord.event import (
         MessageEvent,
         MessageCreateEvent,
         ChannelPinsUpdateEvent,
+    )
+    from nonebot.adapters.discord.api.model import (
+        File,
+        Embed,
+        Snowflake,
+        MessageGet,
+        MessageFlag,
+        SnowflakeType,
+        AllowedMention,
+        AttachmentSend,
+        DirectComponent,
     )
 
     adapter = SupportedAdapters.discord
