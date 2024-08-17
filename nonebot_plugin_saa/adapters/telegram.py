@@ -50,7 +50,7 @@ try:
     MessageFactory.register_adapter_message(SupportedAdapters.telegram, Message)
 
     class TelegramMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.telegram] = adapter
         message_id: int
         chat_id: Union[int, str, None] = None
 
@@ -136,7 +136,7 @@ try:
     class TelegramReceipt(Receipt):
         chat_id: Union[int, str]
         messages: list[MessageModel]
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.telegram] = adapter
 
         async def revoke(self):
             bot = cast(BotTG, self._get_bot())

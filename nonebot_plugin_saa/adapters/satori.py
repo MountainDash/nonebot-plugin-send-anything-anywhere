@@ -65,7 +65,7 @@ try:
     MessageFactory.register_adapter_message(SupportedAdapters.satori, Message)
 
     class SatoriMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.satori] = adapter
 
         message_id: str
 
@@ -177,7 +177,7 @@ try:
         return {"channel": target.channel_id}
 
     class SatoriReceipt(Receipt):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.satori] = adapter
         messages: list[SatoriMessage]
 
         async def revoke(self):

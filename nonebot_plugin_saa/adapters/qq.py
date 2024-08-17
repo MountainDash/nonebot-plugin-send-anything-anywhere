@@ -53,7 +53,7 @@ try:
     MessageFactory.register_adapter_message(adapter, Message)
 
     class QQMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.qq] = adapter
         message_id: str
 
     @register_qq(Text)
@@ -125,7 +125,7 @@ try:
             PostC2CFilesReturn,
             PostGroupFilesReturn,
         ]
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.qq] = adapter
 
         async def revoke(self, hidetip=False):
             if not isinstance(self.msg_return, ApiMessage):

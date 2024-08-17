@@ -62,7 +62,7 @@ try:
     MessageFactory.register_adapter_message(SupportedAdapters.kaiheila, Message)
 
     class KaiheilaMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.kaiheila] = adapter
         message_id: str
 
     @register_kaiheila(Text)
@@ -115,7 +115,7 @@ try:
         }
 
     class KaiheilaReceipt(Receipt):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.kaiheila] = adapter
         data: MessageCreateReturn
 
         async def revoke(self):
