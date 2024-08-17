@@ -22,6 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+    env:
+      OS: ubuntu-latest
+      PYTHON_VERSION: 3.12
 
     steps:
       - uses: actions/checkout@v3
@@ -29,10 +32,16 @@ jobs:
       - name: Setup Python environment
         uses: ./.github/actions/setup-python
         with:
-          python-version: 3.12
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install prerequisites
         run: poetry install --without adapters
 
       - name: Run Pytest
-        run: poetry run pytest
+        run: poetry run pytest --cov-report xml --cov=./nonebot_plugin_saa
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: OS,PYTHON_VERSION
+          token: ${{ secrets.CODECOV_TOKEN }}
