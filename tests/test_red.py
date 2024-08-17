@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 
 import httpx
 import pytest
+
+pytest.importorskip("nonebot.adapters.red")
 from nonebug import App
 from respx import MockRouter
 from nonebot import get_adapter

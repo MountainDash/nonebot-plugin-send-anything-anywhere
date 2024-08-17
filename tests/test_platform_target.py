@@ -2,6 +2,8 @@ import json
 from typing import Literal
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug import App
 from pydantic import BaseModel
 from nonebot.compat import model_dump, type_validate_python

@@ -3,6 +3,8 @@ from functools import partial
 
 import respx
 import pytest
+
+pytest.importorskip("nonebot.adapters.dodo")
 from nonebug import App
 from httpx import Response
 from nonebot.compat import model_dump

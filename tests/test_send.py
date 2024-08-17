@@ -1,4 +1,6 @@
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug import App
 from nonebot import get_driver, on_message
 

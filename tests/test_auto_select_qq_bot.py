@@ -3,6 +3,8 @@ from datetime import datetime
 from functools import partial
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.qq")
 from nonebug import App
 from pytest_mock import MockerFixture
 from nonebot import get_driver, get_adapter

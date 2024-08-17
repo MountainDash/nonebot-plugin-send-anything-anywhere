@@ -1,0 +1,38 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+      - next
+  pull_request:
+    paths:
+      - "nonebot_plugin_saa/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "poetry.lock"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: 3.12
+
+      - name: Install prerequisites
+        run: poetry install --without adapters
+
+      - name: Run Pytest
+        run: poetry run pytest

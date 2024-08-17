@@ -3,6 +3,8 @@ from datetime import datetime
 from functools import partial
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.qq")
 from nonebug import App
 from anyio import open_file
 from nonebot import get_adapter

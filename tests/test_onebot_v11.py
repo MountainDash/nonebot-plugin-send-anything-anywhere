@@ -1,6 +1,8 @@
 from functools import partial
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug import App
 from nonebot import get_adapter
 from pytest_mock import MockerFixture

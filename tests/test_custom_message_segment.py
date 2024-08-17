@@ -1,4 +1,6 @@
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug.app import App
 
 from .utils import assert_ms, ob12_kwargs

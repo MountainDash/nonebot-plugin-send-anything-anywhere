@@ -7,6 +7,8 @@ from functools import partial
 import httpx
 import respx
 import pytest
+
+pytest.importorskip("nonebot.adapters.discord")
 from nonebug import App
 from nonebot import get_driver
 from pytest_mock import MockerFixture
