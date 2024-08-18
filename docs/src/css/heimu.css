@@ -4,7 +4,7 @@
 
 .heimu,
 .heimu rt {
-  background-color: #252525;
+  background-color: var(--ifm-color-content);
 }
 
 .heimu,
@@ -19,13 +19,17 @@ span.heimu a.extiw:visited,
 span.heimu a.mw-disambig,
 span.heimu a.mw-redirect {
   transition: color 0.13s linear;
-  color: #252525;
+  color: var(--ifm-color-content);
   text-shadow: none;
 }
 
 span.heimu:hover,
 span.heimu:active {
   color: white;
+
+  html[data-theme="dark"] & {
+    color: white;
+  }
 }
 
 span.heimu:hover a,
@@ -54,3 +58,68 @@ a.extiw:visited:hover span.heimu {
 }
 
 /* MoeGirl End */
+
+.heimu {
+  color: var(--ifm-color-primary-light);
+  background-color: var(--ifm-color-primary-light);
+  border: 1px solid var(--ifm-color-border);
+  border-radius: 0.1rem;
+  padding: 0.15em 0.1em 0.05em;
+  margin: 0 0.2em;
+  line-height: 1.6;
+  white-space: nowrap;
+  font-size: 90%;
+  vertical-align: middle;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.alert--secondary .heimu {
+  background-color: var(--ifm-color-secondary-dark);
+  color: var(--ifm-color-secondary-dark);
+
+  html[data-theme="dark"] & {
+    background-color: var(--ifm-color-secondary-light);
+    color: var(--ifm-color-secondary-light);
+  }
+}
+
+.alert--success .heimu {
+  background-color: var(--ifm-color-success-light);
+  color: var(--ifm-color-success-light);
+
+  html[data-theme="dark"] & {
+    background-color: var(--ifm-color-success-dark);
+    color: var(--ifm-color-success-dark);
+  }
+}
+
+.alert--info .heimu {
+  background-color: var(--ifm-color-info-light);
+  color: var(--ifm-color-info-light);
+
+  html[data-theme="dark"] & {
+    background-color: var(--ifm-color-info-dark);
+    color: var(--ifm-color-info-dark);
+  }
+}
+
+.alert--warning .heimu {
+  background-color: var(--ifm-color-warning-light);
+  color: var(--ifm-color-warning-light);
+
+  html[data-theme="dark"] & {
+    background-color: var(--ifm-color-warning-dark);
+    color: var(--ifm-color-warning-dark);
+  }
+}
+
+.alert--danger .heimu {
+  background-color: var(--ifm-color-danger-light);
+  color: var(--ifm-color-danger-light);
+
+  html[data-theme="dark"] & {
+    background-color: var(--ifm-color-danger-dark);
+    color: var(--ifm-color-danger-dark);
+  }
+}
