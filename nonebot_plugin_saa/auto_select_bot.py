@@ -11,12 +11,17 @@ from nonebot.adapters import Bot
 from nonebot import logger, get_bots
 from nonebot.compat import model_dump
 
-from .registries import BotSpecifier, PlatformTarget, TargetQQGuildDirect
 from .utils import (
     NoBotFound,
     SupportedAdapters,
     AdapterNotSupported,
     extract_adapter_type,
+)
+from .registries import (
+    BotSpecifier,
+    PlatformTarget,
+    TargetQQGuildDirect,
+    TargetQQGuildChannel,
 )
 
 BOT_CACHE: dict[Bot, set[PlatformTarget]] = {}
@@ -123,6 +128,21 @@ def get_bot(target: PlatformTarget) -> Bot:
         raise NotImplementedError("暂不支持私聊")
 
     bots = []
+
+    if isinstance(target, TargetQQGuildChannel) and not target.guild_id:
+        logger.warning(f"{target} guild_id is empty, maybe cause mismatch")
+        for bot, targets in BOT_CACHE.items():
+            if any(
+                qct.channel_id == target.channel_id
+                for qct in targets
+                if isinstance(qct, TargetQQGuildChannel)
+            ):
+                bots.append(bot)
+        if not bots:
+            _info_current()
+            raise NoBotFound()
+        return random.choice(bots)
+
     for bot, targets in BOT_CACHE.items():
         if target in targets:
             bots.append(bot)

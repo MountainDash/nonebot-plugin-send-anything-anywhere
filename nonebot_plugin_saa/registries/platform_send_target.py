@@ -110,7 +110,6 @@ class TargetQQPrivateOpenId(PlatformTarget, BotSpecifier):
 
 class TargetQQGuildChannel(PlatformTarget):
     """QQ频道子频道
-
     参数
         channel_id: 子频道号
     """
@@ -118,6 +117,7 @@ class TargetQQGuildChannel(PlatformTarget):
     platform_type: Literal[SupportedPlatform.qq_guild_channel] = (
         SupportedPlatform.qq_guild_channel
     )
+    guild_id: Optional[str] = None  # 为了兼容 Kritor
     channel_id: int
 
 

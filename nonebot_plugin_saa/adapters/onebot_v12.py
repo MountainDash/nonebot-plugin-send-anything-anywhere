@@ -132,7 +132,9 @@ try:
     def _extarct_channel_msg_event(event: Event) -> PlatformTarget:
         assert isinstance(event, ChannelMessageEvent)
         if event.self.platform == "qqguild":  # all4one
-            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+            return TargetQQGuildChannel(
+                channel_id=int(event.channel_id), guild_id=event.guild_id
+            )
         return TargetOB12Unknow(
             platform=event.self.platform,
             detail_type="channel",
@@ -188,7 +190,9 @@ try:
             ),
         )
         if event.self.platform == "qqguild":  # all4one
-            return TargetQQGuildChannel(channel_id=int(event.channel_id))
+            return TargetQQGuildChannel(
+                channel_id=int(event.channel_id), guild_id=event.guild_id
+            )
         return TargetOB12Unknow(
             platform=event.self.platform,
             detail_type="channel",
@@ -365,7 +369,10 @@ try:
                     platform = bot.platform
                     if platform == "qqguild":
                         targets.append(
-                            TargetQQGuildChannel(channel_id=int(channel["channel_id"]))
+                            TargetQQGuildChannel(
+                                channel_id=int(channel["channel_id"]),
+                                guild_id=guild["guild_id"],
+                            )
                         )
                     else:
                         targets.append(

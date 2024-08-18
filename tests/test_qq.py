@@ -471,10 +471,10 @@ async def test_extract_target(app: App):
         )
 
         assert extract_target(guild_message_event) == TargetQQGuildChannel(
-            channel_id=6677
+            channel_id=6677, guild_id="5566"
         )
         assert extract_target(guild_message_event, bot) == TargetQQGuildChannel(
-            channel_id=6677
+            channel_id=6677, guild_id="5566"
         )
 
         direct_message_event = DirectMessageCreateEvent(
@@ -539,7 +539,7 @@ async def test_target_dependency_injection(app: App):
     @matcher.handle()
     async def _(event: MessageCreateEvent, target: SaaTarget):
         assert event
-        assert target == TargetQQGuildChannel(channel_id=2233)
+        assert target == TargetQQGuildChannel(channel_id=2233, guild_id="1122")
 
     @matcher.handle()
     async def _(event: DirectMessageCreateEvent, target: SaaTarget):
