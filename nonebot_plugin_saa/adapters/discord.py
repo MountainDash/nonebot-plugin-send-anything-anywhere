@@ -2,7 +2,7 @@ from io import BytesIO
 from pathlib import Path
 from functools import partial
 from contextlib import suppress
-from typing import Any, Optional, cast
+from typing import Any, Literal, Optional, cast
 
 from nonebot.adapters import Event
 from nonebot.drivers import Request
@@ -53,7 +53,7 @@ with suppress(ImportError):
     MessageFactory.register_adapter_message(SupportedAdapters.discord, Message)
 
     class DiscordMessageId(MessageId):
-        adapter_name: SupportedAdapters = adapter
+        adapter_name: Literal[SupportedAdapters.discord] = adapter
         message_id: SnowflakeType
         channel_id: Optional[SnowflakeType] = None
 

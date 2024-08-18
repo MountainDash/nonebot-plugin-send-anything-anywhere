@@ -1,0 +1,47 @@
+name: Test Without Adapters
+
+on:
+  push:
+    branches:
+      - main
+      - next
+  pull_request:
+    paths:
+      - "nonebot_plugin_saa/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "poetry.lock"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    env:
+      OS: ubuntu-latest
+      PYTHON_VERSION: 3.12
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python environment
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install prerequisites
+        run: poetry install --without adapters
+
+      - name: Run Pytest
+        run: poetry run pytest --cov-report xml --cov=./nonebot_plugin_saa
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: OS,PYTHON_VERSION
+          token: ${{ secrets.CODECOV_TOKEN }}

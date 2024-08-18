@@ -4,6 +4,8 @@ from collections.abc import Awaitable
 from typing import TYPE_CHECKING, Callable
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.telegram")
 from nonebug import App
 from nonebot.adapters.telegram import Bot
 from nonebot.adapters.telegram.config import BotConfig

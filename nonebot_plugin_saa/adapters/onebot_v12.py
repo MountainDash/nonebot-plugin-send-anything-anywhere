@@ -61,7 +61,7 @@ try:
     MessageFactory.register_adapter_message(adapter, Message)
 
     class OB12MessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.onebot_v12] = adapter
         message_id: str
 
     @register_onebot_v12(Text)
@@ -249,7 +249,7 @@ try:
 
     class OB12Receipt(Receipt):
         message_id: str
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.onebot_v12] = adapter
 
         async def revoke(self):
             return await self._get_bot().delete_message(message_id=self.message_id)

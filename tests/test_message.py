@@ -1,6 +1,8 @@
 from io import BytesIO
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug import App
 from nonebot import get_driver
 from nonebot.adapters.onebot.v11.bot import Bot

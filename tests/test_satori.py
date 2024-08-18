@@ -5,6 +5,8 @@ from functools import partial
 from typing import Any, Literal
 
 import pytest
+
+pytest.importorskip("nonebot.adapters.satori")
 from nonebug import App
 from nonebot import get_adapter
 from pytest_mock import MockerFixture

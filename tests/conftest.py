@@ -1,15 +1,6 @@
 import pytest
 import nonebot
 from nonebug import NONEBOT_INIT_KWARGS, App
-from nonebot.adapters.qq import Adapter as QQAdapter
-from nonebot.adapters.red import Adapter as RedAdapter
-from nonebot.adapters.dodo import Adapter as DoDoAdapter
-from nonebot.adapters.feishu import Adapter as FeishuAdapter
-from nonebot.adapters.satori import Adapter as SatoriAdapter
-from nonebot.adapters.discord import Adapter as DiscordAdpter
-from nonebot.adapters.telegram import Adapter as TelegramAdapter
-from nonebot.adapters.onebot.v11 import Adapter as OnebotV11Adapter
-from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -28,6 +19,24 @@ def app(app: App):
 
 @pytest.fixture(scope="session", autouse=True)
 def load_adapters(nonebug_init: None):  # noqa: PT004
+    pytest.importorskip("nonebot.adapters.qq")
+    pytest.importorskip("nonebot.adapters.red")
+    pytest.importorskip("nonebot.adapters.dodo")
+    pytest.importorskip("nonebot.adapters.feishu")
+    pytest.importorskip("nonebot.adapters.satori")
+    pytest.importorskip("nonebot.adapters.discord")
+    pytest.importorskip("nonebot.adapters.telegram")
+    pytest.importorskip("nonebot.adapters.onebot")
+    from nonebot.adapters.qq import Adapter as QQAdapter
+    from nonebot.adapters.red import Adapter as RedAdapter
+    from nonebot.adapters.dodo import Adapter as DoDoAdapter
+    from nonebot.adapters.feishu import Adapter as FeishuAdapter
+    from nonebot.adapters.satori import Adapter as SatoriAdapter
+    from nonebot.adapters.discord import Adapter as DiscordAdpter
+    from nonebot.adapters.telegram import Adapter as TelegramAdapter
+    from nonebot.adapters.onebot.v11 import Adapter as OnebotV11Adapter
+    from nonebot.adapters.onebot.v12 import Adapter as OnebotV12Adapter
+
     driver = nonebot.get_driver()
     driver.register_adapter(OnebotV11Adapter)
     driver.register_adapter(OnebotV12Adapter)

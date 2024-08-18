@@ -1,4 +1,6 @@
 import pytest
+
+pytest.importorskip("nonebot.adapters.onebot")
 from nonebug import App
 
 from .utils import assert_ms, mock_obv11_message_event

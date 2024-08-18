@@ -53,7 +53,7 @@ with suppress(ImportError):
     MessageFactory.register_adapter_message(adapter, Message)
 
     class DodoMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.dodo] = adapter
 
         message_id: str
         reason: Optional[None] = None
@@ -178,7 +178,7 @@ with suppress(ImportError):
         }
 
     class DodoReceipt(Receipt):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.dodo] = adapter
         message_id: str
 
         async def revoke(self, reason: Optional[str] = None):

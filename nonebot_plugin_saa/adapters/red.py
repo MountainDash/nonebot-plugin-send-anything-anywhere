@@ -45,7 +45,7 @@ try:
     MessageFactory.register_adapter_message(SupportedAdapters.red, Message)
 
     class RedMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.red] = adapter
         message_seq: str
         message_id: Optional[str] = None
         sender_uin: Optional[str] = None
@@ -111,7 +111,7 @@ try:
         }
 
     class RedReceipt(Receipt):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.red] = adapter
         message: MessageModel
 
         async def revoke(self):

@@ -1,4 +1,7 @@
+import pytest
 from nonebug import App
+
+pytest.importorskip("nonebot.adapters.onebot")
 
 from .utils import ob12_kwargs, mock_obv12_message_event
 

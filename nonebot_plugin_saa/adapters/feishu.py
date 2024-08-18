@@ -40,7 +40,7 @@ try:
     MessageFactory.register_adapter_message(adapter, Message)
 
     class FeishuMessageId(MessageId):
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.feishu] = adapter
         message_id: str
 
     @register_feishu(Text)
@@ -99,7 +99,7 @@ try:
 
     class FeishuReceipt(Receipt):
         message_id: str
-        adapter_name: Literal[adapter] = adapter
+        adapter_name: Literal[SupportedAdapters.feishu] = adapter
         data: dict[str, Any]
 
         async def revoke(self):
