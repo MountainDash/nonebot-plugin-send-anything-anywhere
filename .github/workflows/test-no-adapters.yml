@@ -41,7 +41,7 @@ jobs:
         run: poetry run pytest --cov-report xml --cov=./nonebot_plugin_saa
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           env_vars: OS,PYTHON_VERSION
           token: ${{ secrets.CODECOV_TOKEN }}
