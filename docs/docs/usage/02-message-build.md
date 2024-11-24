@@ -145,7 +145,7 @@ fallback文本的应用优先级为：`set_specific_fallback` > `fallback` > 默
 
 `MessageId` 由 `adapter_name: str` 和 一系列平台各异的字段组成。
 
-`MessageId` 一般会被各个SAA适配的Adapter的 `xxxMessageId` 子类所继承。
+`MessageId` 一般会被各个SAA适配的Adapter的 `XxxMessageId` 子类所继承。
 
 :::note
 
@@ -159,7 +159,7 @@ fallback文本的应用优先级为：`set_specific_fallback` > `fallback` > 默
 
 `Receipt` 是 SAA 内置的消息回执类型，用于标识消息的发送结果。
 
-`Receipt` 一般会被各个 SAA 适配的 Adapter 的 `xxxReceipt` 子类所继承。
+`Receipt` 一般会被各个 SAA 适配的 Adapter 的 `XxxReceipt` 子类所继承。
 
 `Receipt` 提供了以下通用方法：
 
