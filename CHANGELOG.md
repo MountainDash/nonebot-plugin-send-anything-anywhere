@@ -1,5 +1,11 @@
 # Change Log
 
+## 最近更新
+
+### 文档
+
+- rename `xxx` to `Xxx` [@montmorill](https://github.com/montmorill) ([#178](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/178))
+
 ## v0.7.1
 
 ### Bug 修复
