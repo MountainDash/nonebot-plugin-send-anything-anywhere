@@ -29,7 +29,7 @@ filetype = "^1.2.0"
 [tool.poetry.group.dev.dependencies]
 pytest-asyncio = "^0.20.2"
 ipdb = "^0.13.9"
-pip = "^23.0 || ^24.0.0"
+pip = "^23.0 || ^24.0.0 || ^25.0.0"
 pytest-cov = "^5.0.0 || ^6.0.0"
 nonebug = "^0.3.1"
 nonebot2 = { extras = [
