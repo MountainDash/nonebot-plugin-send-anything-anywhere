@@ -987,13 +987,13 @@ files = [
 
 [[package]]
 name = "nonebot-adapter-discord"
-version = "0.1.7"
+version = "0.1.8"
 description = "Discord adapter for nonebot2"
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "nonebot_adapter_discord-0.1.7-py3-none-any.whl", hash = "sha256:045858cdd1c71724903e570cb89b39c57ffc91889708494c178aca0da11dc039"},
-    {file = "nonebot_adapter_discord-0.1.7.tar.gz", hash = "sha256:51ea251ea5db7b9e8a40b686f77a43d52b81e41d77de2dd9d6742552f1daabaa"},
+    {file = "nonebot_adapter_discord-0.1.8-py3-none-any.whl", hash = "sha256:d063bf524f6a75c5c123f2d04227e0ec62c2433f56b28fb92fa5eb2aebef1c16"},
+    {file = "nonebot_adapter_discord-0.1.8.tar.gz", hash = "sha256:5d3a7a8e0ab23b7ae84551b479c40c5d09733b15d09538d64765c5af54721781"},
 ]
 
 [package.dependencies]
@@ -2371,4 +2371,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9, <4.0"
-content-hash = "3746f148fe4082d4d18ad2ee95fc8ef50274d54c6444f03a632cc643965e59aa"
+content-hash = "5d866bda2ccfa7d9f51531588379791ef6e8df6f63f87b48264b69307d552863"
