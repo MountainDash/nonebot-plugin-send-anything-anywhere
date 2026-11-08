@@ -1,6 +1,6 @@
 <div align="center">
 
-~logo征集中，假装有图片~
+~~logo征集中，假装有图片~~
 
 # Nonebot Plugin<br>Send Anything Anywhere
 
