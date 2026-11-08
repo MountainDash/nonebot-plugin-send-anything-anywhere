@@ -44,7 +44,7 @@ importers:
         specifier: ^18.2.29
         version: 18.2.48
       typescript:
-        specifier: ~5.2.2
+        specifier: ~5.2.2 || ~6.0.0
         version: 5.2.2
 
 packages:
