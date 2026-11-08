@@ -2,6 +2,8 @@
 
 ## 最近更新
 
+- :construction_worker: 修复 Netlify 文档构建（固定 pnpm 版本） [@felinae98](https://github.com/felinae98) ([#202](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/202))
+
 ### 文档
 
 - rename `xxx` to `Xxx` [@montmorill](https://github.com/montmorill) ([#178](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/178))
