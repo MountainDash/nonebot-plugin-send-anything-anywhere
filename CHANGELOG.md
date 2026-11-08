@@ -11,6 +11,7 @@
 ### 新功能
 
 - 支持 Python 3.13 / 3.14
+- QQ 适配器支持全量群消息事件（`GroupMessageCreateEvent`，无需 @机器人）
 
 ### 文档
 

@@ -171,6 +171,15 @@ async def test_send(app: App):
             result=model_dump(MockQQMessage(id="1234871", content="123")),
         )
 
+        # 全量群消息（无需 @ 机器人）
+        event = mock_qq_message_event(Message("324"), at=False)
+        ctx.receive_event(bot, event)
+        ctx.should_call_send(
+            event,
+            Message("123"),
+            result=model_dump(MockQQMessage(id="1234871", content="123")),
+        )
+
 
 async def test_extract_message_id(app: App):
     from nonebot import get_driver, on_message
@@ -440,6 +449,7 @@ async def test_extract_target(app: App):
         EventType,
         MessageCreateEvent,
         C2CMessageCreateEvent,
+        GroupMessageCreateEvent,
         DirectMessageCreateEvent,
         GroupAtMessageCreateEvent,
     )
@@ -504,13 +514,32 @@ async def test_extract_target(app: App):
         group_at_message_event = GroupAtMessageCreateEvent(
             __type__=EventType.GROUP_AT_MESSAGE_CREATE,
             id="1",
-            author=GroupMemberAuthor(id="3344", member_openid="3344"),
+            author=GroupMemberAuthor(
+                id="3344", bot=False, member_openid="3344", member_role="member"
+            ),
+            group_id="AABB",
             group_openid="AABB",
             content="test",
             timestamp="12345678",
         )
 
         assert extract_target(group_at_message_event, bot) == TargetQQGroupOpenId(
+            bot_id="3344", group_openid="AABB"
+        )
+
+        group_message_event = GroupMessageCreateEvent(
+            __type__=EventType.GROUP_MESSAGE_CREATE,
+            id="1",
+            author=GroupMemberAuthor(
+                id="3344", bot=False, member_openid="3344", member_role="member"
+            ),
+            group_id="AABB",
+            group_openid="AABB",
+            content="test",
+            timestamp="12345678",
+        )
+
+        assert extract_target(group_message_event, bot) == TargetQQGroupOpenId(
             bot_id="3344", group_openid="AABB"
         )
 
