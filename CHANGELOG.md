@@ -2,15 +2,8 @@
 
 ## 最近更新
 
+- :arrow_up: bump dependencies and support Python 3.10-3.14 [@felinae98](https://github.com/felinae98) ([#200](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/200))
 - :construction_worker: 修复 Netlify 文档构建（固定 pnpm 版本） [@felinae98](https://github.com/felinae98) ([#202](https://github.com/MountainDash/nonebot-plugin-send-anything-anywhere/pull/202))
-
-### 破坏性变更
-
-- 不再支持 Python 3.9，`nonebot2` 下限提升至 2.5.0
-
-### 新功能
-
-- 支持 Python 3.13 / 3.14
 
 ### 文档
 
