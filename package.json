@@ -1,6 +1,7 @@
 {
   "name": "root",
   "private": true,
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "docs:dev": "pnpm --filter docs start",
     "docs:build": "pnpm --filter docs build"
