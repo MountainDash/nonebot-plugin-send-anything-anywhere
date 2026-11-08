@@ -18,8 +18,8 @@ from nonebot.adapters.qq import (
     MessageCreateEvent,
     AtMessageCreateEvent,
     C2CMessageCreateEvent,
+    GroupMessageCreateEvent,
     DirectMessageCreateEvent,
-    GroupAtMessageCreateEvent,
 )
 
 from ..config import plugin_config
@@ -108,9 +108,9 @@ def extract_c2c_message_event(event: Event, bot: BaseBot) -> PlatformTarget:
     return TargetQQPrivateOpenId(bot_id=bot.self_id, user_openid=event.author.id)
 
 
-@register_target_extractor(GroupAtMessageCreateEvent)
-def extract_group_at_message_event(event: Event, bot: BaseBot) -> PlatformTarget:
-    assert isinstance(event, GroupAtMessageCreateEvent)
+@register_target_extractor(GroupMessageCreateEvent)
+def extract_group_message_event(event: Event, bot: BaseBot) -> PlatformTarget:
+    assert isinstance(event, GroupMessageCreateEvent)
     return TargetQQGroupOpenId(bot_id=bot.self_id, group_openid=event.group_openid)
 
 
@@ -183,7 +183,7 @@ async def send(
     if event:
         assert isinstance(
             event,
-            (GuildMessageEvent, C2CMessageCreateEvent, GroupAtMessageCreateEvent),
+            (GuildMessageEvent, C2CMessageCreateEvent, GroupMessageCreateEvent),
         )
         assert event.author
         assert event.id

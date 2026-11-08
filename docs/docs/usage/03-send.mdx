@@ -119,6 +119,13 @@ SAA 内置了一些常用的 PlatformTarget 子类，可以直接使用。
 
 :::
 
+:::tip[QQ 适配器的群聊]
+
+使用 QQ 适配器时，`TargetQQGroupOpenId` 同时支持群内 @机器人 的消息与
+（开启 `c2c_group_at_messages` 之外的群消息 intent 后）全量群消息事件。
+
+:::
+
 ### 序列化与反序列化
 
 PlatformTarget 提供了 `dict` 和 `deserialize` 方法，用于序列化和反序列化 PlatformTarget。
