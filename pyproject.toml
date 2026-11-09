@@ -49,7 +49,7 @@ optional = true
 nonebot-adapter-onebot = "^2.4.0"
 nonebot-adapter-kaiheila = "^0.3.1"
 nonebot-adapter-telegram = { git = "https://github.com/nonebot/adapter-telegram.git" }
-nonebot-adapter-feishu = "^2.4.0"
+nonebot-adapter-feishu = "^2.4.0 || ^3.0.0"
 nonebot-adapter-red = "^0.9.0"
 nonebot-adapter-dodo = "^0.2.0"
 nonebot-adapter-qq = "^1.4.1"

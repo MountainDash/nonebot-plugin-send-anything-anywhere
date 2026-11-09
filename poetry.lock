@@ -1242,20 +1242,21 @@ nonebot2 = ">=2.2.1,<3.0.0"
 
 [[package]]
 name = "nonebot-adapter-feishu"
-version = "2.6.1"
+version = "2.7.2"
 description = "feishu(larksuite) adapter for nonebot2"
 optional = false
-python-versions = "<4.0,>=3.9"
+python-versions = "<4.0,>=3.10"
 groups = ["adapters"]
 files = [
-    {file = "nonebot_adapter_feishu-2.6.1-py3-none-any.whl", hash = "sha256:db023b6b5e8ae96ec3654b65095b02daae84e16082a02dd2b2d186b3a9c7bb09"},
-    {file = "nonebot_adapter_feishu-2.6.1.tar.gz", hash = "sha256:5b16c3d3a64fb4f6bc7279d7569c1225283b2a779ac99bc64c0fe56b33c4d1e4"},
+    {file = "nonebot_adapter_feishu-2.7.2-py3-none-any.whl", hash = "sha256:14ffc2f2d6c18810dd694238268fcad1b5c84d01ee6fd5f7a41178852564c5c9"},
+    {file = "nonebot_adapter_feishu-2.7.2.tar.gz", hash = "sha256:75a11599300b4f39a4e62e21894680f5ed89a063df8225b4708d3b4a22a126d6"},
 ]
 
 [package.dependencies]
-cashews = ">=7.0.0,<8.0.0"
-nonebot2 = ">=2.2.0,<3.0.0"
-pycryptodome = ">=3.18.0,<4.0.0"
+cashews = ">=7.0,<8.0"
+nonebot2 = ">=2.2,<3.0"
+protobuf = ">=7.34,<8.0"
+pycryptodome = ">=3.18,<4.0"
 
 [[package]]
 name = "nonebot-adapter-kaiheila"
@@ -1715,6 +1716,24 @@ files = [
     {file = "propcache-0.5.4-cp315-cp315t-win_arm64.whl", hash = "sha256:dc4242ca653c9b30ab51c5f8193323e7bc0928f897ee9103201e59a43abcb72e"},
     {file = "propcache-0.5.4-py3-none-any.whl", hash = "sha256:62c60aec739ed00124573cce1178138fd690c7676352d67a37328c1cf51d7468"},
     {file = "propcache-0.5.4.tar.gz", hash = "sha256:ff6b113f50bc066a698db5d944d2c6dc7507168dd3341e255a8892fd0715a558"},
+]
+
+[[package]]
+name = "protobuf"
+version = "7.36.2"
+description = ""
+optional = false
+python-versions = ">=3.10"
+groups = ["adapters"]
+files = [
+    {file = "protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl", hash = "sha256:cbc70b17ee27e28894c7fee8bb04be1abead49e936bc70eb60052531eee2079e"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_aarch64.whl", hash = "sha256:e11e1f0180583a2af89db6a2ecd9e8dc40aa6d2988ca175bfd0e6d12ea72d74e"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_s390x.whl", hash = "sha256:f4fee11ec330d238b34a05c9b675f693c20415d1c5bd7d5320cc2f8a798eb9cf"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl", hash = "sha256:89f23aa53c24553a2416fd4fd1ec06f74fa42b14b546d8883128813f775bbfd2"},
+    {file = "protobuf-7.36.2-cp310-abi3-win32.whl", hash = "sha256:912c1221170e16c08d1f086762f563dd61ff83c18b5fa6652952dfaded66f728"},
+    {file = "protobuf-7.36.2-cp310-abi3-win_amd64.whl", hash = "sha256:a300819d441e078a5608c0d3c709796bb548136058fda017ae51d425b44fd353"},
+    {file = "protobuf-7.36.2-py3-none-any.whl", hash = "sha256:bdb3a345d48db958e6ce1f18e508beb0cc981d64f24088427549c866cd039f1e"},
+    {file = "protobuf-7.36.2.tar.gz", hash = "sha256:497d0463ff3316681da6c0b9e8d06cb465d61abce00b613ab42226175644d1bb"},
 ]
 
 [[package]]
@@ -2991,4 +3010,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10, <4.0"
-content-hash = "a9c9bc5e8cbc71c296f3d4363478acc06b99764a3838733b269296bf5f13ac5d"
+content-hash = "1de51c63ed75cbdcb2f6756ee86e2d19a8933033ddb9247b034941bf1cc24d40"
